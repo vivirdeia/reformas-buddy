@@ -1,3 +1,4 @@
+import { pinNuevo } from "@/lib/obras";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, Mail, Phone, HardHat, MessageCircle, Pencil } from "lucide-react";
 import { useState } from "react";

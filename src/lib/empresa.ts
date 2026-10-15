@@ -1,5 +1,4 @@
 import type { DB, Empresa } from "./types";
-import { useDB } from "./store";
 
 export const EMPRESA_DEFECTO: Empresa = {
   nombreComercial: "Reformas Arnal",
@@ -17,8 +16,6 @@ export const EMPRESA_DEFECTO: Empresa = {
 };
 
 export const empresaDe = (db: DB | null | undefined): Empresa => db?.empresa ?? EMPRESA_DEFECTO;
-/** Datos de empresa actuales (o los de defecto mientras carga). */
-export function useEmpresa() { return empresaDe(useDB()); }
 
 /** Teléfono para enlaces tel: (añade +34 si es un número español sin prefijo). */
 export const telHref = (t: string) => { const d = t.replace(/[^\d+]/g, ""); return `tel:${d.startsWith("+") ? d : `+34${d}`}`; };
