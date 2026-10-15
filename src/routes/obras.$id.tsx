@@ -1,0 +1,161 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileClock, Check, Circle, Loader, Ban } from "lucide-react";
+import type { ReactNode } from "react";
+import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
+import { avance, euro, fecha, faseActual, nombreFase, user } from "@/lib/store";
+import type { FaseEstado } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+export const Route = createFileRoute("/obras/$id")({
+  head: () => ({
+    meta: [
+      { title: "Ficha de obra · Obria" },
+      { name: "description", content: "Datos, fases, equipo y notas de la obra." },
+      { property: "og:title", content: "Ficha de obra · Obria" },
+      { property: "og:description", content: "Seguimiento detallado de la obra de Reformas Arnal." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Ficha,
+});
+
+const FE: Record<FaseEstado, { label: string; icon: typeof Check; cls: string }> = {
+  completada: { label: "Completada", icon: Check, cls: "bg-ok text-primary-foreground" },
+  en_curso: { label: "En curso", icon: Loader, cls: "bg-primary text-primary-foreground" },
+  bloqueada: { label: "Bloqueada", icon: Ban, cls: "bg-danger text-destructive-foreground" },
+  pendiente: { label: "Pendiente", icon: Circle, cls: "bg-muted text-muted-foreground" },
+};
+
+function Card({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="rounded-3xl bg-card p-4 shadow-card">
+      <h2 className="mb-3 text-lg font-semibold">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Ficha() {
+  const { id } = Route.useParams();
+  return (
+    <AppShell back={<Link to="/obras" className="flex h-11 items-center gap-1 font-semibold"><ChevronLeft className="h-6 w-6" />Obras</Link>}>
+      {({ db, me }) => {
+        const o = db.obras.find((x) => x.id === id);
+        if (!o || (me.rol === "cliente" && me.obraId !== o.id)) return <p className="py-16 text-center text-muted-foreground">Obra no disponible.</p>;
+        const cli = user(db, o.clienteId);
+        const jefe = user(db, o.equipo.jefeId);
+        const a = avance(o);
+        const inc = o.incidencias.filter((i) => i.estado === "abierta");
+        const oc = o.ordenesCambio.filter((i) => i.estado === "pendiente");
+        return (
+          <div className="space-y-4">
+            <div className="relative -mx-4 -mt-4 h-56 overflow-hidden sm:mx-0 sm:mt-0 sm:rounded-3xl">
+              <Foto src={o.portada} alt={o.nombre} className="h-full w-full" />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
+              <div className="absolute inset-x-4 bottom-4 text-ink-foreground">
+                <Semaforo estado={o.estado} />
+                <h1 className="mt-2 text-2xl font-bold leading-tight">{o.nombre}</h1>
+                <p className="flex items-center gap-1 text-sm text-ink-foreground/80"><MapPin className="h-4 w-4" />{o.direccion}, {o.barrio}</p>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-card p-4 shadow-card">
+              <div className="flex items-end justify-between">
+                <div><div className="text-xs text-muted-foreground">Fase actual</div><div className="text-lg font-semibold">{faseActual(o)}</div></div>
+                <div className="font-display text-3xl font-bold text-primary">{a}%</div>
+              </div>
+              <div className="mt-2"><Progreso value={a} /></div>
+              <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-2xl bg-muted p-3"><Euro className="mb-1 h-4 w-4 text-primary" /><div className="text-xs text-muted-foreground">Presupuesto aprobado</div><div className="font-display text-lg font-bold">{euro(o.presupuesto)}</div></div>
+                <div className="rounded-2xl bg-muted p-3"><CalendarDays className="mb-1 h-4 w-4 text-primary" /><div className="text-xs text-muted-foreground">Inicio → fin previsto</div><div className="font-display text-lg font-bold">{fecha(o.fechaInicio)} → {fecha(o.fechaFinPrevista)}</div></div>
+              </div>
+            </div>
+
+            {(inc.length > 0 || oc.length > 0) && (
+              <div className="space-y-2">
+                {inc.map((i) => (
+                  <div key={i.id} className="flex gap-3 rounded-2xl border-2 border-danger/30 bg-danger-soft p-4">
+                    <AlertTriangle className="h-6 w-6 shrink-0 text-danger" />
+                    <div><div className="font-semibold text-danger">Incidencia abierta · {fecha(i.fecha)}</div><div className="font-semibold">{i.titulo}</div><p className="text-sm text-muted-foreground">{i.descripcion}</p></div>
+                  </div>
+                ))}
+                {oc.map((c) => (
+                  <div key={c.id} className="flex gap-3 rounded-2xl border-2 border-warn/40 bg-warn-soft p-4">
+                    <FileClock className="h-6 w-6 shrink-0 text-warn" />
+                    <div><div className="font-semibold">Orden de cambio pendiente de aprobar</div><div className="font-semibold">{c.titulo} · {euro(c.importe)} · +{c.diasExtra} días</div><p className="text-sm text-muted-foreground">{c.descripcion}</p></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <Card title="Cliente">
+              <div className="flex items-center justify-between gap-3">
+                <div><div className="font-semibold">{cli?.nombre}</div><div className="text-sm text-muted-foreground">{o.tipo === "local" ? "Local" : "Vivienda"} · {o.m2} m²</div></div>
+                {me.rol !== "cliente" && cli && (
+                  <a href={`tel:${cli.telefono.replace(/\s/g, "")}`} className="flex h-12 items-center gap-2 rounded-2xl bg-primary px-4 font-semibold text-primary-foreground shadow-cta"><Phone className="h-5 w-5" />Llamar</a>
+                )}
+              </div>
+            </Card>
+
+            <Card title="Fases de la obra">
+              <ol className="space-y-1">
+                {o.fases.map((f, i) => {
+                  const e = FE[f.estado];
+                  const tarde = f.finReal && f.finReal > f.finPrevisto;
+                  return (
+                    <li key={f.tipo} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div className={cn("grid h-9 w-9 place-items-center rounded-full", e.cls)}><e.icon className="h-4 w-4" /></div>
+                        {i < o.fases.length - 1 && <div className="w-0.5 flex-1 bg-border" />}
+                      </div>
+                      <div className="flex-1 pb-4">
+                        <div className="flex items-center justify-between"><span className="font-semibold">{nombreFase(f.tipo)}</span><span className="text-xs font-semibold text-muted-foreground">{e.label}</span></div>
+                        <div className="mt-1 grid grid-cols-2 gap-2 text-xs">
+                          <div><span className="text-muted-foreground">Previsto </span>{fecha(f.inicioPrevisto)} – {fecha(f.finPrevisto)}</div>
+                          <div className={cn(tarde && "font-semibold text-danger")}><span className="text-muted-foreground">Real </span>{f.inicioReal ? `${fecha(f.inicioReal)} – ${f.finReal ? fecha(f.finReal) : "…"}` : "—"}</div>
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </Card>
+
+            <Card title="Equipo asignado">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 rounded-2xl bg-accent p-3">
+                  <div className="grid h-11 w-11 place-items-center rounded-full bg-primary font-display font-bold text-primary-foreground">{jefe?.nombre[0]}</div>
+                  <div><div className="text-xs font-semibold text-accent-foreground">Jefe de obra</div><div className="font-semibold">{jefe?.nombre}</div></div>
+                </div>
+                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Operarios</div>
+                <div className="flex flex-wrap gap-2">
+                  {o.equipo.operarioIds.map((oid) => { const u = user(db, oid); return <span key={oid} className="rounded-full bg-secondary px-3 py-2 text-sm font-medium">{u?.nombre} <span className="text-muted-foreground">· {u?.oficio}</span></span>; })}
+                </div>
+                <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Gremios subcontratados</div>
+                <ul className="divide-y">
+                  {o.equipo.gremioIds.map((gid) => { const g = db.gremios.find((x) => x.id === gid)!; return (
+                    <li key={gid} className="flex justify-between py-2 text-sm"><span><span className="font-semibold">{g.oficio}</span> · {g.empresa}</span><span className="text-muted-foreground">{g.contacto}</span></li>
+                  ); })}
+                </ul>
+              </div>
+            </Card>
+
+            <Card title="Notas">
+              {o.notas.length === 0 ? <p className="text-sm text-muted-foreground">Sin notas todavía.</p> : (
+                <ul className="space-y-3">
+                  {o.notas.map((n) => (
+                    <li key={n.id} className="rounded-2xl bg-muted p-3 text-sm">
+                      <p>{n.texto}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{user(db, n.autorId)?.nombre} · {fecha(n.fecha)}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          </div>
+        );
+      }}
+    </AppShell>
+  );
+}
