@@ -110,3 +110,6 @@ export function cobrosPorMes(db: DB, meses = 6) {
 }
 
 export const kEuro = (n: number) => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", notation: n >= 100000 ? "compact" : "standard", maximumFractionDigits: n >= 100000 ? 1 : 0 }).format(n);
+
+/** Fichajes abiertos hace más de 12 horas (probablemente olvidados). */
+export const olvidados = (db: DB, now = Date.now()) => db.fichajes.filter((f) => !f.salida && now - new Date(f.entrada).getTime() > 12 * 3600000);
