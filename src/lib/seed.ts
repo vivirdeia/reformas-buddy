@@ -1,4 +1,5 @@
 import type { DB, Fase, FaseTipo, Obra } from "./types";
+import { generarActividad } from "./actividad";
 
 export const FASES: { tipo: FaseTipo; nombre: string; dias: number }[] = [
   { tipo: "demolicion", nombre: "Demolición", dias: 7 },
@@ -51,8 +52,8 @@ const base = (o: Partial<Obra> & Pick<Obra, "id">): Obra => ({
 const fin = (inicio: string) => add(inicio, FASES.reduce((s, f) => s + f.dias, 0) - 1);
 
 export function createSeed(): DB {
-  return {
-    version: 1,
+  const db: DB = {
+    version: 2, fichajes: [], tareas: [],
     usuarios: [
       { id: "u-gerente", nombre: "Javier Arnal", rol: "gerente", pin: "1111", telefono: "600 112 233", email: "javier@reformasarnal.es" },
       { id: "u-jefe1", nombre: "Marta Ruiz", rol: "jefe_obra", pin: "2222", telefono: "611 204 518" },
@@ -137,4 +138,6 @@ export function createSeed(): DB {
       }),
     ],
   };
+  generarActividad(db);
+  return db;
 }

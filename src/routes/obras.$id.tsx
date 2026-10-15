@@ -3,7 +3,10 @@ import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileCloc
 import type { ReactNode } from "react";
 import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
 import { avance, euro, fecha, faseActual, nombreFase, user } from "@/lib/store";
-import type { FaseEstado } from "@/lib/types";
+import type { DB, FaseEstado, Obra, Usuario } from "@/lib/types";
+import { Galeria } from "@/components/fotos";
+import { dur, fechaLarga, msFichaje, mutate } from "@/lib/store";
+import { ClipboardList, CheckCircle2, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/obras/$id")({
@@ -72,7 +75,7 @@ function Ficha() {
               </div>
             </div>
 
-            {(inc.length > 0 || oc.length > 0) && (
+            {me.rol !== "cliente" && (inc.length > 0 || oc.length > 0) && (
               <div className="space-y-2">
                 {inc.map((i) => (
                   <div key={i.id} className="flex gap-3 rounded-2xl border-2 border-danger/30 bg-danger-soft p-4">
@@ -141,6 +144,8 @@ function Ficha() {
               </div>
             </Card>
 
+            {me.rol !== "cliente" && <Interno db={db} me={me} o={o} />}
+
             <Card title="Notas">
               {o.notas.length === 0 ? <p className="text-sm text-muted-foreground">Sin notas todavía.</p> : (
                 <ul className="space-y-3">
@@ -157,5 +162,70 @@ function Ficha() {
         );
       }}
     </AppShell>
+  );
+}
+
+const GRAV = { baja: "bg-ok-soft text-ok", media: "bg-warn-soft text-warn", alta: "bg-danger-soft text-danger" } as const;
+
+function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
+  const horas = db.fichajes.filter((f) => f.obraId === o.id && f.salida).reduce((s, f) => s + msFichaje(f), 0);
+  const partes = [...o.partesDiarios].sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const dias = [...new Set(partes.map((p) => p.fecha))];
+  const puedeResolver = me.rol === "jefe_obra" || me.rol === "gerente";
+  const incs = [...o.incidencias].sort((a, b) => (a.estado === b.estado ? b.fecha.localeCompare(a.fecha) : a.estado === "abierta" ? -1 : 1));
+  const resolver = (id: string) => mutate((d) => { d.obras.find((x) => x.id === o.id)!.incidencias.find((i) => i.id === id)!.estado = "resuelta"; });
+  return (
+    <>
+      <div className="grid grid-cols-3 gap-2">
+        <Link to="/parte/$id" params={{ id: o.id }} className="col-span-2 flex h-14 items-center justify-center gap-2 rounded-2xl bg-primary font-semibold text-primary-foreground shadow-cta"><ClipboardList className="h-5 w-5" />Nuevo parte</Link>
+        <Link to="/incidencia/$id" params={{ id: o.id }} className="flex h-14 items-center justify-center gap-1 rounded-2xl bg-danger-soft text-sm font-semibold text-danger"><AlertTriangle className="h-5 w-5" />Incidencia</Link>
+      </div>
+
+      <Card title="Incidencias">
+        {incs.length === 0 ? <p className="text-sm text-muted-foreground">Sin incidencias.</p> : (
+          <ul className="space-y-3">
+            {incs.map((i) => (
+              <li key={i.id} className={cn("rounded-2xl border-2 p-3", i.estado === "abierta" ? "border-danger/30" : "opacity-75")}>
+                <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
+                  <span className={cn("rounded-full px-2 py-0.5 uppercase", GRAV[i.gravedad])}>{i.gravedad}</span>
+                  {i.estado === "resuelta" ? <span className="flex items-center gap-1 text-ok"><CheckCircle2 className="h-4 w-4" />Resuelta</span> : <span className="text-danger">Abierta</span>}
+                  <span className="font-normal text-muted-foreground">{fecha(i.fecha)} · {user(db, i.autorId)?.nombre}</span>
+                </div>
+                <div className="mt-1 font-semibold">{i.titulo}</div>
+                {i.descripcion && <p className="text-sm text-muted-foreground">{i.descripcion}</p>}
+                <Galeria fotos={i.fotos} />
+                {puedeResolver && i.estado === "abierta" && (
+                  <button onClick={() => resolver(i.id)} className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-ok-soft font-semibold text-ok"><Check className="h-5 w-5" />Marcar como resuelta</button>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <Card title="Partes diarios">
+        <div className="mb-3 flex items-center gap-2 rounded-2xl bg-muted p-3 text-sm"><Clock className="h-5 w-5 text-primary" />Horas fichadas en la obra: <span className="font-display font-bold">{dur(horas)}</span></div>
+        {dias.length === 0 ? <p className="text-sm text-muted-foreground">Todavía no hay partes.</p> : (
+          <div className="space-y-4">
+            {dias.map((d) => (
+              <div key={d}>
+                <div className="mb-2 text-sm font-bold text-primary first-letter:uppercase">{fechaLarga(d)}</div>
+                {partes.filter((p) => p.fecha === d).map((p) => (
+                  <div key={p.id} className="mb-2 rounded-2xl bg-muted p-3">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span><span className="font-semibold text-foreground">{user(db, p.autorId)?.nombre}</span>{p.fase && ` · ${nombreFase(p.fase)}`}</span>
+                      <span className="font-bold text-foreground">{p.horas.toLocaleString("es-ES")} h</span>
+                    </div>
+                    <p className="mt-1 text-sm">{p.trabajos}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{p.operarioIds.map((id) => user(db, id)?.nombre).join(", ")}</p>
+                    <Galeria fotos={p.fotos} />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </>
   );
 }

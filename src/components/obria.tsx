@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { HardHat, Settings, LogOut } from "lucide-react";
+import { HardHat, Settings, LogOut, CalendarCheck } from "lucide-react";
 import { useDB, useSession, user, ROL_LABEL, ESTADO_LABEL } from "@/lib/store";
 import type { DB, EstadoObra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -61,10 +61,12 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
 
   if (!db || !me) return <div className="min-h-screen" />;
 
+  const staff = me.rol === "operario" || me.rol === "jefe_obra";
   const tabs = [
+    ...(staff ? [{ to: "/hoy", label: "Hoy", icon: CalendarCheck }] : []),
     { to: "/obras", label: me.rol === "cliente" ? "Mi obra" : "Obras", icon: HardHat },
     { to: "/ajustes", label: "Ajustes", icon: Settings },
-  ] as const;
+  ];
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl pb-28">
@@ -86,11 +88,11 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
       </header>
       <main className="px-4 pt-4">{children({ db, me })}</main>
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur pb-safe">
-        <div className="mx-auto grid max-w-3xl grid-cols-2">
+        <div className="mx-auto grid max-w-3xl" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
           {tabs.map((t) => {
             const active = loc.pathname.startsWith(t.to);
             return (
-              <Link key={t.to} to={t.to} className={cn("flex flex-col items-center gap-1 py-3 text-xs font-semibold", active ? "text-primary" : "text-muted-foreground")}>
+              <Link key={t.to} to={t.to as "/obras"} className={cn("flex flex-col items-center gap-1 py-3 text-xs font-semibold", active ? "text-primary" : "text-muted-foreground")}>
                 <t.icon className="h-6 w-6" />
                 {t.label}
               </Link>

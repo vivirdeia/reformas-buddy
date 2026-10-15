@@ -68,8 +68,16 @@ export interface Obra {
   hitos: Hito[];
 }
 
+export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }
+export interface Tarea {
+  id: string; obraId: string; fecha: string; titulo: string; fase: FaseTipo;
+  operarioId: string; hecha: boolean; hechaEn?: string | undefined; creadaPor: string;
+}
+
 export interface DB {
   version: number;
+  fichajes: Fichaje[];
+  tareas: Tarea[];
   usuarios: Usuario[];
   gremios: Gremio[];
   obras: Obra[];
