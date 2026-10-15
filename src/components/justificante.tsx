@@ -1,17 +1,18 @@
 import { HardHat } from "lucide-react";
 import { euro2, totales } from "@/lib/economia";
 import { fecha } from "@/lib/store";
-import type { Obra, OrdenCambio } from "@/lib/types";
+import type { Empresa, Obra, OrdenCambio } from "@/lib/types";
+import { EMPRESA_DEFECTO } from "@/lib/empresa";
 
-export function DocJustificante({ o, oc, cliente }: { o: Obra; oc: OrdenCambio; cliente: string }) {
+export function DocJustificante({ o, oc, cliente, emp = EMPRESA_DEFECTO }: { o: Obra; oc: OrdenCambio; cliente: string; emp?: Empresa }) {
   const t = totales(oc);
   const f = oc.firma;
   return (
     <article className="mx-auto max-w-2xl rounded-3xl bg-card p-6 text-sm shadow-card print:rounded-none print:shadow-none">
       <header className="flex items-start justify-between border-b-2 border-primary pb-4">
         <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground"><HardHat className="h-6 w-6" /></div>
-          <div><div className="font-display text-xl font-bold">Reformas Arnal</div><div className="text-xs text-muted-foreground">Reformas integrales · Madrid · CIF B-86543210</div></div>
+          {emp.logo ? <img src={emp.logo} alt="Logotipo" className="h-12 w-12 rounded-xl object-contain" /> : <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground"><HardHat className="h-6 w-6" /></div>}
+          <div><div className="font-display text-xl font-bold">{emp.nombreComercial}</div><div className="text-xs text-muted-foreground">{emp.razonSocial} · CIF {emp.cif}</div><div className="text-xs text-muted-foreground">{emp.direccion} · {emp.telefono}</div></div>
         </div>
         <div className="text-right text-xs text-muted-foreground"><div className="font-bold text-foreground">Orden de cambio</div><div>Nº {oc.id.toUpperCase()}</div><div>{fecha(oc.fecha)}</div></div>
       </header>

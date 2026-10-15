@@ -7,6 +7,7 @@ import {
 import { Foto } from "@/components/obria";
 import { Comparador } from "@/components/portal";
 import { useDB } from "@/lib/store";
+import { empresaDe, telHref, webHref } from "@/lib/empresa";
 import { cn } from "@/lib/utils";
 
 const HERO = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1920&q=75";
@@ -82,6 +83,8 @@ function Titulo({ k, t, s }: { k: string; t: string; s?: string }) {
 
 function Landing() {
   const db = useDB();
+  const emp = empresaDe(db);
+  const redes = ([["instagram", Instagram, "Instagram"], ["facebook", Facebook, "Facebook"], ["linkedin", Linkedin, "LinkedIn"]] as const).filter(([k]) => emp.redes[k].trim());
   const semanas = (ini: string, f?: string) => Math.max(1, Math.round((new Date(f ?? ini).getTime() - new Date(ini).getTime()) / (7 * 864e5)));
   const galeria = [
     ...(db?.obras.filter((o) => o.antesDespues.length).map((o) => ({
@@ -99,8 +102,8 @@ function Landing() {
       <header className="absolute inset-x-0 top-0 z-30">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 md:px-8">
           <div className="flex items-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-cta"><HardHat className="h-5 w-5" /></div>
-            <div className="leading-none text-ink-foreground"><div className="font-display text-xl font-bold">Reformas Arnal</div><div className="text-[11px] font-medium uppercase tracking-wider text-ink-foreground/70">Madrid · desde 2008</div></div>
+            {emp.logo ? <img src={emp.logo} alt={`Logotipo de ${emp.nombreComercial}`} className="h-10 w-10 rounded-xl bg-card object-contain" /> : <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-cta"><HardHat className="h-5 w-5" /></div>}
+            <div className="leading-none text-ink-foreground"><div className="font-display text-xl font-bold">{emp.nombreComercial}</div><div className="text-[11px] font-medium uppercase tracking-wider text-ink-foreground/70">{emp.lema}</div></div>
           </div>
           <nav className="hidden items-center gap-7 text-sm font-semibold text-ink-foreground/85 lg:flex">
             <a href="#obria" className="hover:text-ink-foreground">Seguimiento</a>
@@ -126,7 +129,7 @@ function Landing() {
           <p className="mx-auto mt-6 max-w-2xl text-lg text-ink-foreground/85 md:text-xl">Reformas integrales de pisos, cocinas, baños y locales en Madrid. Presupuesto cerrado, plazos por fase y un diario de obra con fotos que ves cada tarde.</p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Cta />
-            <a href="tel:+34910000000" className="inline-flex h-14 items-center gap-2 rounded-2xl border border-ink-foreground/30 px-6 font-semibold hover:bg-ink/30"><Phone className="h-5 w-5" />91 000 00 00</a>
+            <a href={telHref(emp.telefono)} className="inline-flex h-14 items-center gap-2 rounded-2xl border border-ink-foreground/30 px-6 font-semibold hover:bg-ink/30"><Phone className="h-5 w-5" />{emp.telefono}</a>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-ink-foreground/80">
             {["Visita gratuita", "Presupuesto en 5 días", "2 años de garantía"].map((x) => <span key={x} className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-accent" />{x}</span>)}
@@ -268,25 +271,24 @@ function Landing() {
       <footer className="bg-ink text-ink-foreground">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-4 md:px-8">
           <div className="md:col-span-2">
-            <div className="font-display text-2xl font-bold">Reformas Arnal</div>
+            <div className="font-display text-2xl font-bold">{emp.nombreComercial}</div>
             <p className="mt-2 max-w-sm text-ink-foreground/70">Reformas integrales en Madrid desde 2008. Seguimiento diario con Obria.</p>
-            <div className="mt-5 flex gap-3">
-              {[Instagram, Facebook, Linkedin].map((I, i) => <a key={i} href="#" aria-label="Red social" className="grid h-11 w-11 place-items-center rounded-full bg-ink-foreground/10 hover:bg-primary"><I className="h-5 w-5" /></a>)}
-            </div>
+            {redes.length > 0 && <div className="mt-5 flex gap-3">
+              {redes.map(([k, I, n]) => <a key={k} href={webHref(emp.redes[k].trim())} target="_blank" rel="noopener noreferrer" aria-label={n} className="grid h-11 w-11 place-items-center rounded-full bg-ink-foreground/10 hover:bg-primary"><I className="h-5 w-5" /></a>)}
+            </div>}
           </div>
           <div className="space-y-2 text-ink-foreground/80">
             <div className="mb-3 font-semibold text-ink-foreground">Contacto</div>
-            <p className="flex gap-2"><MapPin className="h-5 w-5 shrink-0" />C/ de Bravo Murillo 120, 28020 Madrid</p>
-            <p className="flex gap-2"><Phone className="h-5 w-5" />91 000 00 00</p>
-            <p className="flex gap-2"><Mail className="h-5 w-5" />hola@reformasarnal.es</p>
+            <p className="flex gap-2"><MapPin className="h-5 w-5 shrink-0" />{emp.direccion}</p>
+            <a href={telHref(emp.telefono)} className="flex gap-2 hover:underline"><Phone className="h-5 w-5" />{emp.telefono}</a>
+            <a href={`mailto:${emp.email}`} className="flex gap-2 hover:underline"><Mail className="h-5 w-5" />{emp.email}</a>
           </div>
           <div className="space-y-2 text-ink-foreground/80">
             <div className="mb-3 font-semibold text-ink-foreground">Horario</div>
-            <p>Lunes a viernes<br />8:00 – 18:00</p>
-            <p>Sábados (solo visitas)<br />10:00 – 13:00</p>
+            {emp.horario.split("\n").filter(Boolean).map((l, i) => <p key={i}>{l}</p>)}
           </div>
         </div>
-        <div className="border-t border-ink-foreground/10 py-5 text-center text-sm text-ink-foreground/60">© {2026} Reformas Arnal S.L. · <Link to="/acceso" className="underline">Área de clientes y equipo</Link></div>
+        <div className="border-t border-ink-foreground/10 py-5 text-center text-sm text-ink-foreground/60">© {new Date().getFullYear()} {emp.razonSocial} · <Link to="/acceso" className="underline">Área de clientes y equipo</Link></div>
       </footer>
     </div>
   );
