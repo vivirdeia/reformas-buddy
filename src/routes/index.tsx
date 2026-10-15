@@ -125,7 +125,7 @@ function Landing() {
                   <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground"><XI className="h-6 w-6" /></div>
                   <div><div className="font-display text-lg font-semibold">{x.t}</div><p className="text-muted-foreground">{x.d}</p></div>
                 </li>
-              ))}
+              ); })}
             </ul>
           </div>
           <Mockup />
@@ -143,7 +143,7 @@ function Landing() {
                 <h3 className="mt-5 text-xl font-semibold">{s.t}</h3>
                 <p className="mt-2 text-muted-foreground">{s.d}</p>
               </div>
-            ))}
+            ); })}
           </div>
         </div>
       </section>
@@ -181,7 +181,7 @@ function Landing() {
                 <h3 className="mt-5 text-xl font-semibold">{p.t}</h3>
                 <p className="mt-2 text-ink-foreground/80">{p.d}</p>
               </li>
-            ))}
+            ); })}
           </ol>
         </div>
       </section>
