@@ -5,7 +5,7 @@ import { EMPRESA_DEFECTO } from "./empresa";
 import { WEB_DEFECTO } from "./web";
 
 /** Versión del modelo de datos. Al subirla, añade su migración en store.ts. */
-export const DB_VERSION = 12;
+export const DB_VERSION = 13;
 
 export const FASES: { tipo: FaseTipo; nombre: string; dias: number }[] = [
   { tipo: "demolicion", nombre: "Demolición", dias: 7 },

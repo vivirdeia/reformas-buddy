@@ -11,11 +11,12 @@ import type { DB, EstadoObra } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/panel")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Panel de gerencia · Obria" },
+      { title: "Panel de gerencia · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Resumen de todas las obras de Reformas Arnal: KPIs, alertas y planificación." },
-      { property: "og:title", content: "Panel de gerencia · Obria" },
+      { property: "og:title", content: "Panel de gerencia · Reformas Arnal" },
       { property: "og:description", content: "KPIs, alertas y Gantt de obras." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

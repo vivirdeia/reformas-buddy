@@ -8,6 +8,7 @@ import { addDias, hoyISO } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/presupuesto")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Pide tu presupuesto · Reformas Arnal Madrid" },
@@ -16,7 +17,9 @@ export const Route = createFileRoute("/presupuesto")({
       { property: "og:description", content: "Cuéntanos tu reforma en 2 minutos y te llamamos en menos de 24 horas laborables." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://reformas-buddy.lovable.app/presupuesto" },
     ],
+    links: [{ rel: "canonical", href: "https://reformas-buddy.lovable.app/presupuesto" }],
   }),
   component: Presupuesto,
 });
@@ -130,7 +133,7 @@ function Presupuesto() {
         ))}
         <label className="flex items-start gap-3 pt-1">
           <input type="checkbox" checked={f.privacidad} onChange={(e) => { set("privacidad", e.target.checked); setErr((x) => ({ ...x, privacidad: "" })); }} className="mt-1 h-6 w-6 accent-primary" />
-          <span className="text-sm">He leído y acepto la política de privacidad. Usaremos tus datos solo para contactarte sobre esta reforma.</span>
+          <span className="text-sm">He leído y acepto la <Link to="/privacidad" target="_blank" className="font-semibold underline">política de privacidad</Link>. Usaremos tus datos solo para contactarte sobre esta reforma.</span>
         </label>
         {err["privacidad"] && <span className="block text-sm font-semibold text-danger">{err["privacidad"]}</span>}
       </div>)}

@@ -39,6 +39,8 @@ const MIGRACIONES: Record<number, (d: DB) => void> = {
     });
   },
   // v12: web editable, documentos reales (visibles por defecto) y antes/después con id y opción de galería.
+  // v13: teléfono de oficina provisional sustituido por el definitivo (solo si no se había cambiado).
+  13: (d) => { if (d.empresa?.telefono === "91 000 00 00") d.empresa.telefono = "91 553 27 40"; },
   12: (d) => {
     d.web ??= structuredClone(WEB_DEFECTO);
     d.obras.forEach((o) => {

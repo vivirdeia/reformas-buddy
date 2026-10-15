@@ -90,3 +90,11 @@ Para que varias personas compartan datos entre dispositivos haría falta:
 - **Almacenamiento de archivos**: sustituir IndexedDB (`src/lib/archivos.ts`) por un almacenamiento de objetos con URLs firmadas.
 - **Notificaciones**: email/WhatsApp al enviar una orden de cambio, solicitar un pago o publicar un parte.
 - **Firma con validez legal**, pasarela de pago y facturación, y cumplimiento RGPD (consentimientos, conservación y borrado).
+
+## Producción: legal, cookies y SEO
+
+- La interfaz no muestra PIN ni menciones a datos de prueba. Los PIN de acceso están solo en la tabla de este README; el gerente los restablece en Ajustes → Usuarios.
+- «Restaurar datos iniciales» está en Ajustes → Mantenimiento (solo gerente, con confirmación).
+- Páginas legales: `/aviso-legal`, `/privacidad`, `/cookies`, `/terminos`, rellenadas con los datos de empresa de Ajustes.
+- Aviso de cookies con Aceptar, Rechazar y Configurar (preferencia en `obria:cookies`). Google Fonts solo se carga si se acepta.
+- Las páginas internas llevan `noindex`; `robots.txt` y `/sitemap.xml` solo incluyen las páginas públicas.

@@ -115,7 +115,7 @@ export function UsuariosAdmin({ db, me }: { db: DB; me: Usuario }) {
                 <Avatar u={u} className="h-11 w-11" />
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold">{u.nombre}{u.activo === false && <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">De baja</span>}</div>
-                  <div className="text-xs text-muted-foreground">{ROL_LABEL[u.rol]}{u.oficio ? ` · ${u.oficio}` : ""} · {u.telefono}{u.rol === "cliente" && ` · ${db.obras.find((o) => o.id === u.obraId)?.nombre ?? "sin obra"}`} · PIN <span className="font-mono font-bold">{u.pin}</span></div>
+                  <div className="text-xs text-muted-foreground">{ROL_LABEL[u.rol]}{u.oficio ? ` · ${u.oficio}` : ""} · {u.telefono}{u.rol === "cliente" && ` · ${db.obras.find((o) => o.id === u.obraId)?.nombre ?? "sin obra"}`}</div>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   <button onClick={() => setForm(u)} className={btn2} aria-label={`Editar ${u.nombre}`}><Pencil className="h-4 w-4" />Editar</button>

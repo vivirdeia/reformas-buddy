@@ -5,11 +5,12 @@ import { IncidenciaForm } from "@/components/formularios";
 import type { Obra, Usuario } from "@/lib/types";
 
 export const Route = createFileRoute("/incidencia/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Reportar incidencia · Obria" },
+      { title: "Reportar incidencia · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Comunica una incidencia de obra con fotos y gravedad." },
-      { property: "og:title", content: "Reportar incidencia · Obria" },
+      { property: "og:title", content: "Reportar incidencia · Reformas Arnal" },
       { property: "og:description", content: "Incidencias de obra de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -5,11 +5,12 @@ import { PortalCliente } from "@/components/portal";
 import type { Usuario } from "@/lib/types";
 
 export const Route = createFileRoute("/mi-reforma")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Mi reforma · Obria" },
+      { title: "Mi reforma · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Sigue el avance de tu reforma con Reformas Arnal: fases, diario de obra y documentos." },
-      { property: "og:title", content: "Mi reforma · Obria" },
+      { property: "og:title", content: "Mi reforma · Reformas Arnal" },
       { property: "og:description", content: "Tu reforma, día a día." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -257,7 +257,7 @@ function generarEconomia(db: DB, hoy: string) {
   });
 }
 
-/** Margen objetivo por obra para que la demo cuadre (Ponzano holgado, Lavapiés ajustado). */
+/** Margen objetivo por obra de los datos iniciales (Ponzano holgado, Lavapiés ajustado). */
 const MARGEN: Record<string, number> = { "o-1": 0.24, "o-2": 0.17, "o-3": 0.08, "o-4": 0.21, "o-5": 0.22, "o-6": 0.29, "o-7": 0.19, "o-8": 0.25 };
 
 function generarCostes(db: DB) {

@@ -7,10 +7,11 @@ import type { Rol } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/acceso")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Acceso · Obria — Reformas Arnal" },
-      { name: "description", content: "Accede a Obria, la app de gestión de obras de Reformas Arnal en Madrid." },
+      { title: "Acceso · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
+      { name: "description", content: "Área privada de clientes y equipo de Reformas Arnal." },
       { property: "og:title", content: "Acceso clientes y equipo · Reformas Arnal" },
       { property: "og:description", content: "Gestión de obras y reformas integrales a pie de obra." },
       { property: "og:type", content: "website" },
@@ -59,7 +60,6 @@ function Login() {
     }
   };
 
-  const demo = db ? (["operario", "jefe_obra", "cliente", "gerente"] as Rol[]).map((r) => activos.find((u) => u.rol === r)).filter((u): u is NonNullable<typeof u> => !!u) : [];
 
   return (
     <div className="min-h-screen bg-hero">
@@ -118,18 +118,7 @@ function Login() {
           )}
         </div>
 
-        <div className="mt-6 rounded-2xl border border-ink-foreground/20 bg-ink/40 p-4 text-ink-foreground backdrop-blur">
-          <div className="mb-2 text-xs font-bold uppercase tracking-wider text-ink-foreground/70">Accesos de demo</div>
-          <ul className="space-y-1 text-sm">
-            {demo.map((u) => (
-              <li key={u.id} className="flex justify-between gap-2">
-                <span><span className="text-ink-foreground/70">{ROL_LABEL[u.rol]}:</span> {u.nombre}</span>
-                <span className="font-mono font-bold tracking-widest">{u.pin}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-ink-foreground/60">Resto de usuarios: ver Ajustes una vez dentro.</p>
-        </div>
+        <p className="mt-6 text-center text-sm text-ink-foreground/70">¿Has olvidado tu PIN? Pide uno nuevo a la oficina.</p>
       </div>
     </div>
   );

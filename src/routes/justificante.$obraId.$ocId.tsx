@@ -6,11 +6,12 @@ import { empresaDe } from "@/lib/empresa";
 import { user } from "@/lib/store";
 
 export const Route = createFileRoute("/justificante/$obraId/$ocId")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Justificante de orden de cambio · Obria" },
+      { title: "Justificante de orden de cambio · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Justificante firmado de la orden de cambio, listo para imprimir." },
-      { property: "og:title", content: "Justificante · Obria" },
+      { property: "og:title", content: "Justificante · Reformas Arnal" },
       { property: "og:description", content: "Orden de cambio firmada de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

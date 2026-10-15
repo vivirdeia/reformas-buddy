@@ -12,12 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccesoRouteImport } from './routes/acceso'
 import { Route as AjustesRouteImport } from './routes/ajustes'
+import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as EconomiaRouteImport } from './routes/economia'
 import { Route as EquipoRouteImport } from './routes/equipo'
 import { Route as HoyRouteImport } from './routes/hoy'
 import { Route as MiReformaRouteImport } from './routes/mi-reforma'
 import { Route as PanelRouteImport } from './routes/panel'
 import { Route as PresupuestoRouteImport } from './routes/presupuesto'
+import { Route as PrivacidadRouteImport } from './routes/privacidad'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as TerminosRouteImport } from './routes/terminos'
 import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
@@ -43,6 +48,16 @@ const AccesoRoute = AccesoRouteImport.update({
 const AjustesRoute = AjustesRouteImport.update({
   id: '/ajustes',
   path: '/ajustes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvisoLegalRoute = AvisoLegalRouteImport.update({
+  id: '/aviso-legal',
+  path: '/aviso-legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EconomiaRoute = EconomiaRouteImport.update({
@@ -73,6 +88,21 @@ const PanelRoute = PanelRouteImport.update({
 const PresupuestoRoute = PresupuestoRouteImport.update({
   id: '/presupuesto',
   path: '/presupuesto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadRoute = PrivacidadRouteImport.update({
+  id: '/privacidad',
+  path: '/privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerminosRoute = TerminosRouteImport.update({
+  id: '/terminos',
+  path: '/terminos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IncidenciaIdRoute = IncidenciaIdRouteImport.update({
@@ -135,12 +165,17 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/ajustes': typeof AjustesRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/cookies': typeof CookiesRoute
   '/economia': typeof EconomiaRoute
   '/equipo': typeof EquipoRoute
   '/hoy': typeof HoyRoute
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
   '/presupuesto': typeof PresupuestoRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terminos': typeof TerminosRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/obras/nueva': typeof ObrasNuevaRoute
@@ -157,12 +192,17 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/ajustes': typeof AjustesRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/cookies': typeof CookiesRoute
   '/economia': typeof EconomiaRoute
   '/equipo': typeof EquipoRoute
   '/hoy': typeof HoyRoute
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
   '/presupuesto': typeof PresupuestoRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terminos': typeof TerminosRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/obras/nueva': typeof ObrasNuevaRoute
@@ -180,12 +220,17 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/ajustes': typeof AjustesRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/cookies': typeof CookiesRoute
   '/economia': typeof EconomiaRoute
   '/equipo': typeof EquipoRoute
   '/hoy': typeof HoyRoute
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
   '/presupuesto': typeof PresupuestoRoute
+  '/privacidad': typeof PrivacidadRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/terminos': typeof TerminosRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/obras/nueva': typeof ObrasNuevaRoute
@@ -204,12 +249,17 @@ export interface FileRouteTypes {
     | '/'
     | '/acceso'
     | '/ajustes'
+    | '/aviso-legal'
+    | '/cookies'
     | '/economia'
     | '/equipo'
     | '/hoy'
     | '/mi-reforma'
     | '/panel'
     | '/presupuesto'
+    | '/privacidad'
+    | '/sitemap.xml'
+    | '/terminos'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/obras/nueva'
@@ -226,12 +276,17 @@ export interface FileRouteTypes {
     | '/'
     | '/acceso'
     | '/ajustes'
+    | '/aviso-legal'
+    | '/cookies'
     | '/economia'
     | '/equipo'
     | '/hoy'
     | '/mi-reforma'
     | '/panel'
     | '/presupuesto'
+    | '/privacidad'
+    | '/sitemap.xml'
+    | '/terminos'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/obras/nueva'
@@ -248,12 +303,17 @@ export interface FileRouteTypes {
     | '/'
     | '/acceso'
     | '/ajustes'
+    | '/aviso-legal'
+    | '/cookies'
     | '/economia'
     | '/equipo'
     | '/hoy'
     | '/mi-reforma'
     | '/panel'
     | '/presupuesto'
+    | '/privacidad'
+    | '/sitemap.xml'
+    | '/terminos'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/obras/nueva'
@@ -271,12 +331,17 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccesoRoute: typeof AccesoRoute
   AjustesRoute: typeof AjustesRoute
+  AvisoLegalRoute: typeof AvisoLegalRoute
+  CookiesRoute: typeof CookiesRoute
   EconomiaRoute: typeof EconomiaRoute
   EquipoRoute: typeof EquipoRoute
   HoyRoute: typeof HoyRoute
   MiReformaRoute: typeof MiReformaRoute
   PanelRoute: typeof PanelRoute
   PresupuestoRoute: typeof PresupuestoRoute
+  PrivacidadRoute: typeof PrivacidadRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TerminosRoute: typeof TerminosRoute
   IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
   ObrasNuevaRoute: typeof ObrasNuevaRoute
@@ -311,6 +376,20 @@ declare module '@tanstack/react-router' {
       path: '/ajustes'
       fullPath: '/ajustes'
       preLoaderRoute: typeof AjustesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aviso-legal': {
+      id: '/aviso-legal'
+      path: '/aviso-legal'
+      fullPath: '/aviso-legal'
+      preLoaderRoute: typeof AvisoLegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/economia': {
@@ -353,6 +432,27 @@ declare module '@tanstack/react-router' {
       path: '/presupuesto'
       fullPath: '/presupuesto'
       preLoaderRoute: typeof PresupuestoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidad': {
+      id: '/privacidad'
+      path: '/privacidad'
+      fullPath: '/privacidad'
+      preLoaderRoute: typeof PrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terminos': {
+      id: '/terminos'
+      path: '/terminos'
+      fullPath: '/terminos'
+      preLoaderRoute: typeof TerminosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/incidencia/$id': {
@@ -439,12 +539,17 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccesoRoute: AccesoRoute,
   AjustesRoute: AjustesRoute,
+  AvisoLegalRoute: AvisoLegalRoute,
+  CookiesRoute: CookiesRoute,
   EconomiaRoute: EconomiaRoute,
   EquipoRoute: EquipoRoute,
   HoyRoute: HoyRoute,
   MiReformaRoute: MiReformaRoute,
   PanelRoute: PanelRoute,
   PresupuestoRoute: PresupuestoRoute,
+  PrivacidadRoute: PrivacidadRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TerminosRoute: TerminosRoute,
   IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
   ObrasNuevaRoute: ObrasNuevaRoute,

@@ -8,12 +8,13 @@ import { descargar } from "@/components/avisos-almacen";
 import { espacioUsado, exportarCopia, importarCopia, resetDB, ROL_LABEL } from "@/lib/store";
 
 export const Route = createFileRoute("/ajustes")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Ajustes · Obria" },
-      { name: "description", content: "Ajustes de la cuenta, copias de seguridad y datos de demostración de Obria." },
-      { property: "og:title", content: "Ajustes · Obria" },
-      { property: "og:description", content: "Configuración de Obria para Reformas Arnal." },
+      { title: "Ajustes · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
+      { name: "description", content: "Ajustes de la cuenta y copias de seguridad de Reformas Arnal." },
+      { property: "og:title", content: "Ajustes · Reformas Arnal" },
+      { property: "og:description", content: "Configuración del área privada de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -73,8 +74,22 @@ function Datos() {
   );
 }
 
+function Mantenimiento() {
+  const [paso, setPaso] = useState(0);
+  return (
+    <details className="rounded-3xl border border-dashed p-4 text-sm">
+      <summary className="cursor-pointer font-semibold text-muted-foreground">Mantenimiento</summary>
+      <p className="mt-3 text-muted-foreground">Vuelve a cargar los datos iniciales de la empresa. Se perderán todos los cambios hechos en este dispositivo. Exporta antes una copia de seguridad.</p>
+      {paso === 0 && <button onClick={() => setPaso(1)} className="mt-3 inline-flex h-11 items-center gap-2 rounded-2xl border-2 px-4 font-semibold"><RotateCcw className="h-4 w-4" />Restaurar datos iniciales</button>}
+      {paso === 1 && <div className="mt-3 flex flex-wrap gap-2">
+        <button onClick={() => { if (resetDB()) setPaso(2); }} className="inline-flex h-11 items-center rounded-2xl bg-danger px-4 font-semibold text-primary-foreground">Sí, restaurar todo</button>
+        <button onClick={() => setPaso(0)} className="inline-flex h-11 items-center rounded-2xl border-2 px-4 font-semibold">Cancelar</button></div>}
+      {paso === 2 && <p className="mt-3 font-semibold text-ok">Datos iniciales restaurados.</p>}
+    </details>
+  );
+}
+
 function Ajustes() {
-  const [ok, setOk] = useState(false);
   return (
     <AppShell>
       {({ db, me }) => (
@@ -95,14 +110,8 @@ function Ajustes() {
             <EmpresaForm key={JSON.stringify(db.empresa).length} db={db} />
             <WebAdmin key={JSON.stringify(db.web).length} db={db} />
           </>}
-          <div className="pt-4 text-center">
-            <button onClick={() => { if (confirm("¿Restablecer todos los datos de demo? Se perderán los cambios.")) { setOk(resetDB()); } }}
-              className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium text-muted-foreground underline-offset-4 hover:underline">
-              <RotateCcw className="h-4 w-4" />Restablecer datos de demo
-            </button>
-            {ok && <p className="text-sm font-semibold text-ok">Datos restablecidos.</p>}
-            <p className="mt-2 text-xs text-muted-foreground">Obria v1 · {db.empresa.nombreComercial}</p>
-          </div>
+          {me.rol === "gerente" && <Mantenimiento />}
+          <p className="pt-2 text-center text-xs text-muted-foreground">{db.empresa.nombreComercial} · Área privada</p>
         </div>
       )}
     </AppShell>

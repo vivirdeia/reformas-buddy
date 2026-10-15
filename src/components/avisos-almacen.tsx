@@ -38,7 +38,7 @@ export function AvisosAlmacen() {
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warn" />
           <div className="flex-1">
             <p className="font-semibold text-warn">Los datos guardados estaban dañados.</p>
-            <p className="mt-1 text-foreground/80">Hemos guardado una copia de lo que había y cargado los datos de demo. Descárgala por si necesitas recuperarla.</p>
+            <p className="mt-1 text-foreground/80">Hemos guardado una copia de lo que había y restaurado los datos iniciales. Descárgala por si necesitas recuperarla.</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <button onClick={() => { const r = respaldoCorrupto(); if (r) descargar(`obria-respaldo-danado-${new Date().toISOString().slice(0, 10)}.json`, r); }}
                 className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground"><Download className="h-4 w-4" />Descargar copia</button>

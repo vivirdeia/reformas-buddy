@@ -7,7 +7,8 @@ import type { EstadoSolicitud } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/solicitudes/")({
-  head: () => ({ meta: [{ title: "Solicitudes de presupuesto · Obria" }, { name: "description", content: "Solicitudes de presupuesto recibidas desde la web de Reformas Arnal." }, { property: "og:title", content: "Solicitudes · Obria" }, { property: "og:description", content: "Gestión de solicitudes de presupuesto." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  staticData: { sitemap: false },
+  head: () => ({ meta: [{ title: "Solicitudes de presupuesto · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" }, { name: "description", content: "Solicitudes de presupuesto recibidas desde la web de Reformas Arnal." }, { property: "og:title", content: "Solicitudes · Reformas Arnal" }, { property: "og:description", content: "Gestión de solicitudes de presupuesto." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Solicitudes,
 });
 

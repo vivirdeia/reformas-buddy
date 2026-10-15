@@ -30,11 +30,12 @@ function Gestion({ db, o }: { db: DB; o: Obra }) {
 }
 
 export const Route = createFileRoute("/obras/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Ficha de obra · Obria" },
+      { title: "Ficha de obra · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Datos, fases, equipo y notas de la obra." },
-      { property: "og:title", content: "Ficha de obra · Obria" },
+      { property: "og:title", content: "Ficha de obra · Reformas Arnal" },
       { property: "og:description", content: "Seguimiento detallado de la obra de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

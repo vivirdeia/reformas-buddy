@@ -9,12 +9,13 @@ import { mutate, uid } from "@/lib/store";
 import type { Obra, OrdenCambio, Partida, Usuario } from "@/lib/types";
 
 export const Route = createFileRoute("/orden-nueva/$id")({
+  staticData: { sitemap: false },
   validateSearch: (s: Record<string, unknown>): { oc?: string } => (typeof s['oc'] === "string" ? { oc: s['oc'] } : {}),
   head: () => ({
     meta: [
-      { title: "Orden de cambio · Obria" },
+      { title: "Orden de cambio · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Crea una orden de cambio con partidas, IVA y plazo." },
-      { property: "og:title", content: "Orden de cambio · Obria" },
+      { property: "og:title", content: "Orden de cambio · Reformas Arnal" },
       { property: "og:description", content: "Órdenes de cambio de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

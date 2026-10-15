@@ -10,23 +10,28 @@ import { useDB } from "@/lib/store";
 import { empresaDe, telHref, webHref } from "@/lib/empresa";
 import { icono, webDe } from "@/lib/web";
 import { Atribucion } from "@/components/atribucion";
+import { EnlacesLegales } from "@/components/legal";
 import { cn } from "@/lib/utils";
 
 const HERO = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1920&q=75";
+const OG = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&h=630&q=70";
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=70`;
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Reformas Arnal · Reformas integrales en Madrid, sin sorpresas" },
-      { name: "description", content: "Reformas integrales de pisos, cocinas, baños y locales en Madrid. Sigue tu obra día a día desde el móvil y pide tu presupuesto sin compromiso." },
-      { property: "og:title", content: "Reformas Arnal · Tu reforma, sin sorpresas" },
+      { title: "Reformas integrales en Madrid · Reformas Arnal" },
+      { name: "description", content: "Reformas integrales en Madrid de pisos, cocinas, baños y locales. Sigue tu obra día a día desde el móvil y pide tu presupuesto sin compromiso." },
+      { property: "og:title", content: "Reformas integrales en Madrid · Reformas Arnal" }, { property: "og:locale", content: "es_ES" },
       { property: "og:description", content: "Reformas integrales en Madrid con seguimiento diario desde el móvil, cambios firmados y pagos claros." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: HERO },
+      { property: "og:image", content: OG },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: HERO },
+      { name: "twitter:image", content: OG },
+      { property: "og:url", content: "https://reformas-buddy.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://reformas-buddy.lovable.app/" }],
   }),
   component: Landing,
 });
@@ -259,7 +264,7 @@ function Landing() {
             {emp.horario.split("\n").filter(Boolean).map((l, i) => <p key={i}>{l}</p>)}
           </div>
         </div>
-        <div className="border-t border-ink-foreground/10 py-5 text-center text-sm text-ink-foreground/60">© {new Date().getFullYear()} {emp.razonSocial} · <Link to="/acceso" className="underline">Área de clientes y equipo</Link><Atribucion className="mt-2 text-ink-foreground/60" enlace="text-ink-foreground/80 hover:text-ink-foreground" /></div>
+        <div className="border-t border-ink-foreground/10 py-5 text-center text-sm text-ink-foreground/60">© {new Date().getFullYear()} {emp.razonSocial} · <Link to="/acceso" className="underline">Área de clientes y equipo</Link><EnlacesLegales className="mt-2" /><Atribucion className="mt-2 text-ink-foreground/60" enlace="text-ink-foreground/80 hover:text-ink-foreground" /></div>
       </footer>
     </div>
   );
