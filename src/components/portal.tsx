@@ -264,7 +264,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
       )}
 
       {visor && <VisorFotos fotos={visor.fotos} inicio={visor.i} onClose={() => setVisor(null)} />}
-      {doc && <VistaDoc doc={doc} o={o} nombreCliente={nombreCliente} onClose={() => setDoc(null)} />}
+      {doc && <VistaDoc doc={doc} o={o} nombreCliente={nombreCliente} emp={emp} onClose={() => setDoc(null)} />}
     </div>
   );
 }
