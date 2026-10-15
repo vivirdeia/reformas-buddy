@@ -5,7 +5,7 @@ import { createSeed, FASES } from "./seed";
 const DB_KEY = "obria:db:v1";
 const SESSION_KEY = "obria:session";
 const EVT = "obria:change";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 export function loadDB(): DB {
   try {

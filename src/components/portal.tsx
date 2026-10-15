@@ -1,0 +1,310 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Phone, MessageCircle, Clock, FileText, Ruler, BadgeCheck, X, CalendarHeart, Sparkles, Heart, Check, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Foto } from "@/components/obria";
+import { avance, euro, fecha, fechaLarga, nombreFase, user } from "@/lib/store";
+import { addDias, hoyISO } from "@/lib/fechas";
+import type { DB, Documento, FaseTipo, Obra, ParteDiario } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+const dias = (a: string, b: string) => Math.round((new Date(b + "T12:00:00").getTime() - new Date(a + "T12:00:00").getTime()) / 86400000);
+
+const largo = (f: { inicioPrevisto: string; finPrevisto: string }) => dias(f.inicioPrevisto, f.finPrevisto) + 1;
+/** Fin estimado de la fase en curso, nunca en el pasado. */
+function finFaseActual(o: Obra) {
+  const hoy = hoyISO();
+  const cur = o.fases.find((f) => f.estado !== "completada");
+  if (!cur) return hoy;
+  const pasado = cur.inicioReal ? dias(cur.inicioReal, hoy) : 0;
+  return addDias(hoy, Math.max(2, largo(cur) - pasado));
+}
+function entrega(o: Obra) {
+  const i = o.fases.findIndex((f) => f.estado !== "completada");
+  if (i < 0) return o.fechaFinPrevista;
+  const pend = o.fases.slice(i + 1).reduce((s, f) => s + largo(f), 0);
+  const est = addDias(finFaseActual(o), pend);
+  return est > o.fechaFinPrevista ? est : o.fechaFinPrevista;
+}
+
+function mensaje(o: Obra): { titulo: string; texto: string; tono: "ok" | "suave" | "fin" } {
+  const imprevisto = o.incidencias.some((i) => i.estado === "abierta" && i.gravedad !== "baja");
+  if (o.estado === "terminada") return { titulo: "¡Tu reforma está terminada!", texto: "Ha sido un placer acompañarte. Disfruta de tu nuevo espacio.", tono: "fin" };
+  if (o.estado === "retrasada") return { titulo: "Estamos recuperando unos días", texto: "Un retraso en la llegada de material nos ha movido el calendario. El equipo está reorganizando trabajos para recortarlo al máximo.", tono: "suave" };
+  if (imprevisto) return { titulo: "Avanzamos con un pequeño imprevisto", texto: "Hemos encontrado algo que conviene resolver bien antes de seguir. Tu jefe de obra ya lo está gestionando y te mantendrá al día.", tono: "suave" };
+  if (avance(o) >= 85) return { titulo: "¡Ya casi está!", texto: "Estamos con los últimos detalles para que puedas estrenar muy pronto.", tono: "ok" };
+  if (avance(o) < 10) return { titulo: "Tu reforma ya ha arrancado", texto: "El equipo ha empezado con buen ritmo. Aquí verás cada avance.", tono: "ok" };
+  return { titulo: "Tu reforma va según lo previsto", texto: "Todo avanza conforme al calendario que acordamos.", tono: "ok" };
+}
+
+const INTRO: Record<FaseTipo, string> = {
+  demolicion: "Seguimos preparando el espacio:", fontaneria: "Avanzamos con las instalaciones de agua:", electricidad: "Avanzamos con la instalación eléctrica:",
+  alicatado: "Ya se ven los nuevos acabados:", carpinteria: "Tu casa va tomando forma:", pintura: "Llega el color:", limpieza: "Últimos detalles:",
+};
+const resumen = (p: ParteDiario) => p.resumenCliente ?? (p.fase ? `${INTRO[p.fase]} ${p.trabajos}` : p.trabajos);
+
+function Bloque({ titulo, icono, children }: { titulo: string; icono?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="rounded-3xl bg-card p-5 shadow-card">
+      <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold">{icono}{titulo}</h2>
+      {children}
+    </section>
+  );
+}
+
+export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombreCliente: string }) {
+  const hoy = hoyISO();
+  const a = avance(o);
+  const fin = entrega(o);
+  const quedan = dias(hoy, fin);
+  const m = mensaje(o);
+  const jefe = user(db, o.equipo.jefeId);
+  const [visor, setVisor] = useState<{ fotos: string[]; i: number } | null>(null);
+  const [doc, setDoc] = useState<Documento | null>(null);
+  const partes = o.partesDiarios.filter((p) => p.visibleCliente).sort((x, y) => y.fecha.localeCompare(x.fecha));
+  const diasDiario = [...new Set(partes.map((p) => p.fecha))];
+  const tel = jefe?.telefono.replace(/\s/g, "") ?? "";
+
+  return (
+    <div className="space-y-5">
+      <div className="relative -mx-4 -mt-4 h-80 overflow-hidden sm:mx-0 sm:mt-0 sm:rounded-3xl">
+        <Foto src={o.portada} alt={o.nombre} className="h-full w-full animate-in fade-in zoom-in-105 duration-1000" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/10" />
+        <div className="absolute inset-x-5 bottom-6 text-ink-foreground animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <p className="font-display text-lg text-ink-foreground/85">Hola, {nombreCliente.split(" ")[0]}</p>
+          <h1 className="mt-1 text-3xl font-bold leading-tight">{o.nombre}</h1>
+          <p className="mt-1 flex items-center gap-1 text-sm text-ink-foreground/80"><MapPin className="h-4 w-4" />{o.direccion}, {o.barrio}</p>
+        </div>
+      </div>
+
+      <section className="-mt-12 relative rounded-3xl bg-card p-5 shadow-card animate-in fade-in slide-in-from-bottom-6 duration-700">
+        <div className="flex items-center gap-5">
+          <Anillo value={a} />
+          <div className="flex-1">
+            {o.estado === "terminada" ? (
+              <><div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Entregada</div><div className="font-display text-2xl font-bold">{fecha(o.fases.at(-1)?.finReal ?? fin)}</div></>
+            ) : (
+              <>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Entrega prevista</div>
+                <div className="font-display text-xl font-bold first-letter:uppercase">{fechaLarga(fin)}</div>
+                <div className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-sm font-bold text-accent-foreground"><CalendarHeart className="h-4 w-4" />{quedan > 0 ? `Faltan ${quedan} días` : "Muy pronto"}</div>
+              </>
+            )}
+          </div>
+        </div>
+        <div className={cn("mt-5 rounded-2xl p-4", m.tono === "suave" ? "bg-warn-soft" : m.tono === "fin" ? "bg-accent" : "bg-ok-soft")}>
+          <div className="flex items-center gap-2 font-display text-lg font-semibold">{m.tono === "fin" ? <Sparkles className="h-5 w-5 text-primary" /> : <Heart className={cn("h-5 w-5", m.tono === "suave" ? "text-warn" : "text-ok")} />}{m.titulo}</div>
+          <p className="mt-1 text-sm text-muted-foreground">{m.texto}</p>
+        </div>
+      </section>
+
+      <Bloque titulo="Las fases de tu reforma">
+        <ol>
+          {o.fases.map((f, i) => {
+            const actual = f.estado === "en_curso" || f.estado === "bloqueada";
+            const hecha = f.estado === "completada";
+            return (
+              <li key={f.tipo} className="flex gap-4">
+                <div className="flex flex-col items-center">
+                  <div className="relative grid h-10 w-10 place-items-center">
+                    {actual && <span className="absolute inset-0 animate-ping rounded-full bg-primary/40 [animation-duration:2s]" />}
+                    <span className={cn("relative grid h-10 w-10 place-items-center rounded-full border-2 font-display font-bold",
+                      hecha ? "border-ok bg-ok text-primary-foreground" : actual ? "border-primary bg-primary text-primary-foreground shadow-cta" : "border-input bg-card text-muted-foreground")}>
+                      {hecha ? <Check className="h-5 w-5" /> : i + 1}
+                    </span>
+                  </div>
+                  {i < o.fases.length - 1 && <div className={cn("my-1 w-1 flex-1 rounded-full", hecha ? "bg-ok" : "bg-border")} />}
+                </div>
+                <div className={cn("flex-1 pb-5", actual && "-mt-1 rounded-2xl bg-accent p-3 mb-3")}>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={cn("font-semibold", !hecha && !actual && "text-muted-foreground")}>{nombreFase(f.tipo)}</span>
+                    {actual && <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">Ahora</span>}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {hecha ? `Terminada el ${fecha(f.finReal)}` : actual ? `Empezó el ${fecha(f.inicioReal)} · prevista hasta el ${fecha(finFaseActual(o))}` : `Prevista del ${fecha(f.inicioPrevisto)} al ${fecha(f.finPrevisto)}`}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </Bloque>
+
+      {o.antesDespues.length > 0 && (
+        <Bloque titulo="Antes y después" icono={<Sparkles className="h-5 w-5 text-primary" />}>
+          <div className="space-y-5">{o.antesDespues.map((x) => <Comparador key={x.estancia} {...x} />)}</div>
+        </Bloque>
+      )}
+
+      <Bloque titulo="Diario de obra">
+        {diasDiario.length === 0 ? <p className="text-muted-foreground">Muy pronto verás aquí cada avance de tu reforma.</p> : (
+          <div className="space-y-6">
+            {diasDiario.map((d) => (
+              <div key={d}>
+                <div className="mb-2 flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><span className="text-sm font-bold text-primary first-letter:uppercase">{fechaLarga(d)}</span></div>
+                {partes.filter((p) => p.fecha === d).map((p) => (
+                  <article key={p.id} className="mb-3 border-l-2 border-border pl-4">
+                    {p.fase && <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{nombreFase(p.fase)}</span>}
+                    <p className="mt-1 leading-relaxed">{resumen(p)}</p>
+                    {p.fotos.length > 0 && (
+                      <div className="-mr-5 mt-3 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-2 pr-5">
+                        {p.fotos.map((f, i) => (
+                          <button key={i} onClick={() => setVisor({ fotos: p.fotos, i })} className="h-44 w-64 shrink-0 snap-start overflow-hidden rounded-2xl" aria-label="Ver foto">
+                            <Foto src={f} alt="Avance de la obra" className="h-full w-full transition hover:scale-105" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+      </Bloque>
+
+      <Bloque titulo="Documentos">
+        <ul className="divide-y">
+          {o.documentos.map((d) => {
+            const I = d.tipo === "plano" ? Ruler : d.tipo === "certificado" ? BadgeCheck : FileText;
+            return (
+              <li key={d.id}>
+                <button onClick={() => setDoc(d)} className="flex w-full items-center gap-3 py-3 text-left">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground"><I className="h-6 w-6" /></span>
+                  <span className="min-w-0 flex-1"><span className="block truncate font-semibold">{d.nombre}</span><span className="text-sm text-muted-foreground">{fecha(d.fecha)} · {d.tamano}</span></span>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </Bloque>
+
+      {jefe && (
+        <section className="rounded-3xl bg-hero p-5 text-ink-foreground shadow-card">
+          <div className="text-xs font-semibold uppercase tracking-wider text-ink-foreground/70">Tu jefe de obra</div>
+          <div className="mt-3 flex items-center gap-4">
+            <div className="grid h-16 w-16 place-items-center rounded-full bg-card font-display text-2xl font-bold text-primary">{jefe.nombre.split(" ").map((x) => x[0]).join("")}</div>
+            <div><div className="font-display text-xl font-bold">{jefe.nombre}</div><div className="text-sm text-ink-foreground/80">Estará encantado de resolver tus dudas</div></div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <a href={`tel:+34${tel}`} className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-card font-semibold text-foreground"><Phone className="h-5 w-5 text-primary" />Llamar</a>
+            <a href={`https://wa.me/34${tel}?text=${encodeURIComponent(`Hola ${jefe.nombre.split(" ")[0]}, te escribo por la ${o.nombre.toLowerCase()}.`)}`} target="_blank" rel="noreferrer" className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-ok font-semibold text-primary-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>
+          </div>
+          <p className="mt-4 flex items-start gap-2 text-sm text-ink-foreground/80"><Clock className="mt-0.5 h-4 w-4 shrink-0" />{o.horario}</p>
+        </section>
+      )}
+
+      {visor && <VisorFotos fotos={visor.fotos} inicio={visor.i} onClose={() => setVisor(null)} />}
+      {doc && <VistaDoc doc={doc} o={o} nombreCliente={nombreCliente} onClose={() => setDoc(null)} />}
+    </div>
+  );
+}
+
+function Anillo({ value }: { value: number }) {
+  const r = 44, c = 2 * Math.PI * r;
+  const [v, setV] = useState(0);
+  useEffect(() => { const t = setTimeout(() => setV(value), 150); return () => clearTimeout(t); }, [value]);
+  return (
+    <div className="relative h-28 w-28 shrink-0">
+      <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+        <circle cx="50" cy="50" r={r} strokeWidth="9" className="fill-none stroke-muted" />
+        <circle cx="50" cy="50" r={r} strokeWidth="9" strokeLinecap="round" className="fill-none stroke-primary transition-[stroke-dashoffset] duration-[1500ms] ease-out" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
+      </svg>
+      <div className="absolute inset-0 grid place-items-center text-center">
+        <div><div className="font-display text-3xl font-bold leading-none">{value}%</div><div className="text-[11px] font-semibold text-muted-foreground">completado</div></div>
+      </div>
+    </div>
+  );
+}
+
+function Comparador({ estancia, antes, despues }: { estancia: string; antes: string; despues: string }) {
+  const [pos, setPos] = useState(50);
+  const ref = useRef<HTMLDivElement>(null);
+  const mover = (x: number) => { const r = ref.current!.getBoundingClientRect(); setPos(Math.min(100, Math.max(0, ((x - r.left) / r.width) * 100))); };
+  return (
+    <div>
+      <div className="mb-2 font-semibold">{estancia}</div>
+      <div ref={ref} className="relative aspect-[4/3] touch-none select-none overflow-hidden rounded-2xl"
+        onPointerDown={(e) => { (e.target as HTMLElement).setPointerCapture(e.pointerId); mover(e.clientX); }}
+        onPointerMove={(e) => e.buttons && mover(e.clientX)}>
+        <Foto src={despues} alt={`${estancia} después`} className="absolute inset-0 h-full w-full" />
+        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+          <Foto src={antes} alt={`${estancia} antes`} className="h-full w-full grayscale-[30%]" />
+        </div>
+        <span className="absolute left-3 top-3 rounded-full bg-ink/70 px-3 py-1 text-xs font-bold text-ink-foreground">Antes</span>
+        <span className="absolute right-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">Después</span>
+        <div className="absolute inset-y-0 w-1 -translate-x-1/2 bg-card" style={{ left: `${pos}%` }}>
+          <div className="absolute top-1/2 left-1/2 grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-card text-primary shadow-card"><ChevronLeft className="-mr-1 h-4 w-4" /><ChevronRight className="-ml-1 h-4 w-4" /></div>
+        </div>
+      </div>
+      <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(Number(e.target.value))} aria-label={`Comparar ${estancia}`} className="sr-only" />
+    </div>
+  );
+}
+
+export function VisorFotos({ fotos, inicio, onClose }: { fotos: string[]; inicio: number; onClose: () => void }) {
+  const [i, setI] = useState(inicio);
+  const x0 = useRef<number | null>(null);
+  const ir = (d: number) => setI((v) => (v + d + fotos.length) % fotos.length);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); if (e.key === "ArrowRight") ir(1); if (e.key === "ArrowLeft") ir(-1); };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  });
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col bg-ink animate-in fade-in duration-200"
+      onTouchStart={(e) => (x0.current = e.touches[0]!.clientX)}
+      onTouchEnd={(e) => { if (x0.current === null) return; const dx = e.changedTouches[0]!.clientX - x0.current; if (Math.abs(dx) > 40) ir(dx < 0 ? 1 : -1); x0.current = null; }}>
+      <div className="flex items-center justify-between p-4 text-ink-foreground">
+        <span className="font-semibold">{i + 1} / {fotos.length}</span>
+        <button onClick={onClose} aria-label="Cerrar" className="grid h-12 w-12 place-items-center rounded-full bg-ink-foreground/15"><X className="h-6 w-6" /></button>
+      </div>
+      <div className="relative flex flex-1 items-center justify-center px-2">
+        <Foto key={i} src={fotos[i]!} alt="Foto de la obra" className="max-h-full w-full rounded-xl object-contain animate-in fade-in duration-300" />
+        {fotos.length > 1 && <>
+          <button onClick={() => ir(-1)} aria-label="Anterior" className="absolute left-3 grid h-12 w-12 place-items-center rounded-full bg-ink/60 text-ink-foreground"><ChevronLeft className="h-6 w-6" /></button>
+          <button onClick={() => ir(1)} aria-label="Siguiente" className="absolute right-3 grid h-12 w-12 place-items-center rounded-full bg-ink/60 text-ink-foreground"><ChevronRight className="h-6 w-6" /></button>
+        </>}
+      </div>
+      <div className="flex justify-center gap-2 p-6">{fotos.map((_, j) => <span key={j} className={cn("h-2 rounded-full transition-all", j === i ? "w-6 bg-primary" : "w-2 bg-ink-foreground/40")} />)}</div>
+    </div>
+  );
+}
+
+function VistaDoc({ doc, o, nombreCliente, onClose }: { doc: Documento; o: Obra; nombreCliente: string; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-0 sm:items-center sm:p-4 animate-in fade-in" onClick={onClose}>
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-5 sm:rounded-3xl animate-in slide-in-from-bottom-8" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div className="min-w-0"><div className="truncate font-semibold">{doc.nombre}</div><div className="text-xs text-muted-foreground">{fecha(doc.fecha)} · {doc.tamano}</div></div>
+          <button onClick={onClose} aria-label="Cerrar" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="rounded-2xl border bg-background p-5 text-sm">
+          <div className="mb-4 flex items-center justify-between border-b pb-3"><span className="font-display text-lg font-bold">Reformas Arnal</span><span className="text-xs text-muted-foreground">Madrid</span></div>
+          {doc.tipo === "presupuesto" && (
+            <>
+              <p className="text-muted-foreground">Cliente: <span className="text-foreground">{nombreCliente}</span></p>
+              <p className="text-muted-foreground">Obra: <span className="text-foreground">{o.nombre}</span></p>
+              <ul className="my-4 space-y-1">{o.fases.map((f) => <li key={f.tipo} className="flex justify-between border-b border-dashed py-1"><span>{nombreFase(f.tipo)}</span><Check className="h-4 w-4 text-ok" /></li>)}</ul>
+              <div className="flex justify-between font-display text-lg font-bold"><span>Total aprobado (IVA incl.)</span><span>{euro(o.presupuesto)}</span></div>
+              <p className="mt-4 text-xs text-muted-foreground">Firmado digitalmente el {fecha(doc.fecha)}.</p>
+            </>
+          )}
+          {doc.tipo === "plano" && (
+            <svg viewBox="0 0 200 140" className="w-full stroke-foreground" fill="none" strokeWidth="2">
+              <rect x="5" y="5" width="190" height="130" />
+              <line x1="90" y1="5" x2="90" y2="80" /><line x1="5" y1="80" x2="140" y2="80" /><line x1="140" y1="80" x2="140" y2="135" /><line x1="140" y1="45" x2="195" y2="45" />
+              <g className="fill-muted-foreground stroke-none text-[8px]"><text x="30" y="45">Salón</text><text x="120" y="28">Dormitorio</text><text x="40" y="110">Cocina</text><text x="155" y="95">Baño</text><text x="150" y="68">Dorm. 2</text></g>
+            </svg>
+          )}
+          {doc.tipo === "certificado" && (
+            <div className="py-6 text-center">
+              <BadgeCheck className="mx-auto h-12 w-12 text-ok" />
+              <p className="mt-3 font-display text-lg font-bold">{doc.nombre.replace(".pdf", "")}</p>
+              <p className="mt-2 text-muted-foreground">{o.direccion}, {o.barrio} (Madrid)</p>
+              <p className="mt-1 text-muted-foreground">Emitido el {fecha(doc.fecha)}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

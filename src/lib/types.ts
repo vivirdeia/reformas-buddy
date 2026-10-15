@@ -43,7 +43,11 @@ export interface OrdenCambio {
 export interface ParteDiario {
   id: string; fecha: string; autorId: string; horas: number; operarioIds: string[];
   trabajos: string; fotos: string[]; fase?: FaseTipo;
+  visibleCliente: boolean;
+  resumenCliente?: string | undefined;
 }
+export interface Documento { id: string; nombre: string; tipo: "presupuesto" | "plano" | "certificado"; fecha: string; tamano: string; }
+export interface AntesDespues { estancia: string; antes: string; despues: string; }
 export interface Hito { id: string; fecha: string; titulo: string; visibleCliente: boolean; }
 
 export interface Obra {
@@ -66,6 +70,9 @@ export interface Obra {
   ordenesCambio: OrdenCambio[];
   partesDiarios: ParteDiario[];
   hitos: Hito[];
+  documentos: Documento[];
+  antesDespues: AntesDespues[];
+  horario: string;
 }
 
 export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }

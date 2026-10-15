@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { HardHat, Settings, LogOut, CalendarCheck } from "lucide-react";
+import { HardHat, Settings, LogOut, CalendarCheck, Home as HomeIcon } from "lucide-react";
 import { useDB, useSession, user, ROL_LABEL, ESTADO_LABEL } from "@/lib/store";
 import type { DB, EstadoObra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -64,7 +64,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
   const staff = me.rol === "operario" || me.rol === "jefe_obra";
   const tabs = [
     ...(staff ? [{ to: "/hoy", label: "Hoy", icon: CalendarCheck }] : []),
-    { to: "/obras", label: me.rol === "cliente" ? "Mi obra" : "Obras", icon: HardHat },
+    me.rol === "cliente" ? { to: "/mi-reforma", label: "Mi reforma", icon: HomeIcon } : { to: "/obras", label: "Obras", icon: HardHat },
     { to: "/ajustes", label: "Ajustes", icon: Settings },
   ];
 

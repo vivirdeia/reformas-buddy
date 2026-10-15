@@ -12,10 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjustesRouteImport } from './routes/ajustes'
 import { Route as HoyRouteImport } from './routes/hoy'
+import { Route as MiReformaRouteImport } from './routes/mi-reforma'
 import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
 import { Route as ParteIdRouteImport } from './routes/parte.$id'
+import { Route as VistaClienteIdRouteImport } from './routes/vista-cliente.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,6 +32,11 @@ const AjustesRoute = AjustesRouteImport.update({
 const HoyRoute = HoyRouteImport.update({
   id: '/hoy',
   path: '/hoy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MiReformaRoute = MiReformaRouteImport.update({
+  id: '/mi-reforma',
+  path: '/mi-reforma',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IncidenciaIdRoute = IncidenciaIdRouteImport.update({
@@ -52,23 +59,32 @@ const ParteIdRoute = ParteIdRouteImport.update({
   path: '/parte/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VistaClienteIdRoute = VistaClienteIdRouteImport.update({
+  id: '/vista-cliente/$id',
+  path: '/vista-cliente/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/hoy': typeof HoyRoute
+  '/mi-reforma': typeof MiReformaRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/parte/$id': typeof ParteIdRoute
+  '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/hoy': typeof HoyRoute
+  '/mi-reforma': typeof MiReformaRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/parte/$id': typeof ParteIdRoute
+  '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras': typeof ObrasIndexRoute
 }
 export interface FileRoutesById {
@@ -76,9 +92,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
   '/hoy': typeof HoyRoute
+  '/mi-reforma': typeof MiReformaRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/parte/$id': typeof ParteIdRoute
+  '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
 }
 export interface FileRouteTypes {
@@ -87,27 +105,33 @@ export interface FileRouteTypes {
     | '/'
     | '/ajustes'
     | '/hoy'
+    | '/mi-reforma'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/parte/$id'
+    | '/vista-cliente/$id'
     | '/obras/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ajustes'
     | '/hoy'
+    | '/mi-reforma'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/parte/$id'
+    | '/vista-cliente/$id'
     | '/obras'
   id:
     | '__root__'
     | '/'
     | '/ajustes'
     | '/hoy'
+    | '/mi-reforma'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/parte/$id'
+    | '/vista-cliente/$id'
     | '/obras/'
   fileRoutesById: FileRoutesById
 }
@@ -115,9 +139,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjustesRoute: typeof AjustesRoute
   HoyRoute: typeof HoyRoute
+  MiReformaRoute: typeof MiReformaRoute
   IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
   ParteIdRoute: typeof ParteIdRoute
+  VistaClienteIdRoute: typeof VistaClienteIdRoute
   ObrasIndexRoute: typeof ObrasIndexRoute
 }
 
@@ -142,6 +168,13 @@ declare module '@tanstack/react-router' {
       path: '/hoy'
       fullPath: '/hoy'
       preLoaderRoute: typeof HoyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mi-reforma': {
+      id: '/mi-reforma'
+      path: '/mi-reforma'
+      fullPath: '/mi-reforma'
+      preLoaderRoute: typeof MiReformaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/incidencia/$id': {
@@ -172,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vista-cliente/$id': {
+      id: '/vista-cliente/$id'
+      path: '/vista-cliente/$id'
+      fullPath: '/vista-cliente/$id'
+      preLoaderRoute: typeof VistaClienteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -179,9 +219,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjustesRoute: AjustesRoute,
   HoyRoute: HoyRoute,
+  MiReformaRoute: MiReformaRoute,
   IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
   ParteIdRoute: ParteIdRoute,
+  VistaClienteIdRoute: VistaClienteIdRoute,
   ObrasIndexRoute: ObrasIndexRoute,
 }
 export const routeTree = rootRouteImport

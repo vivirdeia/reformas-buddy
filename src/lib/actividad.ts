@@ -61,6 +61,44 @@ const TAREAS: Record<FaseTipo, string[]> = {
   limpieza: ["Limpieza de cristales y carpinterías", "Revisar grifería y mecanismos", "Repaso de juntas en baño", "Retirada final de protecciones"],
 };
 
+const CLI: Record<FaseTipo, string[]> = {
+  demolicion: [
+    "Hoy hemos empezado a dar forma a tu nueva casa: retiramos los azulejos antiguos de cocina y baño, con todo protegido para no molestar a los vecinos.",
+    "Ya hemos abierto la cocina al salón, tal y como viste en los planos. ¡Se empieza a notar la amplitud!",
+    "Hemos retirado los suelos y techos antiguos. La casa queda lista para las nuevas instalaciones.",
+    "Día de orden y limpieza: hemos dejado la obra despejada y el portal protegido.",
+  ],
+  fontaneria: [
+    "Estamos instalando las tuberías nuevas de agua. Hemos repasado contigo dónde irán los grifos de la cocina.",
+    "Las tomas del baño ya están colocadas y hemos comprobado que no hay ni una fuga. Todo perfecto.",
+    "Ya está colocado tu nuevo plato de ducha y los desagües renovados.",
+  ],
+  electricidad: [
+    "Preparamos la instalación eléctrica de la cocina para el horno, la placa y el lavavajillas.",
+    "Hemos llevado la luz a dormitorios y salón, con los enchufes justo donde los querías.",
+    "Tu casa ya tiene un cuadro eléctrico nuevo y más seguro. Hemos tapado las rozas, listas para alicatar.",
+  ],
+  alicatado: [
+    "¡Empieza la parte bonita! Ya se ve el nuevo azulejo en las paredes del baño.",
+    "Hemos colocado el suelo de la cocina. El acabado madera queda precioso con la luz de la tarde.",
+    "Hemos terminado las juntas de la ducha con un material especial que no deja pasar el agua.",
+  ],
+  carpinteria: [
+    "Ya están colocadas las puertas nuevas. La casa empieza a parecer terminada.",
+    "Llegaron los muebles de cocina y ya están montados. Hemos medido para la encimera.",
+    "Montado el armario empotrado del dormitorio principal y los rodapiés.",
+  ],
+  pintura: [
+    "Estamos preparando las paredes para que la pintura quede perfectamente lisa.",
+    "Primera mano de pintura en salón y dormitorios. El blanco roto da mucha calidez.",
+    "Segunda mano y últimos retoques de pintura. ¡Ya casi está!",
+  ],
+  limpieza: [
+    "Limpieza a fondo de cristales, suelos y baños para que entres a estrenar.",
+    "Hemos repasado los últimos detalles que vimos juntos en la visita. Todo listo para la entrega.",
+  ],
+};
+
 function faseEn(o: Obra, d: string): FaseTipo | null {
   for (const f of o.fases) if (f.inicioReal && d >= f.inicioReal && (!f.finReal || d <= f.finReal)) return f.tipo;
   return null;
@@ -110,6 +148,7 @@ export function generarActividad(db: DB) {
         id: `p-${o.id}-${d}`, fecha: d, autorId: di % 3 === 1 ? pres[0]! : o.equipo.jefeId,
         horas: Math.round((m / 60) * 10) / 10, operarioIds: pres, trabajos: t[(di + k) % t.length]!,
         fotos: Array.from({ length: nf }, (_, i) => u(pool[(di + k + i) % pool.length]!)), fase,
+        visibleCliente: (di + k) % 6 !== 2, resumenCliente: CLI[fase][(di + k) % CLI[fase].length],
       });
     });
   });
@@ -122,6 +161,31 @@ export function generarActividad(db: DB) {
       operarioId: o.equipo.operarioIds[i % o.equipo.operarioIds.length]!, hecha: i === 0, hechaEn: i === 0 ? ts(hoy, "09:10") : undefined, creadaPor: o.equipo.jefeId,
     }));
   });
+
+  db.obras.forEach((o, i) => {
+    const f = o.fechaInicio;
+    o.documentos = [
+      { id: `d-${o.id}-1`, nombre: "Presupuesto aprobado firmado.pdf", tipo: "presupuesto", fecha: addDias(f, -14), tamano: `${(380 + i * 37)} KB` },
+      { id: `d-${o.id}-2`, nombre: "Plano de distribución reformada.pdf", tipo: "plano", fecha: addDias(f, -10), tamano: `${(1.2 + i * 0.3).toFixed(1).replace(".", ",")} MB` },
+      { id: `d-${o.id}-3`, nombre: "Licencia de obra · Ayto. de Madrid.pdf", tipo: "certificado", fecha: addDias(f, -5), tamano: "214 KB" },
+    ];
+    if (o.estado === "terminada" || o.id === "o-5") o.documentos.push(
+      { id: `d-${o.id}-4`, nombre: "Boletín eléctrico (CIE).pdf", tipo: "certificado", fecha: addDias(f, 30), tamano: "468 KB" },
+      { id: `d-${o.id}-5`, nombre: "Certificado de gestión de residuos.pdf", tipo: "certificado", fecha: addDias(f, 12), tamano: "195 KB" },
+    );
+  });
+  const ad = (id: string) => u(id);
+  const o5 = db.obras.find((o) => o.id === "o-5");
+  if (o5) o5.antesDespues = [
+    { estancia: "Salón", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1502005229762-cf1b2da7c5d6") },
+    { estancia: "Cocina", antes: ad("photo-1581858726788-75bc0f6a952d"), despues: ad("photo-1556909114-f6e7ad7d3136") },
+    { estancia: "Baño", antes: ad("photo-1504307651254-35680f356dfd"), despues: ad("photo-1584622650111-993a426fbf0a") },
+  ];
+  const o6 = db.obras.find((o) => o.id === "o-6");
+  if (o6) o6.antesDespues = [
+    { estancia: "Sala principal", antes: ad("photo-1541888946425-d81bb19240f5"), despues: ad("photo-1554118811-1e0d58224f24") },
+    { estancia: "Barra", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1453614512568-c4024d13c247") },
+  ];
 
   db.obras.find((o) => o.id === "o-3")?.incidencias.push({
     id: "i-o3-1", fecha: dias[4]!, titulo: "Humedad en pared medianera del baño", descripcion: "Al picar aparece mancha de humedad por filtración del vecino. Se avisó al seguro de la comunidad y se reparó la tubería.",
