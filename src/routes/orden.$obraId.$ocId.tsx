@@ -11,11 +11,12 @@ import type { DB, Obra, OrdenCambio, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/orden/$obraId/$ocId")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Orden de cambio · Obria" },
+      { title: "Orden de cambio · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Detalle de la orden de cambio: qué cambia, cuánto cuesta y cuántos días añade." },
-      { property: "og:title", content: "Orden de cambio · Obria" },
+      { property: "og:title", content: "Orden de cambio · Reformas Arnal" },
       { property: "og:description", content: "Revisa y firma la orden de cambio de tu reforma." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

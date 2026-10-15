@@ -16,6 +16,7 @@ const HERO = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=70`;
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Reformas Arnal · Reformas integrales en Madrid, sin sorpresas" },

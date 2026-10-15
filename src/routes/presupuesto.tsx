@@ -8,6 +8,7 @@ import { addDias, hoyISO } from "@/lib/fechas";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/presupuesto")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Pide tu presupuesto · Reformas Arnal Madrid" },

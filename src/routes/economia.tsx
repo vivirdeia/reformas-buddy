@@ -9,11 +9,12 @@ import type { DB } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/economia")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Economía · Obria" },
+      { title: "Economía · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Presupuesto, coste real estimado y margen por obra de Reformas Arnal." },
-      { property: "og:title", content: "Economía · Obria" },
+      { property: "og:title", content: "Economía · Reformas Arnal" },
       { property: "og:description", content: "Márgenes y cobros por obra." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

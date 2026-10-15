@@ -15,11 +15,12 @@ import { AvisoOlvidados } from "@/components/gestion-contenido";
 import { conDeshacer } from "@/lib/deshacer";
 
 export const Route = createFileRoute("/hoy")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Hoy · Obria" },
+      { title: "Hoy · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Jornada del día: fichajes, tareas y partes de obra." },
-      { property: "og:title", content: "Hoy · Obria" },
+      { property: "og:title", content: "Hoy · Reformas Arnal" },
       { property: "og:description", content: "Fichaje, checklist y parte diario a pie de obra." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

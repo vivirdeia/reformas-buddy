@@ -14,7 +14,8 @@ import { cn } from "@/lib/utils";
 import { SOL_TONO, haceCuanto } from "./solicitudes.index";
 
 export const Route = createFileRoute("/solicitudes/$id")({
-  head: () => ({ meta: [{ title: "Detalle de solicitud · Obria" }, { name: "description", content: "Detalle de una solicitud de presupuesto." }, { property: "og:title", content: "Solicitud · Obria" }, { property: "og:description", content: "Detalle de solicitud de presupuesto." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  staticData: { sitemap: false },
+  head: () => ({ meta: [{ title: "Detalle de solicitud · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" }, { name: "description", content: "Detalle de una solicitud de presupuesto." }, { property: "og:title", content: "Solicitud · Reformas Arnal" }, { property: "og:description", content: "Detalle de solicitud de presupuesto." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Detalle,
 });
 

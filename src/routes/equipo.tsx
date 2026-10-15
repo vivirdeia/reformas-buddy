@@ -10,11 +10,12 @@ import type { DB } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/equipo")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Equipo · Obria" },
+      { title: "Equipo · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Carga de trabajo, fichajes en curso y horas por obra del equipo de Reformas Arnal." },
-      { property: "og:title", content: "Equipo · Obria" },
+      { property: "og:title", content: "Equipo · Reformas Arnal" },
       { property: "og:description", content: "Quién está en obra y cuántas horas lleva." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

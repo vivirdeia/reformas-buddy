@@ -8,11 +8,12 @@ import type { EstadoObra } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/obras/")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Obras · Obria" },
+      { title: "Obras · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Listado de obras activas de Reformas Arnal con avance y estado." },
-      { property: "og:title", content: "Obras · Obria" },
+      { property: "og:title", content: "Obras · Reformas Arnal" },
       { property: "og:description", content: "Avance, fase y estado de cada obra en Madrid." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

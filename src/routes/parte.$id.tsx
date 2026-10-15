@@ -7,11 +7,12 @@ import { fechaLarga } from "@/lib/store";
 import type { DB, Obra, Usuario } from "@/lib/types";
 
 export const Route = createFileRoute("/parte/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Nuevo parte diario · Obria" },
+      { title: "Nuevo parte diario · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Registra los trabajos, horas y fotos del día en la obra." },
-      { property: "og:title", content: "Parte diario · Obria" },
+      { property: "og:title", content: "Parte diario · Reformas Arnal" },
       { property: "og:description", content: "Parte diario de obra de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

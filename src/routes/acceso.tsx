@@ -7,9 +7,10 @@ import type { Rol } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/acceso")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Acceso · Obria — Reformas Arnal" },
+      { title: "Acceso · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Accede a Obria, la app de gestión de obras de Reformas Arnal en Madrid." },
       { property: "og:title", content: "Acceso clientes y equipo · Reformas Arnal" },
       { property: "og:description", content: "Gestión de obras y reformas integrales a pie de obra." },

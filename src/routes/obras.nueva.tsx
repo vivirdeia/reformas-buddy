@@ -11,11 +11,12 @@ import type { DB, FaseTipo, HitoPago, Obra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/obras/nueva")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Nueva obra · Obria" },
+      { title: "Nueva obra · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Alta de una obra nueva en Reformas Arnal: datos, cliente, equipo, fases y pagos." },
-      { property: "og:title", content: "Nueva obra · Obria" },
+      { property: "og:title", content: "Nueva obra · Reformas Arnal" },
       { property: "og:description", content: "Alta guiada de una obra nueva." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

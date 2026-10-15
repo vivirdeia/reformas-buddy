@@ -5,11 +5,12 @@ import { PortalCliente } from "@/components/portal";
 import { user } from "@/lib/store";
 
 export const Route = createFileRoute("/vista-cliente/$id")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Vista del cliente · Obria" },
+      { title: "Vista del cliente · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
       { name: "description", content: "Previsualización del portal que ve el cliente de la obra." },
-      { property: "og:title", content: "Vista del cliente · Obria" },
+      { property: "og:title", content: "Vista del cliente · Reformas Arnal" },
       { property: "og:description", content: "Así ve el cliente su reforma." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
