@@ -18,6 +18,7 @@ import { Route as HoyRouteImport } from './routes/hoy'
 import { Route as MiReformaRouteImport } from './routes/mi-reforma'
 import { Route as PanelRouteImport } from './routes/panel'
 import { Route as PresupuestoRouteImport } from './routes/presupuesto'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
@@ -73,6 +74,11 @@ const PanelRoute = PanelRouteImport.update({
 const PresupuestoRoute = PresupuestoRouteImport.update({
   id: '/presupuesto',
   path: '/presupuesto',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IncidenciaIdRoute = IncidenciaIdRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
   '/presupuesto': typeof PresupuestoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/obras/nueva': typeof ObrasNuevaRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
   '/presupuesto': typeof PresupuestoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/obras/nueva': typeof ObrasNuevaRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
   '/presupuesto': typeof PresupuestoRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/obras/nueva': typeof ObrasNuevaRoute
@@ -210,6 +219,7 @@ export interface FileRouteTypes {
     | '/mi-reforma'
     | '/panel'
     | '/presupuesto'
+    | '/sitemap.xml'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/obras/nueva'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/mi-reforma'
     | '/panel'
     | '/presupuesto'
+    | '/sitemap.xml'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/obras/nueva'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/mi-reforma'
     | '/panel'
     | '/presupuesto'
+    | '/sitemap.xml'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/obras/nueva'
@@ -277,6 +289,7 @@ export interface RootRouteChildren {
   MiReformaRoute: typeof MiReformaRoute
   PanelRoute: typeof PanelRoute
   PresupuestoRoute: typeof PresupuestoRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
   ObrasNuevaRoute: typeof ObrasNuevaRoute
@@ -353,6 +366,13 @@ declare module '@tanstack/react-router' {
       path: '/presupuesto'
       fullPath: '/presupuesto'
       preLoaderRoute: typeof PresupuestoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/incidencia/$id': {
@@ -445,6 +465,7 @@ const rootRouteChildren: RootRouteChildren = {
   MiReformaRoute: MiReformaRoute,
   PanelRoute: PanelRoute,
   PresupuestoRoute: PresupuestoRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
   ObrasNuevaRoute: ObrasNuevaRoute,
