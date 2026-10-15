@@ -41,7 +41,7 @@ function Asistente({ db, me }: { db: DB; me: Usuario }) {
   const [eq, setEq] = useState<Obra["equipo"]>({ jefeId: db.usuarios.find((u) => u.rol === "jefe_obra")?.id ?? "", operarioIds: [], gremioIds: [] });
   const [dias, setDias] = useState(() => Object.fromEntries(FASES.map((f) => [f.tipo, f.dias])) as Record<FaseTipo, number>);
   const [pagos, setPagos] = useState<HitoPago[]>(planPagosDefecto);
-  const clientes = db.usuarios.filter((u) => u.rol === "cliente");
+  const clientes = db.usuarios.filter((u) => u.activo !== false && u.rol === "cliente");
   const fases = fasesDesde(v.fechaInicio || hoyISO(), dias);
   const suma = pagos.reduce((s, h) => s + (h.porcentaje || 0), 0);
 
