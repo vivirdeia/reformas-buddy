@@ -9,7 +9,7 @@ import { mutate, uid } from "@/lib/store";
 import type { Obra, OrdenCambio, Partida, Usuario } from "@/lib/types";
 
 export const Route = createFileRoute("/orden-nueva/$id")({
-  validateSearch: (s: Record<string, unknown>): { oc?: string } => (typeof s.oc === "string" ? { oc: s.oc } : {}),
+  validateSearch: (s: Record<string, unknown>): { oc?: string } => (typeof s['oc'] === "string" ? { oc: s['oc'] } : {}),
   head: () => ({
     meta: [
       { title: "Orden de cambio · Obria" },
