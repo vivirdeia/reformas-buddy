@@ -1,5 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, Mail, Phone, HardHat, MessageCircle } from "lucide-react";
+import { ChevronLeft, Mail, Phone, HardHat, MessageCircle, Pencil } from "lucide-react";
+import { useState } from "react";
+import { Confirmar } from "@/components/formularios";
+import { conDeshacer } from "@/lib/deshacer";
 import { AppShell, SoloGerente, Seccion } from "@/components/obria";
 import { Galeria } from "@/components/fotos";
 import { mutate, uid, SOL_LABEL, fecha } from "@/lib/store";
@@ -82,6 +85,7 @@ function Detalle() {
                     <a href={`mailto:${encodeURIComponent(s.email)}`} className="flex h-12 items-center gap-2 truncate rounded-xl bg-secondary px-4 font-semibold"><Mail className="h-5 w-5 shrink-0 text-primary" />{s.email}</a>
                   </div>
                 </div>
+                <EditarSolicitud s={s} />
                 <div className="rounded-2xl bg-card p-5 shadow-card">
                   <div className="mb-3 font-semibold">Estado</div>
                   <div className="grid grid-cols-2 gap-2">
@@ -99,5 +103,39 @@ function Detalle() {
         );
       }}
     </AppShell>
+  );
+}
+
+const TIPOS_SOL = ["Reforma integral de piso", "Cocina", "Baño", "Local comercial"];
+const RANGOS_SOL = ["Menos de 15.000 €", "15.000 – 40.000 €", "40.000 – 70.000 €", "Más de 70.000 €", "Aún no lo sé"];
+const inpS = "h-12 w-full rounded-xl border-2 bg-background px-3 outline-none focus:border-primary";
+
+function EditarSolicitud({ s }: { s: Solicitud }) {
+  const nav = useNavigate();
+  const [v, setV] = useState<Solicitud | null>(null);
+  const err = v && (!v.nombre.trim() ? "Falta el nombre." : !/^[\d\s+]{9,}$/.test(v.telefono) ? "Teléfono no válido." : !/^\S+@\S+\.\S+$/.test(v.email) ? "Email no válido." : v.m2 <= 0 ? "Indica los m²." : "");
+  const guardar = () => { if (v && !err && mutate((d) => { const i = d.solicitudes.findIndex((x) => x.id === s.id); if (i >= 0) d.solicitudes[i] = { ...v, nombre: v.nombre.trim(), comentario: v.comentario?.trim() || undefined }; })) setV(null); };
+  const borrar = () => { if (conDeshacer("Solicitud borrada", (d) => { d.solicitudes = d.solicitudes.filter((x) => x.id !== s.id); })) nav({ to: "/solicitudes" }); };
+  const f = (k: keyof Solicitud, l: string, type = "text") => (
+    <label className="block"><span className="mb-1 block text-xs font-semibold text-muted-foreground">{l}</span>
+      <input type={type} className={inpS} value={String(v![k] ?? "")} onChange={(e) => setV({ ...v!, [k]: type === "number" ? Number(e.target.value) : e.target.value })} /></label>
+  );
+  if (!v) return (
+    <div className="flex flex-wrap gap-2 rounded-2xl bg-card p-3 shadow-card">
+      <button onClick={() => setV(structuredClone(s))} className="flex h-11 flex-1 items-center justify-center gap-1 rounded-xl border-2 font-semibold"><Pencil className="h-4 w-4" />Editar datos</button>
+      <Confirmar pregunta="¿Borrar la solicitud?" onSi={borrar} />
+    </div>
+  );
+  return (
+    <div className="space-y-3 rounded-2xl border-2 border-primary/40 bg-card p-5 shadow-card">
+      <div className="font-semibold">Editar solicitud</div>
+      {f("nombre", "Nombre")}{f("telefono", "Teléfono", "tel")}{f("email", "Email", "email")}
+      <label className="block"><span className="mb-1 block text-xs font-semibold text-muted-foreground">Tipo</span><select className={inpS} value={v.tipo} onChange={(e) => setV({ ...v, tipo: e.target.value })}>{[...new Set([...TIPOS_SOL, v.tipo])].map((t) => <option key={t}>{t}</option>)}</select></label>
+      {f("m2", "Superficie (m²)", "number")}{f("zona", "Barrio o código postal")}{f("inicio", "Inicio deseado", "date")}
+      <label className="block"><span className="mb-1 block text-xs font-semibold text-muted-foreground">Presupuesto</span><select className={inpS} value={v.rango} onChange={(e) => setV({ ...v, rango: e.target.value })}>{[...new Set([...RANGOS_SOL, v.rango])].map((t) => <option key={t}>{t}</option>)}</select></label>
+      <label className="block"><span className="mb-1 block text-xs font-semibold text-muted-foreground">Comentario</span><textarea rows={3} className={cn(inpS, "h-auto py-2")} value={v.comentario ?? ""} onChange={(e) => setV({ ...v, comentario: e.target.value })} /></label>
+      {err && <p className="text-sm font-semibold text-danger">{err}</p>}
+      <div className="flex gap-2"><button onClick={() => setV(null)} className="h-12 flex-1 rounded-xl border-2 font-semibold">Cancelar</button><button disabled={!!err} onClick={guardar} className="h-12 flex-1 rounded-xl bg-primary font-semibold text-primary-foreground disabled:opacity-40">Guardar</button></div>
+    </div>
   );
 }
