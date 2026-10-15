@@ -59,10 +59,10 @@ function Panel({ db }: { db: DB }) {
         <Kpi icon={Wallet} tone="primary" label="Pendiente de cobro" value={kEuro(pendCobro)} sub={`${solicitados.length} pagos solicitados`} />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <Seccion titulo="Requiere tu atención" className="xl:col-span-1" extra={<span className="rounded-full bg-danger-soft px-3 py-1 text-xs font-bold text-danger">{atencion.length}</span>}>
+      <div className="min-w-0 space-y-6">
+        <Seccion titulo="Requiere tu atención" extra={<span className="rounded-full bg-danger-soft px-3 py-1 text-xs font-bold text-danger">{atencion.length}</span>}>
           {atencion.length === 0 ? <p className="text-sm text-muted-foreground">Todo en orden.</p> : (
-            <ul className="space-y-2">
+            <ul className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
               {atencion.map((a) => (
                 <li key={a.k}>
                   <Link to="/obras/$id" params={{ id: a.id }} className="flex items-center gap-3 rounded-2xl border-2 p-3 transition hover:border-primary">
@@ -99,7 +99,7 @@ function TablaObras({ db }: { db: DB }) {
   );
   const jefes = db.usuarios.filter((u) => u.rol === "jefe_obra");
   return (
-    <Seccion titulo="Todas las obras" className="xl:col-span-2" extra={
+    <Seccion titulo="Todas las obras" extra={
       <div className="flex flex-wrap gap-2">
         <select value={est} onChange={(e) => setEst(e.target.value as EstadoObra | "todas")} className="h-10 rounded-xl border-2 bg-background px-2 text-sm"><option value="todas">Todos los estados</option>{Object.entries(ESTADO_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
         <select value={jefe} onChange={(e) => setJefe(e.target.value)} className="h-10 rounded-xl border-2 bg-background px-2 text-sm"><option value="todos">Todos los jefes</option>{jefes.map((j) => <option key={j.id} value={j.id}>{j.nombre}</option>)}</select>
