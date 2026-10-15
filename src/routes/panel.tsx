@@ -5,7 +5,7 @@ import { HardHat, AlertTriangle, Siren, PenLine, TrendingUp, Hourglass, ArrowUpD
 import { AppShell, Kpi, Progreso, Seccion, Semaforo, SoloGerente } from "@/components/obria";
 import { obrasVivas, avance, faseActual, fecha, user, ESTADO_LABEL, euro } from "@/lib/store";
 import { importeHito, vigente } from "@/lib/economia";
-import { dd, desviacion, finEstimado, kEuro } from "@/lib/analitica";
+import { dd, desviacion, finEstimado, kEuro, olvidados } from "@/lib/analitica";
 import { addDias, hoyISO } from "@/lib/fechas";
 import type { DB, EstadoObra } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,7 @@ function Panel({ db }: { db: DB }) {
   const riesgo = activas.filter((o) => calcularEstadoObra(o) === "en_riesgo" || calcularEstadoObra(o) === "retrasada").length;
 
   const atencion = [
+    ...olvidados(db).map((f) => ({ k: "f" + f.id, icon: Clock, tone: "danger", t: `Fichaje abierto más de 12 h: ${user(db, f.userId)?.nombre}`, s: `${db.obras.find((o) => o.id === f.obraId)?.nombre ?? ""} · desde ${fecha(f.entrada.slice(0, 10))}`, id: f.obraId })),
     ...incAbiertas.filter((x) => x.i.gravedad === "alta").map((x) => ({ k: x.i.id, icon: Siren, tone: "danger", t: `Incidencia grave: ${x.i.titulo}`, s: `${x.o.nombre} · desde el ${fecha(x.i.fecha)}`, id: x.o.id })),
     ...activas.filter((o) => calcularEstadoObra(o) === "retrasada").map((o) => ({ k: "r" + o.id, icon: Hourglass, tone: "danger", t: `Obra retrasada ${desviacion(o)} días`, s: `${o.nombre} · ${user(db, o.equipo.jefeId)?.nombre}`, id: o.id })),
     ...solicitados.map((p) => ({ k: p.h.id, icon: Wallet, tone: "warn", t: `Pago solicitado sin cobrar: ${euro(p.imp)}`, s: `${p.o.nombre} · ${p.h.concepto}`, id: p.o.id })),

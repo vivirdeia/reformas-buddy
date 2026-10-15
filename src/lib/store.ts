@@ -25,6 +25,8 @@ const MIGRACIONES: Record<number, (d: DB) => void> = {
   8: () => {},
   // v9: campos opcionales archivada, mensajeCliente y notasCliente. No toca datos.
   9: () => {},
+  // v10: estado "anulada" en órdenes, corrección de fichajes y notas editadas (campos opcionales). No toca datos.
+  10: () => {},
 };
 function normalizar(d: DB) {
   d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {};
@@ -82,7 +84,7 @@ export function saveDB(db: DB, notificar = true): boolean {
   catch { ok = false; memoria = structuredClone(db); avisar({ tipo: "espacio" }); }
   if (ok) {
     clearTimeout(gc);
-    gc = setTimeout(async () => { await esperarEscrituras(); const r = leerRaw(); if (r) limpiarHuerfanos(new Set(refsEn(r))); }, 1500);
+    gc = setTimeout(async () => { await esperarEscrituras(); const r = leerRaw(); if (r) limpiarHuerfanos(new Set(refsEn(r))); }, 12000); // margen para «Deshacer»
   }
   if (notificar) window.dispatchEvent(new Event(EVT));
   return ok;
