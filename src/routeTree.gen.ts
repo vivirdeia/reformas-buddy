@@ -19,6 +19,8 @@ import { Route as ObrasIdRouteImport } from './routes/obras.$id'
 import { Route as OrdenNuevaIdRouteImport } from './routes/orden-nueva.$id'
 import { Route as ParteIdRouteImport } from './routes/parte.$id'
 import { Route as VistaClienteIdRouteImport } from './routes/vista-cliente.$id'
+import { Route as JustificanteObraIdOcIdRouteImport } from './routes/justificante.$obraId.$ocId'
+import { Route as OrdenObraIdOcIdRouteImport } from './routes/orden.$obraId.$ocId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -70,6 +72,16 @@ const VistaClienteIdRoute = VistaClienteIdRouteImport.update({
   path: '/vista-cliente/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JustificanteObraIdOcIdRoute = JustificanteObraIdOcIdRouteImport.update({
+  id: '/justificante/$obraId/$ocId',
+  path: '/justificante/$obraId/$ocId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdenObraIdOcIdRoute = OrdenObraIdOcIdRouteImport.update({
+  id: '/orden/$obraId/$ocId',
+  path: '/orden/$obraId/$ocId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +94,8 @@ export interface FileRoutesByFullPath {
   '/parte/$id': typeof ParteIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
+  '/justificante/$obraId/$ocId': typeof JustificanteObraIdOcIdRoute
+  '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +108,8 @@ export interface FileRoutesByTo {
   '/parte/$id': typeof ParteIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras': typeof ObrasIndexRoute
+  '/justificante/$obraId/$ocId': typeof JustificanteObraIdOcIdRoute
+  '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +123,8 @@ export interface FileRoutesById {
   '/parte/$id': typeof ParteIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
+  '/justificante/$obraId/$ocId': typeof JustificanteObraIdOcIdRoute
+  '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +139,8 @@ export interface FileRouteTypes {
     | '/parte/$id'
     | '/vista-cliente/$id'
     | '/obras/'
+    | '/justificante/$obraId/$ocId'
+    | '/orden/$obraId/$ocId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +153,8 @@ export interface FileRouteTypes {
     | '/parte/$id'
     | '/vista-cliente/$id'
     | '/obras'
+    | '/justificante/$obraId/$ocId'
+    | '/orden/$obraId/$ocId'
   id:
     | '__root__'
     | '/'
@@ -145,6 +167,8 @@ export interface FileRouteTypes {
     | '/parte/$id'
     | '/vista-cliente/$id'
     | '/obras/'
+    | '/justificante/$obraId/$ocId'
+    | '/orden/$obraId/$ocId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -158,6 +182,8 @@ export interface RootRouteChildren {
   ParteIdRoute: typeof ParteIdRoute
   VistaClienteIdRoute: typeof VistaClienteIdRoute
   ObrasIndexRoute: typeof ObrasIndexRoute
+  JustificanteObraIdOcIdRoute: typeof JustificanteObraIdOcIdRoute
+  OrdenObraIdOcIdRoute: typeof OrdenObraIdOcIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -232,6 +258,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VistaClienteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/justificante/$obraId/$ocId': {
+      id: '/justificante/$obraId/$ocId'
+      path: '/justificante/$obraId/$ocId'
+      fullPath: '/justificante/$obraId/$ocId'
+      preLoaderRoute: typeof JustificanteObraIdOcIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orden/$obraId/$ocId': {
+      id: '/orden/$obraId/$ocId'
+      path: '/orden/$obraId/$ocId'
+      fullPath: '/orden/$obraId/$ocId'
+      preLoaderRoute: typeof OrdenObraIdOcIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -246,6 +286,8 @@ const rootRouteChildren: RootRouteChildren = {
   ParteIdRoute: ParteIdRoute,
   VistaClienteIdRoute: VistaClienteIdRoute,
   ObrasIndexRoute: ObrasIndexRoute,
+  JustificanteObraIdOcIdRoute: JustificanteObraIdOcIdRoute,
+  OrdenObraIdOcIdRoute: OrdenObraIdOcIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

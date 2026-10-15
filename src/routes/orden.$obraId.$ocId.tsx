@@ -39,8 +39,6 @@ function Pagina() {
 }
 
 function Volver({ obraId }: { obraId: string }) {
-  const [esCliente] = useState(() => typeof window !== "undefined" && false);
-  void esCliente;
   return <button onClick={() => history.back()} className="flex h-11 items-center gap-1 font-semibold" aria-label={`Volver a ${obraId}`}><ChevronLeft className="h-6 w-6" />Volver</button>;
 }
 
