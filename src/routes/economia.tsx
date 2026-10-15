@@ -65,7 +65,7 @@ function Economia({ db }: { db: DB }) {
           <div className="flex h-64 items-end gap-1.5 sm:gap-3">
             {meses.map((m) => (
               <div key={m.clave} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
-                <span className="text-xs font-bold tabular-nums">{m.total ? kEuro(m.total) : "—"}</span>
+                <span className="text-[10px] font-bold tabular-nums sm:text-xs">{m.total ? kEuro(m.total) : "—"}</span>
                 <div className="w-full rounded-t-xl bg-primary transition-all duration-700" style={{ height: `${(m.total / maxMes) * 80}%`, minHeight: m.total ? 6 : 2 }} />
                 <span className="text-xs font-semibold capitalize text-muted-foreground">{m.label}</span>
               </div>
