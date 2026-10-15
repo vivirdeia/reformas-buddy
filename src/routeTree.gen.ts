@@ -16,6 +16,7 @@ import { Route as MiReformaRouteImport } from './routes/mi-reforma'
 import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
+import { Route as OrdenNuevaIdRouteImport } from './routes/orden-nueva.$id'
 import { Route as ParteIdRouteImport } from './routes/parte.$id'
 import { Route as VistaClienteIdRouteImport } from './routes/vista-cliente.$id'
 
@@ -54,6 +55,11 @@ const ObrasIdRoute = ObrasIdRouteImport.update({
   path: '/obras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdenNuevaIdRoute = OrdenNuevaIdRouteImport.update({
+  id: '/orden-nueva/$id',
+  path: '/orden-nueva/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParteIdRoute = ParteIdRouteImport.update({
   id: '/parte/$id',
   path: '/parte/$id',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/mi-reforma': typeof MiReformaRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/mi-reforma': typeof MiReformaRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras': typeof ObrasIndexRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/mi-reforma': typeof MiReformaRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/mi-reforma'
     | '/incidencia/$id'
     | '/obras/$id'
+    | '/orden-nueva/$id'
     | '/parte/$id'
     | '/vista-cliente/$id'
     | '/obras/'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/mi-reforma'
     | '/incidencia/$id'
     | '/obras/$id'
+    | '/orden-nueva/$id'
     | '/parte/$id'
     | '/vista-cliente/$id'
     | '/obras'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/mi-reforma'
     | '/incidencia/$id'
     | '/obras/$id'
+    | '/orden-nueva/$id'
     | '/parte/$id'
     | '/vista-cliente/$id'
     | '/obras/'
@@ -142,6 +154,7 @@ export interface RootRouteChildren {
   MiReformaRoute: typeof MiReformaRoute
   IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
+  OrdenNuevaIdRoute: typeof OrdenNuevaIdRoute
   ParteIdRoute: typeof ParteIdRoute
   VistaClienteIdRoute: typeof VistaClienteIdRoute
   ObrasIndexRoute: typeof ObrasIndexRoute
@@ -198,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ObrasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orden-nueva/$id': {
+      id: '/orden-nueva/$id'
+      path: '/orden-nueva/$id'
+      fullPath: '/orden-nueva/$id'
+      preLoaderRoute: typeof OrdenNuevaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parte/$id': {
       id: '/parte/$id'
       path: '/parte/$id'
@@ -222,6 +242,7 @@ const rootRouteChildren: RootRouteChildren = {
   MiReformaRoute: MiReformaRoute,
   IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
+  OrdenNuevaIdRoute: OrdenNuevaIdRoute,
   ParteIdRoute: ParteIdRoute,
   VistaClienteIdRoute: VistaClienteIdRoute,
   ObrasIndexRoute: ObrasIndexRoute,
