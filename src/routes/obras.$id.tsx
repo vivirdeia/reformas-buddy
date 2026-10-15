@@ -2,17 +2,27 @@ import { calcularEstadoObra, estadoAutomatico } from "@/lib/analitica";
 import { ESTADO_LABEL } from "@/lib/store";
 import type { EstadoObra } from "@/lib/types";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileClock, Check, Circle, Loader, Ban } from "lucide-react";
+import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileClock, Check } from "lucide-react";
 import type { ReactNode } from "react";
 import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
 import { avance, euro, fecha, faseActual, nombreFase, user } from "@/lib/store";
-import type { DB, FaseEstado, Obra, Usuario } from "@/lib/types";
+import type { DB, Obra, Usuario } from "@/lib/types";
 import { Galeria } from "@/components/fotos";
 import { OrdenesEquipo, PagosEquipo } from "@/components/equipo-economia";
 import { totales, vigente } from "@/lib/economia";
 import { dur, fechaLarga, msFichaje, mutate } from "@/lib/store";
 import { ClipboardList, CheckCircle2, Clock, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Pencil } from "lucide-react";
+import { EditarObra, FasesObra, MensajeCliente, ZonaPeligro } from "@/components/gestion-obra";
+
+function Gestion({ db, o }: { db: DB; o: Obra }) {
+  const [abierto, setAbierto] = useState(false);
+  return abierto ? <EditarObra db={db} o={o} onClose={() => setAbierto(false)} /> : (
+    <button onClick={() => setAbierto(true)} className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 bg-card font-semibold"><Pencil className="h-5 w-5" />Editar datos y equipo</button>
+  );
+}
 
 export const Route = createFileRoute("/obras/$id")({
   head: () => ({
@@ -27,13 +37,6 @@ export const Route = createFileRoute("/obras/$id")({
   }),
   component: Ficha,
 });
-
-const FE: Record<FaseEstado, { label: string; icon: typeof Check; cls: string }> = {
-  completada: { label: "Completada", icon: Check, cls: "bg-ok text-primary-foreground" },
-  en_curso: { label: "En curso", icon: Loader, cls: "bg-primary text-primary-foreground" },
-  bloqueada: { label: "Bloqueada", icon: Ban, cls: "bg-danger text-destructive-foreground" },
-  pendiente: { label: "Pendiente", icon: Circle, cls: "bg-muted text-muted-foreground" },
-};
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -67,7 +70,8 @@ function Ficha() {
                 <p className="flex items-center gap-1 text-sm text-ink-foreground/80"><MapPin className="h-4 w-4" />{o.direccion}, {o.barrio}</p>
               </div>
             </div>
-            {(me.rol === "gerente" || me.rol === "jefe_obra") && <EstadoControl o={o} />}
+            {o.archivada && <div className="rounded-2xl bg-secondary p-3 text-sm font-semibold text-secondary-foreground">Obra archivada: no aparece en listados, KPIs ni Gantt.</div>}
+            {(me.rol === "gerente" || me.rol === "jefe_obra") && <><Gestion db={db} o={o} /><EstadoControl o={o} /></>}
 
             <div className="rounded-3xl bg-card p-4 shadow-card">
               <div className="flex items-end justify-between">
@@ -107,29 +111,7 @@ function Ficha() {
               </div>
             </Card>
 
-            <Card title="Fases de la obra">
-              <ol className="space-y-1">
-                {o.fases.map((f, i) => {
-                  const e = FE[f.estado];
-                  const tarde = f.finReal && f.finReal > f.finPrevisto;
-                  return (
-                    <li key={f.tipo} className="flex gap-3">
-                      <div className="flex flex-col items-center">
-                        <div className={cn("grid h-9 w-9 place-items-center rounded-full", e.cls)}><e.icon className="h-4 w-4" /></div>
-                        {i < o.fases.length - 1 && <div className="w-0.5 flex-1 bg-border" />}
-                      </div>
-                      <div className="flex-1 pb-4">
-                        <div className="flex items-center justify-between"><span className="font-semibold">{nombreFase(f.tipo)}</span><span className="text-xs font-semibold text-muted-foreground">{e.label}</span></div>
-                        <div className="mt-1 grid grid-cols-2 gap-2 text-xs">
-                          <div><span className="text-muted-foreground">Previsto </span>{fecha(f.inicioPrevisto)} – {fecha(f.finPrevisto)}</div>
-                          <div className={cn(tarde && "font-semibold text-danger")}><span className="text-muted-foreground">Real </span>{f.inicioReal ? `${fecha(f.inicioReal)} – ${f.finReal ? fecha(f.finReal) : "…"}` : "—"}</div>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </Card>
+            <Card title="Fases de la obra"><FasesObra o={o} puede={me.rol === "gerente" || me.rol === "jefe_obra"} /></Card>
 
             <Card title="Equipo asignado">
               <div className="space-y-3">
@@ -151,6 +133,7 @@ function Ficha() {
             </Card>
 
             {me.rol !== "cliente" && <Interno db={db} me={me} o={o} />}
+            {(me.rol === "gerente" || me.rol === "jefe_obra") && <MensajeCliente key={o.mensajeCliente ?? ""} o={o} />}
 
             <Card title="Notas">
               {o.notas.length === 0 ? <p className="text-sm text-muted-foreground">Sin notas todavía.</p> : (
@@ -164,6 +147,7 @@ function Ficha() {
                 </ul>
               )}
             </Card>
+            {me.rol === "gerente" && <ZonaPeligro o={o} />}
           </div>
         );
       }}

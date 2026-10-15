@@ -51,6 +51,7 @@ function Panel({ db }: { db: DB }) {
         <p className="text-sm text-muted-foreground first-letter:uppercase">{new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</p>
         <h1 className="text-3xl font-bold">Panel</h1>
       </div>
+      <Link to="/obras/nueva" className="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-4 font-semibold text-primary-foreground shadow-cta">+ Nueva obra</Link>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Kpi icon={HardHat} label="Obras activas" value={activas.length} sub={`${obrasVivas(db).length - activas.length} terminada`} />
         <Kpi icon={AlertTriangle} tone={riesgo ? "warn" : "ok"} label="En riesgo o retraso" value={riesgo} sub="de las activas" />

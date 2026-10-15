@@ -30,6 +30,8 @@ function entrega(o: Obra) {
 
 function mensaje(o: Obra): { titulo: string; texto: string; tono: "ok" | "suave" | "fin" } {
   const e = calcularEstadoObra(o);
+  const manual = o.mensajeCliente?.trim();
+  if (manual) return { titulo: e === "terminada" ? "¡Tu reforma está terminada!" : "Novedades de tu reforma", texto: manual, tono: e === "terminada" ? "fin" : "ok" };
   if (e === "terminada") return { titulo: "¡Tu reforma está terminada!", texto: "Ha sido un placer acompañarte. Disfruta de tu nuevo espacio.", tono: "fin" };
   const m = motivoEstado(o);
   if (m === "material") return { titulo: "Estamos recuperando unos días", texto: "Un retraso en la llegada de material nos ha movido el calendario. El equipo está reorganizando trabajos para recortarlo al máximo.", tono: "suave" };
@@ -253,6 +255,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
             <a href={`https://wa.me/34${tel}?text=${encodeURIComponent(`Hola ${jefe.nombre.split(" ")[0]}, te escribo por la ${o.nombre.toLowerCase()}.`)}`} target="_blank" rel="noreferrer" className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-ok font-semibold text-primary-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>
           </div>
           <p className="mt-4 flex items-start gap-2 text-sm text-ink-foreground/80"><Clock className="mt-0.5 h-4 w-4 shrink-0" />{o.horario}</p>
+          {o.notasCliente && <p className="mt-3 whitespace-pre-line rounded-2xl bg-ink-foreground/10 p-3 text-sm text-ink-foreground">{o.notasCliente}</p>}
         </section>
       )}
 
