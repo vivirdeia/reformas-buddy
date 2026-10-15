@@ -13,3 +13,4 @@
 - All writes go through `saveDB`/`mutate`, which never throw and surface UI notices via `avisar`; never use `alert`. Why: safe storage-full handling.
 - Obra state (traffic light), progress, current phase, deviation and estimated end are always derived via `calcularEstadoObra`/helpers in `src/lib/analitica.ts`; never read stored `o.estado` in UI (only `estadoManual` override). Why: single source of truth that reacts to data changes.
 - Obra mutations (phase actions, date recalculation, deletion cascade, defaults) live in `src/lib/obras.ts`; archived obras are excluded via `obrasVivas(db)` in lists/KPIs/Gantt. Why: one place for obra rules.
+- Destructive actions use `Confirmar` (two-step inline) plus `conDeshacer` (snapshot + sonner "Deshacer" toast); IndexedDB orphan cleanup is delayed 12 s so undo can restore files. Why: safe deletes without losing photos.
