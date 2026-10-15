@@ -56,7 +56,15 @@ export function createSeed(): DB {
   const hoy = hoyISO();
   const S = (n: number) => addDias(hoy, -n);
   const db: DB = {
-    version: 5, fichajes: [], tareas: [],
+    version: 6, fichajes: [], tareas: [],
+    solicitudes: [
+      { id: "s-1", fecha: new Date(Date.now() - 2 * 3600e3).toISOString(), tipo: "Reforma integral de piso", m2: 85, zona: "Chamberí · 28010", inicio: addDias(hoy, 60), rango: "40.000 – 70.000 €", fotos: [img("photo-1503387762-592deb58ef4e"), img("photo-1581858726788-75bc0f6a952d")], nombre: "Laura Benítez", telefono: "644 218 905", email: "laura.benitez@gmail.com", comentario: "Piso de los años 60, queremos tirar un tabique para abrir la cocina al salón.", estado: "nueva" },
+      { id: "s-2", fecha: new Date(Date.now() - 20 * 3600e3).toISOString(), tipo: "Baño", m2: 6, zona: "Moratalaz · 28030", inicio: addDias(hoy, 30), rango: "Menos de 15.000 €", fotos: [img("photo-1504307651254-35680f356dfd")], nombre: "Andrés Pineda", telefono: "678 330 412", email: "apineda@hotmail.es", comentario: "Cambiar bañera por plato de ducha.", estado: "nueva" },
+      { id: "s-3", fecha: S(2) + "T09:40:00.000Z", tipo: "Cocina", m2: 14, zona: "Retiro · 28009", inicio: addDias(hoy, 45), rango: "15.000 – 40.000 €", fotos: [], nombre: "Sofía Lozano", telefono: "699 104 223", email: "sofia.lozano@outlook.es", estado: "contactada", notas: "Llamada hecha. Prefiere visita por la tarde." },
+      { id: "s-4", fecha: S(5) + "T17:15:00.000Z", tipo: "Local comercial", m2: 140, zona: "Malasaña · 28004", inicio: addDias(hoy, 21), rango: "Más de 70.000 €", fotos: [img("photo-1541888946425-d81bb19240f5")], nombre: "Hugo Marín (Panadería Masa Madre)", telefono: "910 223 548", email: "hugo@masamadre.es", comentario: "Necesitamos licencia de actividad y obrador visto desde la calle.", estado: "visita", notas: "Visita agendada el jueves a las 10:00 con Raúl." },
+      { id: "s-5", fecha: S(9) + "T11:05:00.000Z", tipo: "Reforma integral de piso", m2: 110, zona: "Salamanca · 28006", inicio: addDias(hoy, 40), rango: "40.000 – 70.000 €", fotos: [], nombre: "Teresa Villalba", telefono: "655 908 117", email: "tvillalba@gmail.com", estado: "presupuestada", notas: "Presupuesto enviado: 62.400 €. Seguimiento el lunes." },
+      { id: "s-6", fecha: S(25) + "T10:00:00.000Z", tipo: "Baño", m2: 5, zona: "Usera · 28026", inicio: S(5), rango: "Menos de 15.000 €", fotos: [], nombre: "Rubén Ortiz", telefono: "633 772 019", email: "rortiz@yahoo.es", estado: "perdida", notas: "Ha elegido otra empresa por precio." },
+    ],
     costeHora: { "Jefe de obra": 32, "Oficial de 1ª": 26, "Albañil": 23, "Peón": 18, "Pintor": 22 },
     usuarios: [
       { id: "u-gerente", nombre: "Javier Arnal", rol: "gerente", pin: "1111", telefono: "600 112 233", email: "javier@reformasarnal.es" },
