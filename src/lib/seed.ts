@@ -46,14 +46,14 @@ const base = (o: Partial<Obra> & Pick<Obra, "id">): Obra => ({
   nombre: "", tipo: "piso", clienteId: "", direccion: "", barrio: "", m2: 80, presupuesto: 0,
   fechaInicio: "", fechaFinPrevista: "", estado: "en_plazo", portada: "", fases: [],
   equipo: { jefeId: "u-jefe1", operarioIds: [], gremioIds: [] },
-  notas: [], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], horario: "Lunes a viernes de 8:00 a 17:00 · Trabajos ruidosos de 9:00 a 14:00", ...o,
+  notas: [], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], pagos: [], horario: "Lunes a viernes de 8:00 a 17:00 · Trabajos ruidosos de 9:00 a 14:00", ...o,
 });
 
 const fin = (inicio: string) => add(inicio, FASES.reduce((s, f) => s + f.dias, 0) - 1);
 
 export function createSeed(): DB {
   const db: DB = {
-    version: 3, fichajes: [], tareas: [],
+    version: 4, fichajes: [], tareas: [],
     usuarios: [
       { id: "u-gerente", nombre: "Javier Arnal", rol: "gerente", pin: "1111", telefono: "600 112 233", email: "javier@reformasarnal.es" },
       { id: "u-jefe1", nombre: "Marta Ruiz", rol: "jefe_obra", pin: "2222", telefono: "611 204 518" },
@@ -108,7 +108,6 @@ export function createSeed(): DB {
         m2: 88, presupuesto: 47600, fechaInicio: "2026-08-31", fechaFinPrevista: fin("2026-08-31"), estado: "en_plazo",
         portada: img("photo-1556909114-f6e7ad7d3136"), fases: fases("2026-08-31", 3),
         equipo: { jefeId: "u-jefe2", operarioIds: ["u-op1", "u-op5"], gremioIds: ["g-1", "g-2", "g-3"] },
-        ordenesCambio: [{ id: "oc1", fecha: "2026-10-14", titulo: "Suelo radiante en baño ampliado", descripcion: "El cliente solicita suelo radiante eléctrico en el baño principal (6 m²) con termostato wifi.", importe: 1850, diasExtra: 2, estado: "pendiente", solicitadaPor: "u-jefe2" }],
       }),
       base({
         id: "o-5", nombre: "Reforma integral ático Malasaña", clienteId: "c-5", direccion: "C/ del Espíritu Santo 19, ático", barrio: "Universidad",

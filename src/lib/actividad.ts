@@ -187,8 +187,57 @@ export function generarActividad(db: DB) {
     { estancia: "Barra", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1453614512568-c4024d13c247") },
   ];
 
+  generarEconomia(db, hoy);
+
   db.obras.find((o) => o.id === "o-3")?.incidencias.push({
     id: "i-o3-1", fecha: dias[4]!, titulo: "Humedad en pared medianera del baño", descripcion: "Al picar aparece mancha de humedad por filtración del vecino. Se avisó al seguro de la comunidad y se reparó la tubería.",
     gravedad: "media", estado: "resuelta", autorId: "u-op2", fotos: [u(FOTOS.demolicion[0]!)],
+  });
+}
+
+const firmaDemo = (k: number) => `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100'><path d='M15 ${60 + k} C 35 ${15 + k}, 55 15, 65 60 S 95 ${90 - k}, 115 50 S 155 ${20 + k}, 175 60 S 225 80, 245 ${40 + k} S 275 55, 290 40' fill='none' stroke='#2b1d14' stroke-width='3' stroke-linecap='round'/></svg>`)}`;
+
+function generarEconomia(db: DB, hoy: string) {
+  const by = (id: string) => db.obras.find((o) => o.id === id)!;
+  const cli = (o: Obra) => db.usuarios.find((x) => x.id === o.clienteId)!.nombre;
+  const aprobar = (o: Obra, id: string, titulo: string, estancia: string, descripcion: string, partidas: [string, number, number][], diasExtra: number, dia: number, k: number) => {
+    const f = addDias(o.fechaInicio, dia);
+    o.ordenesCambio.push({ id, fecha: f, titulo, estancia, descripcion, partidas: partidas.map(([concepto, cantidad, precio]) => ({ concepto, cantidad, precio })), diasExtra, fotos: [],
+      estado: "aprobada", creadaPor: o.equipo.jefeId, enviadaEn: ts(f, "12:00"), respondidaEn: ts(addDias(f, 1), "19:24"), firma: { imagen: firmaDemo(k), nombre: cli(o), fecha: ts(addDias(f, 1), "19:24") } });
+    o.fechaFinPrevista = addDias(o.fechaFinPrevista, diasExtra);
+  };
+  aprobar(by("o-2"), "oc-o2-1", "Plato de ducha en lugar de bañera", "Baño principal", "Sustituimos la bañera prevista por un plato de ducha extraplano de resina con mampara fija, más cómodo y con más sensación de amplitud.",
+    [["Plato de ducha de resina 140×80 cm", 1, 385], ["Mampara fija de vidrio templado 8 mm", 1, 520], ["Grifería termostática empotrada", 1, 298], ["Mano de obra de adaptación", 6, 42]], 1, 3, 0);
+  aprobar(by("o-3"), "oc-o3-1", "Puerta corredera empotrada en cocina", "Cocina", "Cambiamos la puerta abatible de la cocina por una corredera empotrada en tabique para ganar espacio en el pasillo.",
+    [["Armazón para puerta corredera empotrada", 1, 265], ["Puerta lacada en blanco", 1, 340], ["Mano de obra de albañilería", 5, 42]], 2, 6, 8);
+  aprobar(by("o-6"), "oc-o6-1", "Iluminación LED lineal en la barra", "Barra", "Añadimos un perfil LED regulable bajo la barra y en la contrabarra para dar calidez al local.",
+    [["Perfil LED empotrado (metro lineal)", 6, 48], ["Driver regulable", 1, 95], ["Instalación eléctrica", 4, 45]], 0, 30, -6);
+  const o7 = by("o-7");
+  o7.ordenesCambio.push({ id: "oc-o7-1", fecha: addDias(o7.fechaInicio, 5), titulo: "Tarima de roble natural en lugar de laminado", estancia: "Salón y dormitorios",
+    descripcion: "Propuesta de sustituir el suelo laminado presupuestado por tarima de roble natural barnizada.", partidas: [{ concepto: "Tarima de roble natural (m²)", cantidad: 62, precio: 58 }, { concepto: "Rodapié de roble (ml)", cantidad: 48, precio: 9 }],
+    diasExtra: 3, fotos: [], estado: "rechazada", creadaPor: o7.equipo.jefeId, enviadaEn: ts(addDias(o7.fechaInicio, 5), "10:00"), respondidaEn: ts(addDias(o7.fechaInicio, 6), "21:05"), motivoRechazo: "Preferimos mantener el laminado para no salirnos del presupuesto." });
+  const o4 = by("o-4");
+  o4.ordenesCambio.push({ id: "oc-o4-1", fecha: addDias(hoy, -1), titulo: "Suelo radiante en el baño ampliado", estancia: "Baño principal",
+    descripcion: "Instalamos suelo radiante eléctrico bajo el porcelánico del baño principal (6 m²) con termostato wifi, para que puedas encenderlo desde el móvil antes de llegar a casa.",
+    partidas: [{ concepto: "Malla de suelo radiante eléctrico (m²)", cantidad: 6, precio: 145 }, { concepto: "Termostato wifi programable", cantidad: 1, precio: 189 }, { concepto: "Recrecido con mortero autonivelante (m²)", cantidad: 6, precio: 38 }, { concepto: "Mano de obra de instalación (h)", cantidad: 8, precio: 42 }],
+    diasExtra: 2, fotos: [u(FOTOS.alicatado[0]!), u(FOTOS.electricidad[0]!)], estado: "enviada", creadaPor: o4.equipo.jefeId, enviadaEn: ts(addDias(hoy, -1), "17:40") });
+  const o8 = by("o-8");
+  o8.ordenesCambio.push({ id: "oc-o8-1", fecha: hoy, titulo: "Encimera de cuarzo en lugar de laminada", estancia: "Cocina", descripcion: "Encimera de cuarzo blanco de 2 cm con copete a juego.",
+    partidas: [{ concepto: "Encimera de cuarzo (ml)", cantidad: 3.2, precio: 290 }, { concepto: "Copete de cuarzo (ml)", cantidad: 3.2, precio: 45 }], diasExtra: 0, fotos: [], estado: "borrador", creadaPor: o8.equipo.jefeId });
+
+  db.obras.forEach((o) => {
+    const fin = (i: number) => o.fases[i]!.estado === "completada" ? addDias(o.fases[i]!.finReal!, 3) : null;
+    const h = (id: string, concepto: string, porcentaje: number, pagadoEn: string | null, solicitado = false) => ({
+      id: `${o.id}-${id}`, concepto, porcentaje,
+      estado: (solicitado ? "solicitado" : pagadoEn ? "pagado" : "pendiente") as "pendiente" | "solicitado" | "pagado",
+      solicitadoEn: solicitado ? addDias(hoy, -1) : pagadoEn ? addDias(pagadoEn, -2) : undefined, pagadoEn: solicitado ? undefined : pagadoEn ?? undefined,
+    });
+    const entrega = o.estado === "terminada" ? fin(6) : null;
+    o.pagos = [
+      h("h1", "A la firma del contrato", 30, addDias(o.fechaInicio, -5)),
+      h("h2", "Al terminar instalaciones", 30, fin(2), o.id === "o-8"),
+      h("h3", "Al terminar alicatado y carpintería", 30, fin(4)),
+      h("h4", "A la entrega de llaves", 10, entrega, o.id === "o-5"),
+    ];
   });
 }
