@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AvisosAlmacen } from "@/components/avisos-almacen";
 import {
   Outlet,
   Link,
@@ -124,6 +125,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <AvisosAlmacen />
     </QueryClientProvider>
   );
 }
