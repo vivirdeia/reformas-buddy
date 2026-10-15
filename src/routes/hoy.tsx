@@ -1,3 +1,4 @@
+import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { LogIn, LogOut, AlertTriangle, ClipboardList, Check, Plus, ChevronRight } from "lucide-react";
@@ -29,7 +30,7 @@ function HoyBody({ db, me }: { db: DB; me: Usuario }) {
   const [aviso, setAviso] = useState<string | null>(null);
   useEffect(() => { if (me.rol === "cliente") nav({ to: "/obras" }); }, [me.rol, nav]);
 
-  const obras = db.obras.filter((o) => o.estado !== "terminada" &&
+  const obras = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada" &&
     (me.rol === "jefe_obra" ? o.equipo.jefeId === me.id : me.rol === "operario" ? o.equipo.operarioIds.includes(me.id) : true));
   const mios = db.fichajes.filter((f) => f.userId === me.id && f.entrada.slice(0, 10) <= hoy && new Date(f.entrada).toDateString() === new Date(now).toDateString());
   const abierto = db.fichajes.find((f) => f.userId === me.id && !f.salida);

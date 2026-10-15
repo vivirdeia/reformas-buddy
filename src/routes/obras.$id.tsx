@@ -1,3 +1,4 @@
+import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileClock, Check, Circle, Loader, Ban } from "lucide-react";
 import type { ReactNode } from "react";
@@ -59,7 +60,7 @@ function Ficha() {
               <Foto src={o.portada} alt={o.nombre} className="h-full w-full" />
               <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent" />
               <div className="absolute inset-x-4 bottom-4 text-ink-foreground">
-                <Semaforo estado={o.estado} />
+                <Semaforo estado={calcularEstadoObra(o)} />
                 <h1 className="mt-2 text-2xl font-bold leading-tight">{o.nombre}</h1>
                 <p className="flex items-center gap-1 text-sm text-ink-foreground/80"><MapPin className="h-4 w-4" />{o.direccion}, {o.barrio}</p>
               </div>

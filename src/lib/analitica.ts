@@ -1,13 +1,62 @@
-import type { DB, Obra } from "./types";
+import type { DB, EstadoObra, Obra } from "./types";
 import { avance } from "./store";
 import { importeHito, vigente } from "./economia";
 import { addDias, diaSemana, hoyISO } from "./fechas";
 
 export const dd = (a: string, b: string) => Math.round((new Date(b + "T12:00:00").getTime() - new Date(a + "T12:00:00").getTime()) / 86400000);
 
+/* ---------- Semáforo derivado ---------- */
+/** Umbrales del semáforo automático (en días). */
+export const UMBRALES = {
+  /** Desviación sobre el plan a partir de la cual la obra está retrasada. */
+  RETRASO_DIAS: 5,
+  /** Desviación mínima para considerar la obra en riesgo. */
+  RIESGO_DIAS: 1,
+  /** Días que una fase puede pasar de su fin previsto sin completarse antes de marcar retraso. */
+  FASE_VENCIDA_DIAS: 2,
+  /** Una orden de cambio enviada que añade al menos estos días pone la obra en riesgo. */
+  OC_PENDIENTE_DIAS: 3,
+  /** Una orden aprobada con días extra en este periodo pone la obra en riesgo. */
+  OC_RECIENTE_DIAS: 21,
+} as const;
+
+export const estaTerminada = (o: Obra) => o.fases.length > 0 && o.fases.every((f) => f.estado === "completada");
+const faseVencida = (o: Obra, hoy: string) => o.fases.some((f) => f.estado !== "completada" && dd(f.finPrevisto, hoy) > UMBRALES.FASE_VENCIDA_DIAS);
+const cambioConDias = (o: Obra, hoy: string) => o.ordenesCambio.some((c) =>
+  c.diasExtra > 0 && ((c.estado === "enviada" && c.diasExtra >= UMBRALES.OC_PENDIENTE_DIAS) ||
+    (c.estado === "aprobada" && !!c.respondidaEn && dd(c.respondidaEn.slice(0, 10), hoy) <= UMBRALES.OC_RECIENTE_DIAS)));
+const altaAbierta = (o: Obra) => o.incidencias.some((i) => i.estado === "abierta" && i.gravedad === "alta");
+
+/** Estado calculado solo a partir de los datos (ignora el estado manual). */
+export function estadoAutomatico(o: Obra, hoy = hoyISO()): EstadoObra {
+  if (estaTerminada(o)) return "terminada";
+  const d = desviacion(o, hoy);
+  if (d > UMBRALES.RETRASO_DIAS || faseVencida(o, hoy)) return "retrasada";
+  if (d >= UMBRALES.RIESGO_DIAS || altaAbierta(o) || cambioConDias(o, hoy)) return "en_riesgo";
+  return "en_plazo";
+}
+/** Única fuente del semáforo: estado manual si existe, si no el automático. */
+export const calcularEstadoObra = (o: Obra, hoy = hoyISO()): EstadoObra => o.estadoManual ?? estadoAutomatico(o, hoy);
+
+export type MotivoEstado = "material" | "incidencia" | "cambio" | "general" | null;
+const RX_MATERIAL = /material|stock|suministr|proveedor|pedido|porcel[aá]nic|entrega del/i;
+/** Motivo real de que la obra no vaya en plazo (para el cliente). */
+export function motivoEstado(o: Obra, hoy = hoyISO()): MotivoEstado {
+  const e = calcularEstadoObra(o, hoy);
+  if (e === "en_plazo" || e === "terminada") return null;
+  const reciente = (f: string) => dd(f.slice(0, 10), hoy) <= 30;
+  const abiertas = o.incidencias.filter((i) => i.estado === "abierta");
+  if (o.fases.some((f) => f.estado === "bloqueada") ||
+    abiertas.some((i) => RX_MATERIAL.test(i.titulo + " " + i.descripcion)) ||
+    o.notas.some((n) => reciente(n.fecha) && RX_MATERIAL.test(n.texto))) return "material";
+  if (abiertas.some((i) => i.gravedad !== "baja")) return "incidencia";
+  if (cambioConDias(o, hoy)) return "cambio";
+  return "general";
+}
+
 /** Días de desviación sobre el plan (positivo = retraso). */
 export function desviacion(o: Obra, hoy = hoyISO()) {
-  if (o.estado === "terminada") { const l = o.fases.at(-1)!; return l.finReal ? dd(l.finPrevisto, l.finReal) : 0; }
+  if (estaTerminada(o)) { const l = o.fases.at(-1)!; return l.finReal ? dd(l.finPrevisto, l.finReal) : 0; }
   const cur = o.fases.find((f) => f.estado !== "completada");
   if (!cur) return 0;
   const ini = cur.inicioReal ? dd(cur.inicioPrevisto, cur.inicioReal) : 0;
@@ -27,7 +76,7 @@ export function costeReal(db: DB, o: Obra) {
   const manoObra = h.reduce((s, f) => s + horas(f) * (db.costeHora[oficioDe(db, f.userId)] ?? 20), 0);
   const total = manoObra + o.costes.materiales + o.costes.gremios;
   const av = Math.max(avance(o), 1) / 100;
-  const proyectado = o.estado === "terminada" ? total : total / av;
+  const proyectado = estaTerminada(o) ? total : total / av;
   const v = vigente(o);
   const margen = v - proyectado;
   const pct = margen / v;
