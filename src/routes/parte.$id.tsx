@@ -53,12 +53,13 @@ function Form({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
     return h > 0.25 ? Math.round(h * 2) / 2 : 8;
   });
   const [fotos, setFotos] = useState<string[]>([]);
+  const [visible, setVisible] = useState(true);
   const ok = trabajos.trim().length > 3 && pres.length > 0 && horas > 0;
 
   const enviar = () => {
     if (!ok) return;
     const saved = mutate((d) => {
-      d.obras.find((x) => x.id === o.id)!.partesDiarios.push({ id: uid("p"), fecha: hoy, autorId: me.id, horas, operarioIds: pres, trabajos: trabajos.trim(), fotos, fase });
+      d.obras.find((x) => x.id === o.id)!.partesDiarios.push({ id: uid("p"), fecha: hoy, autorId: me.id, horas, operarioIds: pres, trabajos: trabajos.trim(), fotos, fase, visibleCliente: visible });
     });
     if (saved) nav({ to: "/obras/$id", params: { id: o.id } });
   };
@@ -112,6 +113,11 @@ function Form({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
         <span className={label}>Fotos</span>
         <FotoPicker fotos={fotos} onChange={setFotos} />
       </div>
+
+      <button type="button" role="switch" aria-checked={visible} onClick={() => setVisible(!visible)} className="flex w-full items-center justify-between rounded-2xl bg-card p-4 text-left shadow-card">
+        <span><span className="block font-semibold">Visible para el cliente</span><span className="text-sm text-muted-foreground">Aparecerá en su diario de obra con las fotos</span></span>
+        <span className={cn("relative h-8 w-14 shrink-0 rounded-full transition", visible ? "bg-primary" : "bg-input")}><span className={cn("absolute top-1 h-6 w-6 rounded-full bg-card shadow transition-all", visible ? "left-7" : "left-1")} /></span>
+      </button>
 
       <button disabled={!ok} onClick={enviar} className="h-16 w-full rounded-2xl bg-primary text-lg font-bold text-primary-foreground shadow-cta disabled:opacity-40">Enviar parte</button>
     </div>

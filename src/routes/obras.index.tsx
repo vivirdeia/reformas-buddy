@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, MapPin, AlertTriangle, FileClock } from "lucide-react";
 import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
@@ -23,11 +23,13 @@ export const Route = createFileRoute("/obras/")({
 const FILTROS: (EstadoObra | "todas")[] = ["todas", "en_plazo", "en_riesgo", "retrasada", "terminada"];
 
 function Obras() {
+  const nav = useNavigate();
   const [q, setQ] = useState("");
   const [f, setF] = useState<EstadoObra | "todas">("todas");
   return (
     <AppShell>
       {({ db, me }) => {
+        if (me.rol === "cliente") { queueMicrotask(() => nav({ to: "/mi-reforma" })); return null; }
         const mias = me.rol === "cliente" ? db.obras.filter((o) => o.id === me.obraId) : db.obras;
         const t = q.toLowerCase();
         const lista = mias.filter((o) => (f === "todas" || o.estado === f) &&

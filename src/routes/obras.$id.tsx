@@ -6,7 +6,7 @@ import { avance, euro, fecha, faseActual, nombreFase, user } from "@/lib/store";
 import type { DB, FaseEstado, Obra, Usuario } from "@/lib/types";
 import { Galeria } from "@/components/fotos";
 import { dur, fechaLarga, msFichaje, mutate } from "@/lib/store";
-import { ClipboardList, CheckCircle2, Clock } from "lucide-react";
+import { ClipboardList, CheckCircle2, Clock, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/obras/$id")({
@@ -178,6 +178,7 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
     <>
       <div className="grid grid-cols-3 gap-2">
         <Link to="/parte/$id" params={{ id: o.id }} className="col-span-2 flex h-14 items-center justify-center gap-2 rounded-2xl bg-primary font-semibold text-primary-foreground shadow-cta"><ClipboardList className="h-5 w-5" />Nuevo parte</Link>
+        <Link to="/vista-cliente/$id" params={{ id: o.id }} className="col-span-3 flex h-12 items-center justify-center gap-2 rounded-2xl border-2 font-semibold"><Eye className="h-5 w-5" />Ver como cliente</Link>
         <Link to="/incidencia/$id" params={{ id: o.id }} className="flex h-14 items-center justify-center gap-1 rounded-2xl bg-danger-soft text-sm font-semibold text-danger"><AlertTriangle className="h-5 w-5" />Incidencia</Link>
       </div>
 
@@ -214,7 +215,7 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
                   <div key={p.id} className="mb-2 rounded-2xl bg-muted p-3">
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span><span className="font-semibold text-foreground">{user(db, p.autorId)?.nombre}</span>{p.fase && ` · ${nombreFase(p.fase)}`}</span>
-                      <span className="font-bold text-foreground">{p.horas.toLocaleString("es-ES")} h</span>
+                      <span className="flex items-center gap-2 font-bold text-foreground">{!p.visibleCliente && <EyeOff className="h-4 w-4 text-muted-foreground" aria-label="Oculto al cliente" />}{p.horas.toLocaleString("es-ES")} h</span>
                     </div>
                     <p className="mt-1 text-sm">{p.trabajos}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{p.operarioIds.map((id) => user(db, id)?.nombre).join(", ")}</p>
