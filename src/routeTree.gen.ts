@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccesoRouteImport } from './routes/acceso'
 import { Route as AjustesRouteImport } from './routes/ajustes'
 import { Route as EconomiaRouteImport } from './routes/economia'
@@ -25,6 +26,11 @@ import { Route as VistaClienteIdRouteImport } from './routes/vista-cliente.$id'
 import { Route as JustificanteObraIdOcIdRouteImport } from './routes/justificante.$obraId.$ocId'
 import { Route as OrdenObraIdOcIdRouteImport } from './routes/orden.$obraId.$ocId'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccesoRoute = AccesoRouteImport.update({
   id: '/acceso',
   path: '/acceso',
@@ -102,6 +108,7 @@ const OrdenObraIdOcIdRoute = OrdenObraIdOcIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/ajustes': typeof AjustesRoute
   '/economia': typeof EconomiaRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/ajustes': typeof AjustesRoute
   '/economia': typeof EconomiaRoute
@@ -137,6 +145,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/acceso': typeof AccesoRoute
   '/ajustes': typeof AjustesRoute
   '/economia': typeof EconomiaRoute
@@ -156,6 +165,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/acceso'
     | '/ajustes'
     | '/economia'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/orden/$obraId/$ocId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
     | '/acceso'
     | '/ajustes'
     | '/economia'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/orden/$obraId/$ocId'
   id:
     | '__root__'
+    | '/'
     | '/acceso'
     | '/ajustes'
     | '/economia'
@@ -208,6 +220,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AccesoRoute: typeof AccesoRoute
   AjustesRoute: typeof AjustesRoute
   EconomiaRoute: typeof EconomiaRoute
@@ -227,6 +240,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/acceso': {
       id: '/acceso'
       path: '/acceso'
@@ -336,6 +356,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AccesoRoute: AccesoRoute,
   AjustesRoute: AjustesRoute,
   EconomiaRoute: EconomiaRoute,
