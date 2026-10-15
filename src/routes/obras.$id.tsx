@@ -1,3 +1,4 @@
+import { ApuntesObra } from "@/components/admin";
 import { calcularEstadoObra, estadoAutomatico } from "@/lib/analitica";
 import { ESTADO_LABEL } from "@/lib/store";
 import type { EstadoObra } from "@/lib/types";
@@ -128,7 +129,7 @@ function Ficha() {
                 </div>
                 <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Gremios subcontratados</div>
                 <ul className="divide-y">
-                  {o.equipo.gremioIds.map((gid) => { const g = db.gremios.find((x) => x.id === gid)!; return (
+                  {o.equipo.gremioIds.map((gid) => { const g = db.gremios.find((x) => x.id === gid); if (!g) return null; return (
                     <li key={gid} className="flex justify-between py-2 text-sm"><span><span className="font-semibold">{g.oficio}</span> · {g.empresa}</span><span className="text-muted-foreground">{g.contacto}</span></li>
                   ); })}
                 </ul>
@@ -138,6 +139,7 @@ function Ficha() {
             {me.rol !== "cliente" && <Interno db={db} me={me} o={o} />}
             {(me.rol === "gerente" || me.rol === "jefe_obra") && <MensajeCliente key={o.mensajeCliente ?? ""} o={o} />}
 
+            {(me.rol === "gerente" || me.rol === "jefe_obra") && <ApuntesObra db={db} o={o} />}
             {me.rol !== "cliente" && <NotasObra db={db} me={me} o={o} />}
             {me.rol === "gerente" && <ZonaPeligro o={o} />}
           </div>
