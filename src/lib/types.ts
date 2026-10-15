@@ -83,6 +83,8 @@ export interface Obra {
   antesDespues: AntesDespues[];
   horario: string;
   pagos: HitoPago[];
+  /** Costes acumulados a fecha (sin mano de obra propia) */
+  costes: { materiales: number; gremios: number };
 }
 
 export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }
@@ -94,6 +96,8 @@ export interface Tarea {
 export interface DB {
   version: number;
   fichajes: Fichaje[];
+  /** Coste por hora según oficio (o "Jefe de obra") */
+  costeHora: Record<string, number>;
   tareas: Tarea[];
   usuarios: Usuario[];
   gremios: Gremio[];
