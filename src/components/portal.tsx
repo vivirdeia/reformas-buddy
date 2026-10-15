@@ -8,10 +8,21 @@ import { cn } from "@/lib/utils";
 
 const dias = (a: string, b: string) => Math.round((new Date(b + "T12:00:00").getTime() - new Date(a + "T12:00:00").getTime()) / 86400000);
 
-function entrega(o: Obra) {
+const largo = (f: { inicioPrevisto: string; finPrevisto: string }) => dias(f.inicioPrevisto, f.finPrevisto) + 1;
+/** Fin estimado de la fase en curso, nunca en el pasado. */
+function finFaseActual(o: Obra) {
+  const hoy = hoyISO();
   const cur = o.fases.find((f) => f.estado !== "completada");
-  const retraso = cur?.inicioReal ? Math.max(0, dias(cur.inicioPrevisto, cur.inicioReal)) : 0;
-  return addDias(o.fechaFinPrevista, retraso);
+  if (!cur) return hoy;
+  const pasado = cur.inicioReal ? dias(cur.inicioReal, hoy) : 0;
+  return addDias(hoy, Math.max(2, largo(cur) - pasado));
+}
+function entrega(o: Obra) {
+  const i = o.fases.findIndex((f) => f.estado !== "completada");
+  if (i < 0) return o.fechaFinPrevista;
+  const pend = o.fases.slice(i + 1).reduce((s, f) => s + largo(f), 0);
+  const est = addDias(finFaseActual(o), pend);
+  return est > o.fechaFinPrevista ? est : o.fechaFinPrevista;
 }
 
 function mensaje(o: Obra): { titulo: string; texto: string; tono: "ok" | "suave" | "fin" } {
@@ -58,7 +69,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
         <Foto src={o.portada} alt={o.nombre} className="h-full w-full animate-in fade-in zoom-in-105 duration-1000" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/10" />
         <div className="absolute inset-x-5 bottom-6 text-ink-foreground animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <p className="font-display text-lg text-ink-foreground/85">Hola, {nombreCliente.split(" ")[0]} 👋</p>
+          <p className="font-display text-lg text-ink-foreground/85">Hola, {nombreCliente.split(" ")[0]}</p>
           <h1 className="mt-1 text-3xl font-bold leading-tight">{o.nombre}</h1>
           <p className="mt-1 flex items-center gap-1 text-sm text-ink-foreground/80"><MapPin className="h-4 w-4" />{o.direccion}, {o.barrio}</p>
         </div>
@@ -108,7 +119,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
                     {actual && <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">Ahora</span>}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {hecha ? `Terminada el ${fecha(f.finReal)}` : actual ? `Empezó el ${fecha(f.inicioReal)} · prevista hasta el ${fecha(f.finPrevisto)}` : `Prevista del ${fecha(f.inicioPrevisto)} al ${fecha(f.finPrevisto)}`}
+                    {hecha ? `Terminada el ${fecha(f.finReal)}` : actual ? `Empezó el ${fecha(f.inicioReal)} · prevista hasta el ${fecha(finFaseActual(o))}` : `Prevista del ${fecha(f.inicioPrevisto)} al ${fecha(f.finPrevisto)}`}
                   </div>
                 </div>
               </li>
