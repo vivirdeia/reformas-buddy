@@ -62,7 +62,7 @@ function Panel({ db }: { db: DB }) {
       <div className="min-w-0 space-y-6">
         <Seccion titulo="Requiere tu atención" extra={<span className="rounded-full bg-danger-soft px-3 py-1 text-xs font-bold text-danger">{atencion.length}</span>}>
           {atencion.length === 0 ? <p className="text-sm text-muted-foreground">Todo en orden.</p> : (
-            <ul className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+            <ul className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-3 [&>li]:min-w-0">
               {atencion.map((a) => (
                 <li key={a.k}>
                   <Link to="/obras/$id" params={{ id: a.id }} className="flex items-center gap-3 rounded-2xl border-2 p-3 transition hover:border-primary">
