@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Printer } from "lucide-react";
 import { AppShell } from "@/components/obria";
 import { DocJustificante } from "@/components/justificante";
+import { empresaDe } from "@/lib/empresa";
 import { user } from "@/lib/store";
 
 export const Route = createFileRoute("/justificante/$obraId/$ocId")({
@@ -29,7 +30,7 @@ function Pagina() {
         return (
           <div className="space-y-4">
             <button onClick={() => window.print()} className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary font-bold text-primary-foreground shadow-cta print:hidden"><Printer className="h-5 w-5" />Imprimir o guardar en PDF</button>
-            <DocJustificante o={o} oc={oc} cliente={user(db, o.clienteId)?.nombre ?? ""} />
+            <DocJustificante o={o} oc={oc} cliente={user(db, o.clienteId)?.nombre ?? ""} emp={empresaDe(db)} />
           </div>
         );
       }}

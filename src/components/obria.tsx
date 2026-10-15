@@ -4,16 +4,19 @@ import { HardHat, Settings, LogOut, CalendarCheck, Home as HomeIcon, LayoutDashb
 import { useDB, useSession, user, ROL_LABEL, ESTADO_LABEL } from "@/lib/store";
 import type { DB, EstadoObra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { empresaDe } from "@/lib/empresa";
 
 export function Logo({ light }: { light?: boolean }) {
+  const db = useDB();
+  const emp = empresaDe(db);
   return (
     <div className="flex items-center gap-2">
-      <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-cta">
+      {emp.logo ? <img src={emp.logo} alt="Logotipo" className="h-9 w-9 rounded-xl bg-card object-contain" /> : <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-cta">
         <HardHat className="h-5 w-5" />
-      </div>
+      </div>}
       <div className="leading-none">
         <div className={cn("font-display text-xl font-bold", light ? "text-ink-foreground" : "text-foreground")}>Obria</div>
-        <div className={cn("text-[11px] font-medium uppercase tracking-wider", light ? "text-ink-foreground/70" : "text-muted-foreground")}>Reformas Arnal</div>
+        <div className={cn("text-[11px] font-medium uppercase tracking-wider", light ? "text-ink-foreground/70" : "text-muted-foreground")}>{emp.nombreComercial}</div>
       </div>
     </div>
   );
@@ -56,10 +59,11 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
   const me = db ? user(db, userId ?? undefined) : undefined;
 
   useEffect(() => {
+    if (db && me && me.activo === false) { logout(); return; }
     if (userId === null || (db && userId && !me)) nav({ to: "/acceso" });
-  }, [userId, db, me, nav]);
+  }, [userId, db, me, nav, logout]);
 
-  if (!db || !me) return <div className="min-h-screen" />;
+  if (!db || !me || me.activo === false) return <div className="min-h-screen" />;
 
   const staff = me.rol === "operario" || me.rol === "jefe_obra";
   const ger = me.rol === "gerente";
@@ -93,7 +97,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
             })}
           </nav>
           <div className="flex items-center gap-3 rounded-2xl bg-muted p-3">
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-primary font-display font-bold text-primary-foreground">{me.nombre[0]}</div>
+            <Avatar u={me} className="h-10 w-10" />
             <div className="min-w-0 flex-1"><div className="truncate text-sm font-semibold">{me.nombre}</div><div className="text-xs text-muted-foreground">{ROL_LABEL[me.rol]}</div></div>
             <button onClick={salir} aria-label="Cerrar sesión" className="grid h-10 w-10 place-items-center rounded-full bg-card"><LogOut className="h-4 w-4" /></button>
           </div>
@@ -161,4 +165,10 @@ export function Seccion({ titulo, extra, children, className }: { titulo: string
       {children}
     </section>
   );
+}
+
+export function iniciales(n: string) { return n.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]!.toUpperCase()).join(""); }
+export function Avatar({ u, className }: { u: Pick<Usuario, "nombre" | "foto">; className?: string }) {
+  if (u.foto) return <img src={u.foto} alt={u.nombre} className={cn("shrink-0 rounded-full object-cover", className)} />;
+  return <div className={cn("grid shrink-0 place-items-center rounded-full bg-primary font-display font-bold text-primary-foreground", className)}>{iniciales(u.nombre)}</div>;
 }
