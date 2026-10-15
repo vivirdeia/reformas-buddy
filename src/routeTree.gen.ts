@@ -21,6 +21,7 @@ import { Route as PresupuestoRouteImport } from './routes/presupuesto'
 import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
+import { Route as ObrasNuevaRouteImport } from './routes/obras.nueva'
 import { Route as OrdenNuevaIdRouteImport } from './routes/orden-nueva.$id'
 import { Route as ParteIdRouteImport } from './routes/parte.$id'
 import { Route as SolicitudesIndexRouteImport } from './routes/solicitudes.index'
@@ -89,6 +90,11 @@ const ObrasIdRoute = ObrasIdRouteImport.update({
   path: '/obras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ObrasNuevaRoute = ObrasNuevaRouteImport.update({
+  id: '/obras/nueva',
+  path: '/obras/nueva',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrdenNuevaIdRoute = OrdenNuevaIdRouteImport.update({
   id: '/orden-nueva/$id',
   path: '/orden-nueva/$id',
@@ -137,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/presupuesto': typeof PresupuestoRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/obras/nueva': typeof ObrasNuevaRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
   '/solicitudes/$id': typeof SolicitudesIdRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/presupuesto': typeof PresupuestoRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/obras/nueva': typeof ObrasNuevaRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
   '/solicitudes/$id': typeof SolicitudesIdRoute
@@ -180,6 +188,7 @@ export interface FileRoutesById {
   '/presupuesto': typeof PresupuestoRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/obras/nueva': typeof ObrasNuevaRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
   '/solicitudes/$id': typeof SolicitudesIdRoute
@@ -203,6 +212,7 @@ export interface FileRouteTypes {
     | '/presupuesto'
     | '/incidencia/$id'
     | '/obras/$id'
+    | '/obras/nueva'
     | '/orden-nueva/$id'
     | '/parte/$id'
     | '/solicitudes/$id'
@@ -224,6 +234,7 @@ export interface FileRouteTypes {
     | '/presupuesto'
     | '/incidencia/$id'
     | '/obras/$id'
+    | '/obras/nueva'
     | '/orden-nueva/$id'
     | '/parte/$id'
     | '/solicitudes/$id'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/presupuesto'
     | '/incidencia/$id'
     | '/obras/$id'
+    | '/obras/nueva'
     | '/orden-nueva/$id'
     | '/parte/$id'
     | '/solicitudes/$id'
@@ -267,6 +279,7 @@ export interface RootRouteChildren {
   PresupuestoRoute: typeof PresupuestoRoute
   IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
+  ObrasNuevaRoute: typeof ObrasNuevaRoute
   OrdenNuevaIdRoute: typeof OrdenNuevaIdRoute
   ParteIdRoute: typeof ParteIdRoute
   SolicitudesIdRoute: typeof SolicitudesIdRoute
@@ -363,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ObrasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/obras/nueva': {
+      id: '/obras/nueva'
+      path: '/obras/nueva'
+      fullPath: '/obras/nueva'
+      preLoaderRoute: typeof ObrasNuevaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/orden-nueva/$id': {
       id: '/orden-nueva/$id'
       path: '/orden-nueva/$id'
@@ -427,6 +447,7 @@ const rootRouteChildren: RootRouteChildren = {
   PresupuestoRoute: PresupuestoRoute,
   IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
+  ObrasNuevaRoute: ObrasNuevaRoute,
   OrdenNuevaIdRoute: OrdenNuevaIdRoute,
   ParteIdRoute: ParteIdRoute,
   SolicitudesIdRoute: SolicitudesIdRoute,
