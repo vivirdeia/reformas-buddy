@@ -6,7 +6,10 @@ import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileCloc
 import type { ReactNode } from "react";
 import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
 import { avance, euro, fecha, faseActual, nombreFase, user } from "@/lib/store";
-import type { DB, Obra, Usuario } from "@/lib/types";
+import type { DB, Incidencia, Obra, ParteDiario, Usuario } from "@/lib/types";
+import { Confirmar, IncidenciaForm, ParteForm } from "@/components/formularios";
+import { FichajesObra, Modal, NotasObra } from "@/components/gestion-contenido";
+import { conDeshacer } from "@/lib/deshacer";
 import { Galeria } from "@/components/fotos";
 import { OrdenesEquipo, PagosEquipo } from "@/components/equipo-economia";
 import { totales, vigente } from "@/lib/economia";
@@ -14,7 +17,7 @@ import { dur, fechaLarga, msFichaje, mutate } from "@/lib/store";
 import { ClipboardList, CheckCircle2, Clock, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, RotateCcw } from "lucide-react";
 import { EditarObra, FasesObra, MensajeCliente, ZonaPeligro } from "@/components/gestion-obra";
 
 function Gestion({ db, o }: { db: DB; o: Obra }) {
@@ -135,18 +138,7 @@ function Ficha() {
             {me.rol !== "cliente" && <Interno db={db} me={me} o={o} />}
             {(me.rol === "gerente" || me.rol === "jefe_obra") && <MensajeCliente key={o.mensajeCliente ?? ""} o={o} />}
 
-            <Card title="Notas">
-              {o.notas.length === 0 ? <p className="text-sm text-muted-foreground">Sin notas todavía.</p> : (
-                <ul className="space-y-3">
-                  {o.notas.map((n) => (
-                    <li key={n.id} className="rounded-2xl bg-muted p-3 text-sm">
-                      <p>{n.texto}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{user(db, n.autorId)?.nombre} · {fecha(n.fecha)}</p>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Card>
+            {me.rol !== "cliente" && <NotasObra db={db} me={me} o={o} />}
             {me.rol === "gerente" && <ZonaPeligro o={o} />}
           </div>
         );
@@ -158,12 +150,15 @@ function Ficha() {
 const GRAV = { baja: "bg-ok-soft text-ok", media: "bg-warn-soft text-warn", alta: "bg-danger-soft text-danger" } as const;
 
 function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
+  const [editParte, setEditParte] = useState<ParteDiario | null>(null);
+  const [editInc, setEditInc] = useState<Incidencia | null>(null);
+  const ob = (d: DB) => d.obras.find((x) => x.id === o.id)!;
   const horas = db.fichajes.filter((f) => f.obraId === o.id && f.salida).reduce((s, f) => s + msFichaje(f), 0);
   const partes = [...o.partesDiarios].sort((a, b) => b.fecha.localeCompare(a.fecha));
   const dias = [...new Set(partes.map((p) => p.fecha))];
   const puedeResolver = me.rol === "jefe_obra" || me.rol === "gerente";
   const incs = [...o.incidencias].sort((a, b) => (a.estado === b.estado ? b.fecha.localeCompare(a.fecha) : a.estado === "abierta" ? -1 : 1));
-  const resolver = (id: string) => mutate((d) => { d.obras.find((x) => x.id === o.id)!.incidencias.find((i) => i.id === id)!.estado = "resuelta"; });
+  const setEstadoInc = (id: string, e: Incidencia["estado"]) => mutate((d) => { const i = ob(d).incidencias.find((x) => x.id === id); if (i) i.estado = e; });
   return (
     <>
       <div className="grid grid-cols-3 gap-2">
@@ -189,7 +184,14 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
                 {i.descripcion && <p className="text-sm text-muted-foreground">{i.descripcion}</p>}
                 <Galeria fotos={i.fotos} />
                 {puedeResolver && i.estado === "abierta" && (
-                  <button onClick={() => resolver(i.id)} className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-ok-soft font-semibold text-ok"><Check className="h-5 w-5" />Marcar como resuelta</button>
+                  <button onClick={() => setEstadoInc(i.id, "resuelta")} className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-ok-soft font-semibold text-ok"><Check className="h-5 w-5" />Marcar como resuelta</button>
+                )}
+                {(puedeResolver || i.autorId === me.id) && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {puedeResolver && i.estado === "resuelta" && <button onClick={() => setEstadoInc(i.id, "abierta")} className="flex h-11 items-center gap-1 rounded-xl px-3 text-sm font-semibold hover:bg-muted"><RotateCcw className="h-4 w-4" />Reabrir</button>}
+                    <button onClick={() => setEditInc(i)} className="flex h-11 items-center gap-1 rounded-xl px-3 text-sm font-semibold hover:bg-muted"><Pencil className="h-4 w-4" />Editar</button>
+                    {puedeResolver && <Confirmar onSi={() => conDeshacer("Incidencia borrada", (d) => { const x = ob(d); x.incidencias = x.incidencias.filter((y) => y.id !== i.id); })} />}
+                  </div>
                 )}
               </li>
             ))}
@@ -213,6 +215,12 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
                     <p className="mt-1 text-sm">{p.trabajos}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{p.operarioIds.map((id) => user(db, id)?.nombre).join(", ")}</p>
                     <Galeria fotos={p.fotos} />
+                    {(puedeResolver || p.autorId === me.id) && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <button onClick={() => setEditParte(p)} className="flex h-11 items-center gap-1 rounded-xl px-3 text-sm font-semibold hover:bg-card"><Pencil className="h-4 w-4" />Editar</button>
+                        <Confirmar pregunta="¿Borrar el parte y sus fotos?" onSi={() => conDeshacer("Parte borrado", (d) => { const x = ob(d); x.partesDiarios = x.partesDiarios.filter((y) => y.id !== p.id); })} />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -220,6 +228,9 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
           </div>
         )}
       </Card>
+      {puedeResolver && <FichajesObra db={db} me={me} o={o} />}
+      <Modal open={!!editParte} onClose={() => setEditParte(null)} titulo="Editar parte diario">{editParte && <ParteForm db={db} me={me} o={o} inicial={editParte} onDone={() => setEditParte(null)} />}</Modal>
+      <Modal open={!!editInc} onClose={() => setEditInc(null)} titulo="Editar incidencia">{editInc && <IncidenciaForm o={o} me={me} inicial={editInc} onDone={() => setEditInc(null)} />}</Modal>
     </>
   );
 }
