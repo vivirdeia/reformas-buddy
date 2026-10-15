@@ -299,7 +299,7 @@ export function ApuntesObra({ db, o }: { db: DB; o: Obra }) {
           <div key={l as string} className="rounded-2xl bg-muted p-3"><div className="text-xs text-muted-foreground">{l}</div><div className="font-display font-bold tabular-nums">{euro2(n as number)}</div></div>))}
       </div>
       <Link to="/economia" className="mb-3 flex items-center justify-between rounded-2xl border-2 p-3 text-sm hover:border-primary">
-        <span>Margen previsto sobre {euro2(c.vigente)}</span>
+        <span>Margen previsto sobre {euro2(c.vigente)}<span className="block text-xs text-muted-foreground">Coste hasta hoy {euro2(c.total)} · proyectado al final {euro2(c.proyectado)}</span></span>
         <span data-testid="margen-obra" className={cn("font-display text-base font-bold", SALUD_TXT[salud(c.pct)])}>{euro2(c.margen)} · {(c.pct * 100).toLocaleString("es-ES", { maximumFractionDigits: 1 })}%</span>
       </Link>
       {lista.length === 0 ? <p className="text-sm text-muted-foreground">Sin apuntes todavía.</p> : (
