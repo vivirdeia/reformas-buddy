@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, HardDrive, RotateCcw, Upload } from "lucide-react";
-import { AppShell } from "@/components/obria";
+import { AppShell, Avatar } from "@/components/obria";
+import { CambiarPin, EmpresaForm, GremiosAdmin, TarifasAdmin, UsuariosAdmin } from "@/components/admin";
 import { descargar } from "@/components/avisos-almacen";
 import { espacioUsado, exportarCopia, importarCopia, resetDB, ROL_LABEL } from "@/lib/store";
 
@@ -80,28 +81,25 @@ function Ajustes() {
           <h1 className="text-2xl font-bold">Ajustes</h1>
           <section className="rounded-3xl bg-card p-4 shadow-card">
             <div className="flex items-center gap-3">
-              <div className="grid h-14 w-14 place-items-center rounded-full bg-primary font-display text-xl font-bold text-primary-foreground">{me.nombre[0]}</div>
+              <Avatar u={me} className="h-14 w-14 text-xl" />
               <div><div className="text-lg font-semibold">{me.nombre}</div><div className="text-sm text-muted-foreground">{ROL_LABEL[me.rol]} · {me.telefono}</div></div>
             </div>
           </section>
           {me.rol === "gerente" && <Datos />}
-          {me.rol !== "cliente" && (
-            <section className="rounded-3xl bg-card p-4 shadow-card">
-              <h2 className="mb-2 font-semibold">Usuarios de demo</h2>
-              <ul className="divide-y text-sm">
-                {db.usuarios.map((u) => (
-                  <li key={u.id} className="flex justify-between py-2"><span>{u.nombre} <span className="text-muted-foreground">· {ROL_LABEL[u.rol]}</span></span><span className="font-mono font-bold">{u.pin}</span></li>
-                ))}
-              </ul>
-            </section>
-          )}
+          <CambiarPin db={db} me={me} />
+          {me.rol === "gerente" && <>
+            <UsuariosAdmin db={db} me={me} />
+            <GremiosAdmin db={db} />
+            <TarifasAdmin key={JSON.stringify(db.costeHora)} db={db} />
+            <EmpresaForm key={JSON.stringify(db.empresa).length} db={db} />
+          </>}
           <div className="pt-4 text-center">
             <button onClick={() => { if (confirm("¿Restablecer todos los datos de demo? Se perderán los cambios.")) { setOk(resetDB()); } }}
               className="inline-flex items-center gap-2 rounded-full px-4 py-3 text-sm font-medium text-muted-foreground underline-offset-4 hover:underline">
               <RotateCcw className="h-4 w-4" />Restablecer datos de demo
             </button>
             {ok && <p className="text-sm font-semibold text-ok">Datos restablecidos.</p>}
-            <p className="mt-2 text-xs text-muted-foreground">Obria v1 · Reformas Arnal, Madrid</p>
+            <p className="mt-2 text-xs text-muted-foreground">Obria v1 · {db.empresa.nombreComercial}</p>
           </div>
         </div>
       )}

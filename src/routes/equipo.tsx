@@ -30,7 +30,7 @@ function Equipo({ db }: { db: DB }) {
   const hoy = hoyISO();
   const semana = lunes(hoy);
   const hace4 = addDias(semana, -21);
-  const gente = db.usuarios.filter((u) => u.rol === "operario" || u.rol === "jefe_obra").map((u) => {
+  const gente = db.usuarios.filter((u) => u.activo !== false && u.rol === "operario" || u.rol === "jefe_obra").map((u) => {
     const obras = obrasVivas(db).filter((o) => calcularEstadoObra(o) !== "terminada" && (o.equipo.jefeId === u.id || o.equipo.operarioIds.includes(u.id)));
     return { u, obras, sem: horasDesde(db, (f) => f.userId === u.id, semana), mes: horasDesde(db, (f) => f.userId === u.id, hace4) };
   });
