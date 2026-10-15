@@ -80,8 +80,8 @@ function HoyBody({ db, me }: { db: DB; me: Usuario }) {
 }
 
 function ObraHoy({ db, me, o, now, hoy, abiertoAqui, aviso, onFichar, onCambiar, onCancelar }: {
-  db: DB; me: Usuario; o: Obra; now: number; hoy: string; abiertoAqui?: { entrada: string };
-  aviso?: string; onFichar: () => void; onCambiar: () => void; onCancelar: () => void;
+  db: DB; me: Usuario; o: Obra; now: number; hoy: string; abiertoAqui?: { entrada: string } | undefined;
+  aviso?: string | undefined; onFichar: () => void; onCambiar: () => void; onCancelar: () => void;
 }) {
   const hechos = db.fichajes.filter((f) => f.userId === me.id && f.obraId === o.id && f.salida && new Date(f.entrada).toDateString() === new Date(now).toDateString());
   const tareas = db.tareas.filter((t) => t.obraId === o.id && t.fecha === hoy);

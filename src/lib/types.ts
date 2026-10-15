@@ -71,7 +71,7 @@ export interface Obra {
 export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }
 export interface Tarea {
   id: string; obraId: string; fecha: string; titulo: string; fase: FaseTipo;
-  operarioId: string; hecha: boolean; hechaEn?: string; creadaPor: string;
+  operarioId: string; hecha: boolean; hechaEn?: string | undefined; creadaPor: string;
 }
 
 export interface DB {
