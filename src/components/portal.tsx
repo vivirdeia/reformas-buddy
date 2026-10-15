@@ -2,6 +2,7 @@ import { calcularEstadoObra, motivoEstado } from "@/lib/analitica";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Phone, MessageCircle, Clock, FileText, Ruler, BadgeCheck, X, CalendarHeart, Sparkles, Heart, Check, MapPin, ChevronLeft, ChevronRight, PenLine, Wallet, Copy } from "lucide-react";
 import { Foto } from "@/components/obria";
+import { iconoDoc, VistaArchivo } from "@/components/documentos";
 import { avance, euro, fecha, fechaLarga, nombreFase, user } from "@/lib/store";
 import { addDias, hoyISO } from "@/lib/fechas";
 import type { DB, Documento, FaseTipo, Obra, OrdenCambio, ParteDiario } from "@/lib/types";
@@ -69,6 +70,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
   const jefe = user(db, o.equipo.jefeId);
   const [visor, setVisor] = useState<{ fotos: string[]; i: number } | null>(null);
   const [doc, setDoc] = useState<Documento | null>(null);
+  const docs = o.documentos.filter((d) => d.visibleCliente !== false);
   const partes = o.partesDiarios.filter((p) => p.visibleCliente).sort((x, y) => y.fecha.localeCompare(x.fecha));
   const aprobadas = o.ordenesCambio.filter((c) => c.estado === "aprobada" && c.firma);
   const diaOc = (c: OrdenCambio) => c.firma!.fecha.slice(0, 10);
@@ -231,8 +233,9 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
 
       <Bloque titulo="Documentos">
         <ul className="divide-y">
-          {o.documentos.map((d) => {
-            const I = d.tipo === "plano" ? Ruler : d.tipo === "certificado" ? BadgeCheck : FileText;
+          {docs.length === 0 && <li className="py-3 text-sm text-muted-foreground">Todavía no hay documentos compartidos.</li>}
+          {docs.map((d) => {
+            const I = iconoDoc(d.tipo);
             return (
               <li key={d.id}>
                 <button onClick={() => setDoc(d)} className="flex w-full items-center gap-3 py-3 text-left">
@@ -347,7 +350,7 @@ function VistaDoc({ doc, o, nombreCliente, onClose, emp }: { doc: Documento; o: 
           <div className="min-w-0"><div className="truncate font-semibold">{doc.nombre}</div><div className="text-xs text-muted-foreground">{fecha(doc.fecha)} · {doc.tamano}</div></div>
           <button onClick={onClose} aria-label="Cerrar" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary"><X className="h-5 w-5" /></button>
         </div>
-        <div className="rounded-2xl border bg-background p-5 text-sm">
+        {doc.archivo ? <VistaArchivo doc={doc} /> : <div className="rounded-2xl border bg-background p-5 text-sm">
           <div className="mb-4 flex items-center justify-between border-b pb-3"><span className="font-display text-lg font-bold">{emp.nombreComercial}</span><span className="text-xs text-muted-foreground">CIF {emp.cif}</span></div>
           {doc.tipo === "presupuesto" && (
             <>
@@ -373,7 +376,8 @@ function VistaDoc({ doc, o, nombreCliente, onClose, emp }: { doc: Documento; o: 
               <p className="mt-1 text-muted-foreground">Emitido el {fecha(doc.fecha)}</p>
             </div>
           )}
-        </div>
+          {doc.tipo === "otro" && <p className="py-6 text-center text-muted-foreground">Documento de la obra {o.nombre}.</p>}
+        </div>}
       </div>
     </div>
   );

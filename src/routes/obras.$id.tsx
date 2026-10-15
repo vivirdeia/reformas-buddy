@@ -1,3 +1,4 @@
+import { AntesDespuesObra, DocumentosObra } from "@/components/documentos";
 import { ApuntesObra } from "@/components/admin";
 import { calcularEstadoObra, estadoAutomatico } from "@/lib/analitica";
 import { ESTADO_LABEL } from "@/lib/store";
@@ -140,6 +141,7 @@ function Ficha() {
             {(me.rol === "gerente" || me.rol === "jefe_obra") && <MensajeCliente key={o.mensajeCliente ?? ""} o={o} />}
 
             {(me.rol === "gerente" || me.rol === "jefe_obra") && <ApuntesObra db={db} o={o} />}
+            {(me.rol === "gerente" || me.rol === "jefe_obra") && <><DocumentosObra db={db} o={o} /><AntesDespuesObra o={o} /></>}
             {me.rol !== "cliente" && <NotasObra db={db} me={me} o={o} />}
             {me.rol === "gerente" && <ZonaPeligro o={o} />}
           </div>
