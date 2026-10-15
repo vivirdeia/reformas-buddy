@@ -106,6 +106,7 @@ export function Portada({ value, onChange }: { value: string; onChange: (v: stri
 
 /** Selector de equipo (jefe, operarios, gremios). */
 export function SelectorEquipo({ db, value, onChange }: { db: DB; value: Obra["equipo"]; onChange: (e: Obra["equipo"]) => void }) {
+  const sel = [value.jefeId, ...value.operarioIds];
   const jefes = db.usuarios.filter((u) => u.rol === "jefe_obra" && (u.activo !== false || sel.includes(u.id)));
   const ops = db.usuarios.filter((u) => u.rol === "operario" && (u.activo !== false || sel.includes(u.id)));
   const tog = (l: string[], id: string) => (l.includes(id) ? l.filter((x) => x !== id) : [...l, id]);
