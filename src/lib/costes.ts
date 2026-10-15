@@ -19,7 +19,7 @@ export function sumaApuntes(o: Obra) {
   return r;
 }
 
-/** Convierte importes acumulados (modelo antiguo / demo) en apuntes con fecha repartidos en la obra. */
+/** Convierte importes acumulados (modelo antiguo) en apuntes con fecha repartidos en la obra. */
 export function apuntesDesdeCostes(o: Obra, materiales: number, gremios: number): Apunte[] {
   const hoy = hoyISO();
   const ini = o.fechaInicio && o.fechaInicio < hoy ? o.fechaInicio : hoy;

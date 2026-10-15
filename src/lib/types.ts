@@ -80,7 +80,7 @@ export interface ParteDiario {
 export type TipoDocumento = "presupuesto" | "plano" | "certificado" | "otro";
 export interface Documento {
   id: string; nombre: string; tipo: TipoDocumento; fecha: string; tamano: string;
-  /** Archivo real (data URL; se guarda en IndexedDB). Sin archivo = documento de ejemplo. */
+  /** Archivo real (data URL; se guarda en IndexedDB). Sin archivo = documento pendiente de adjuntar. */
   archivo?: string | undefined; mime?: string | undefined;
   /** false = solo equipo interno. */
   visibleCliente?: boolean | undefined;
@@ -99,7 +99,7 @@ export interface Obra {
   presupuesto: number;
   fechaInicio: string;
   fechaFinPrevista: string;
-  /** Solo para datos de demo antiguos: el semáforo se calcula con calcularEstadoObra. */
+  /** Solo para datos antiguos: el semáforo se calcula con calcularEstadoObra. */
   estado: EstadoObra;
   /** Estado forzado a mano por gerente/jefe de obra. */
   estadoManual?: EstadoObra | undefined;

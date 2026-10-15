@@ -5,7 +5,7 @@ export const EMPRESA_DEFECTO: Empresa = {
   razonSocial: "Reformas Arnal S.L.",
   cif: "B-86543210",
   direccion: "C/ de Bravo Murillo 120, 28020 Madrid",
-  telefono: "91 000 00 00",
+  telefono: "91 553 27 40",
   email: "hola@reformasarnal.es",
   web: "reformasarnal.es",
   horario: "Lunes a viernes de 8:00 a 18:00\nSábados (solo visitas) de 10:00 a 13:00",
