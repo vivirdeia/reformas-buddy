@@ -9,6 +9,10 @@ import { FASES } from "@/lib/seed";
 import { hoyISO } from "@/lib/fechas";
 import type { DB, FaseTipo, Obra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Pencil } from "lucide-react";
+import { Confirmar } from "@/components/formularios";
+import { AvisoOlvidados } from "@/components/gestion-contenido";
+import { conDeshacer } from "@/lib/deshacer";
 
 export const Route = createFileRoute("/hoy")({
   head: () => ({
@@ -61,6 +65,7 @@ function HoyBody({ db, me }: { db: DB; me: Usuario }) {
         <p className="text-sm text-muted-foreground first-letter:uppercase">{fechaLarga(hoy)}</p>
         <h1 className="text-2xl font-bold">Tu jornada</h1>
       </div>
+      <AvisoOlvidados db={db} filtro={(f) => f.userId === me.id || (me.rol === "gerente") || (me.rol === "jefe_obra" && db.obras.some((o) => o.id === f.obraId && o.equipo.jefeId === me.id))} />
       <div className="flex items-center justify-between rounded-3xl bg-ink p-4 text-ink-foreground shadow-card">
         <div>
           <div className="text-xs font-semibold uppercase tracking-wider text-ink-foreground/70">Horas hoy</div>
@@ -95,6 +100,7 @@ function ObraHoy({ db, me, o, now, hoy, abiertoAqui, aviso, onFichar, onCambiar,
   const [titulo, setTitulo] = useState("");
   const [fase, setFase] = useState<FaseTipo>(actual);
   const [opId, setOpId] = useState(o.equipo.operarioIds[0] ?? "");
+  const [editT, setEditT] = useState<{ id: string; titulo: string; fase: FaseTipo; operarioId: string } | null>(null);
 
   const toggle = (id: string) => mutate((d) => { const t = d.tareas.find((x) => x.id === id)!; t.hecha = !t.hecha; t.hechaEn = t.hecha ? new Date().toISOString() : undefined; });
   const crear = () => {
@@ -146,8 +152,22 @@ function ObraHoy({ db, me, o, now, hoy, abiertoAqui, aviso, onFichar, onCambiar,
         <ul className="space-y-2">
           {tareas.map((t) => {
             const puede = esJefe || t.operarioId === me.id;
+            if (editT?.id === t.id) return (
+              <li key={t.id} className="space-y-2 rounded-2xl bg-muted p-3">
+                <input aria-label="Título de la tarea" value={editT.titulo} onChange={(e) => setEditT({ ...editT, titulo: e.target.value })} className="h-12 w-full rounded-xl border-2 bg-card px-3 outline-none focus:border-primary" />
+                <div className="grid grid-cols-2 gap-2">
+                  <select aria-label="Fase de la tarea" value={editT.fase} onChange={(e) => setEditT({ ...editT, fase: e.target.value as FaseTipo })} className="h-12 rounded-xl border-2 bg-card px-2">{FASES.map((f) => <option key={f.tipo} value={f.tipo}>{f.nombre}</option>)}</select>
+                  <select aria-label="Operario de la tarea" value={editT.operarioId} onChange={(e) => setEditT({ ...editT, operarioId: e.target.value })} className="h-12 rounded-xl border-2 bg-card px-2">{[...new Set([...o.equipo.operarioIds, editT.operarioId])].map((id) => <option key={id} value={id}>{user(db, id)?.nombre}</option>)}</select>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button disabled={!editT.titulo.trim()} onClick={() => { if (mutate((d) => { const x = d.tareas.find((y) => y.id === t.id); if (x) { x.titulo = editT.titulo.trim(); x.fase = editT.fase; x.operarioId = editT.operarioId; } })) setEditT(null); }} className="h-12 flex-1 rounded-xl bg-primary font-semibold text-primary-foreground disabled:opacity-40">Guardar</button>
+                  <button onClick={() => setEditT(null)} className="h-12 rounded-xl bg-card px-4 font-semibold">Cancelar</button>
+                  <Confirmar onSi={() => { setEditT(null); conDeshacer("Tarea borrada", (d) => { d.tareas = d.tareas.filter((y) => y.id !== t.id); }); }} />
+                </div>
+              </li>
+            );
             return (
-              <li key={t.id}>
+              <li key={t.id} className="flex items-center gap-1">
                 <button disabled={!puede} onClick={() => toggle(t.id)} className={cn("flex min-h-14 w-full items-center gap-3 rounded-2xl border-2 p-3 text-left active:scale-[0.99]", t.hecha ? "border-ok/30 bg-ok-soft" : "bg-background", !puede && "opacity-70")}>
                   <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2", t.hecha ? "border-ok bg-ok text-primary-foreground" : "border-input")}>{t.hecha && <Check className="h-5 w-5" />}</span>
                   <span className="flex-1">
@@ -155,6 +175,7 @@ function ObraHoy({ db, me, o, now, hoy, abiertoAqui, aviso, onFichar, onCambiar,
                     <span className="text-xs text-muted-foreground">{nombreFase(t.fase)} · {t.operarioId === me.id ? "Tú" : user(db, t.operarioId)?.nombre}</span>
                   </span>
                 </button>
+                {esJefe && <button aria-label={`Editar tarea ${t.titulo}`} onClick={() => setEditT({ id: t.id, titulo: t.titulo, fase: t.fase, operarioId: t.operarioId })} className="grid h-14 w-11 shrink-0 place-items-center rounded-xl text-muted-foreground hover:bg-muted"><Pencil className="h-4 w-4" /></button>}
               </li>
             );
           })}
