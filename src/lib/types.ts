@@ -77,8 +77,15 @@ export interface ParteDiario {
   visibleCliente: boolean;
   resumenCliente?: string | undefined;
 }
-export interface Documento { id: string; nombre: string; tipo: "presupuesto" | "plano" | "certificado"; fecha: string; tamano: string; }
-export interface AntesDespues { estancia: string; antes: string; despues: string; }
+export type TipoDocumento = "presupuesto" | "plano" | "certificado" | "otro";
+export interface Documento {
+  id: string; nombre: string; tipo: TipoDocumento; fecha: string; tamano: string;
+  /** Archivo real (data URL; se guarda en IndexedDB). Sin archivo = documento de ejemplo. */
+  archivo?: string | undefined; mime?: string | undefined;
+  /** false = solo equipo interno. */
+  visibleCliente?: boolean | undefined;
+}
+export interface AntesDespues { id?: string | undefined; estancia: string; antes: string; despues: string; enLanding?: boolean | undefined; }
 export interface Hito { id: string; fecha: string; titulo: string; visibleCliente: boolean; }
 
 export interface Obra {
@@ -144,4 +151,19 @@ export interface DB {
   gremios: Gremio[];
   obras: Obra[];
   empresa: Empresa;
+  web: Web;
+}
+
+export interface BloqueTexto { icono: string; t: string; d: string; }
+export interface Web {
+  hero: { insignia: string; titulo: string; acento: string; texto: string; ventajas: string[] };
+  diferencial: { titulo: string; texto: string; puntos: BloqueTexto[] };
+  servicios: { titulo: string; texto: string; items: BloqueTexto[] };
+  galeria: { titulo: string; texto: string; mostrarEjemplos: boolean };
+  pasos: { titulo: string; items: BloqueTexto[] };
+  cifras: { v: string; l: string }[];
+  testimonios: { n: string; b: string; t: string; q: string }[];
+  faq: { q: string; a: string }[];
+  cta: { titulo: string; texto: string };
+  pie: string;
 }

@@ -7,4 +7,4 @@ Restricción: nunca backend/nube. Solo localStorage + IndexedDB.
 - [x] F3 — Gestión de obra
 - [x] F4 — Editar y borrar contenido
 - [x] F5 — Administración
-- [ ] F6 — Archivos y escaparate
+- [x] F6 — Archivos, escaparate, atribución y cierre

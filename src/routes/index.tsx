@@ -8,6 +8,8 @@ import { Foto } from "@/components/obria";
 import { Comparador } from "@/components/portal";
 import { useDB } from "@/lib/store";
 import { empresaDe, telHref, webHref } from "@/lib/empresa";
+import { icono, webDe } from "@/lib/web";
+import { Atribucion } from "@/components/atribucion";
 import { cn } from "@/lib/utils";
 
 const HERO = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1920&q=75";
@@ -29,34 +31,6 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const SERVICIOS = [
-  { icon: Home, t: "Reforma integral de pisos", d: "Distribución, instalaciones nuevas, suelos, carpintería y pintura. Llave en mano." },
-  { icon: ChefHat, t: "Cocinas", d: "Diseño a medida, mobiliario, encimeras y electrodomésticos integrados." },
-  { icon: Bath, t: "Baños", d: "Platos de ducha a ras de suelo, alicatados y fontanería renovada en 2–3 semanas." },
-  { icon: Building2, t: "Locales comerciales", d: "Adecuación para hostelería y comercio, con licencia de actividad incluida." },
-];
-const PASOS = [
-  { icon: ClipboardList, t: "Visita y presupuesto", d: "Vamos a tu casa, medimos y en 5 días tienes un presupuesto cerrado y detallado por partidas." },
-  { icon: FileSignature, t: "Firma y planificación", d: "Fijamos fechas por fase, equipo asignado y plan de pagos por hitos. Sin letra pequeña." },
-  { icon: Camera, t: "Obra con seguimiento diario", d: "Cada día ves fotos y avances en Obria. Tu jefe de obra está a un WhatsApp." },
-  { icon: KeyRound, t: "Entrega y garantía", d: "Repaso final contigo, limpieza profesional y 2 años de garantía por escrito." },
-];
-const CIFRAS = [
-  { v: "18", l: "años reformando Madrid" }, { v: "640+", l: "reformas entregadas" },
-  { v: "94 %", l: "entregadas en plazo" }, { v: "4,9/5", l: "valoración media" },
-];
-const TESTIMONIOS = [
-  { n: "Lucía F.", b: "Chamberí", t: "Reforma integral de piso", q: "Vivía fuera de Madrid y aun así sabía cada día qué se había hecho. Las fotos del diario de obra me daban una tranquilidad enorme." },
-  { n: "Óscar y Ana", b: "Arganzuela", t: "Cocina y baño", q: "Quisimos cambiar el plato de ducha a mitad de obra y nos llegó el cambio con precio al móvil. Firmamos en un minuto. Cero sustos." },
-  { n: "Café Olivar", b: "Ponzano", t: "Local de hostelería", q: "Abrimos en la fecha prevista con la licencia de actividad lista. Marta y su equipo fueron impecables." },
-];
-const FAQ = [
-  { q: "¿Cuánto dura una reforma integral?", a: "Un piso de 80–100 m² suele llevar entre 10 y 12 semanas. Un baño, 2–3 semanas y una cocina, 3–4. En el presupuesto te damos fechas por fase y en Obria ves si vamos en plazo." },
-  { q: "¿Os encargáis de las licencias?", a: "Sí. Tramitamos la declaración responsable o licencia ante el Ayuntamiento de Madrid, el contenedor y los avisos a la comunidad. Está incluido en el presupuesto." },
-  { q: "¿Cómo se paga la obra?", a: "Por hitos: 30 % a la firma, 30 % al terminar instalaciones, 30 % tras alicatado y carpintería y 10 % a la entrega. En la app ves siempre cuánto llevas pagado y lo pendiente." },
-  { q: "¿Qué garantía tengo?", a: "Dos años de garantía sobre la obra ejecutada, además de la garantía de fabricante de materiales y electrodomésticos. Te lo dejamos por escrito en la entrega." },
-  { q: "¿Y si quiero cambiar algo en mitad de la obra?", a: "Sin problema. Tu jefe de obra prepara una orden de cambio con el precio (IVA desglosado) y los días extra, si los hay. La revisas y la firmas desde el móvil antes de que empecemos." },
-];
 const EXTRA = [
   { titulo: "Piso en Chamberí", barrio: "Chamberí", m2: 92, semanas: 11, estancia: "Salón comedor", antes: u("photo-1581858726788-75bc0f6a952d"), despues: u("photo-1600210492486-724fe5c67fb0") },
   { titulo: "Cocina abierta en Retiro", barrio: "Retiro", m2: 18, semanas: 4, estancia: "Cocina", antes: u("photo-1504307651254-35680f356dfd"), despues: u("photo-1556911220-bff31c812dba") },
@@ -84,15 +58,16 @@ function Titulo({ k, t, s }: { k: string; t: string; s?: string }) {
 function Landing() {
   const db = useDB();
   const emp = empresaDe(db);
+  const w = webDe(db);
   const redes = ([["instagram", Instagram, "Instagram"], ["facebook", Facebook, "Facebook"], ["linkedin", Linkedin, "LinkedIn"]] as const).filter(([k]) => emp.redes[k].trim());
   const semanas = (ini: string, f?: string) => Math.max(1, Math.round((new Date(f ?? ini).getTime() - new Date(ini).getTime()) / (7 * 864e5)));
   const galeria = [
-    ...(db?.obras.filter((o) => o.antesDespues.length).map((o) => ({
+    ...(db?.obras.flatMap((o) => o.antesDespues.filter((x) => x.enLanding).map((x) => ({
       titulo: o.nombre.replace(/^Reforma integral |^Adecuación /, "").replace(/^./, (c) => c.toUpperCase()),
       barrio: o.direccion.includes("Ponzano") ? "Ponzano" : o.direccion.includes("Espíritu") ? "Malasaña" : o.barrio,
-      m2: o.m2, semanas: semanas(o.fechaInicio, o.fechaFinPrevista), ...o.antesDespues[0]!,
-    })) ?? []),
-    ...EXTRA,
+      m2: o.m2, semanas: semanas(o.fechaInicio, o.fechaFinPrevista), ...x,
+    }))) ?? []),
+    ...(w.galeria.mostrarEjemplos ? EXTRA : []),
   ];
   const [faq, setFaq] = useState<number | null>(0);
 
@@ -123,38 +98,34 @@ function Landing() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-ink/80 via-ink/55 to-ink/85" />
         <div className="mx-auto max-w-4xl px-5 pt-24 pb-16 text-center text-ink-foreground">
           <div className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-ink-foreground/25 bg-ink/30 px-4 py-1.5 text-sm font-semibold backdrop-blur">
-            <Star className="h-4 w-4 fill-current text-warn" /> 4,9/5 en más de 300 opiniones
+            <Star className="h-4 w-4 fill-current text-warn" /> {w.hero.insignia}
           </div>
-          <h1 className="text-4xl font-bold leading-[1.05] md:text-6xl">Tu reforma, sin sorpresas.<br /><span className="text-accent">Síguela día a día desde el móvil.</span></h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-ink-foreground/85 md:text-xl">Reformas integrales de pisos, cocinas, baños y locales en Madrid. Presupuesto cerrado, plazos por fase y un diario de obra con fotos que ves cada tarde.</p>
+          <h1 className="text-4xl font-bold leading-[1.05] md:text-6xl">{w.hero.titulo}<br /><span className="text-accent">{w.hero.acento}</span></h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-ink-foreground/85 md:text-xl">{w.hero.texto}</p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Cta />
             <a href={telHref(emp.telefono)} className="inline-flex h-14 items-center gap-2 rounded-2xl border border-ink-foreground/30 px-6 font-semibold hover:bg-ink/30"><Phone className="h-5 w-5" />{emp.telefono}</a>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-ink-foreground/80">
-            {["Visita gratuita", "Presupuesto en 5 días", "2 años de garantía"].map((x) => <span key={x} className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-accent" />{x}</span>)}
+            {w.hero.ventajas.filter(Boolean).map((x) => <span key={x} className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-accent" />{x}</span>)}
           </div>
         </div>
       </section>
 
       {/* Diferencial */}
-      <section id="obria" className="py-20 md:py-28">
+      <section id="obria" className="overflow-hidden py-20 md:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2 md:px-8">
           <div>
             <div className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Lo que nos diferencia</div>
-            <h2 className="text-3xl font-bold md:text-4xl">Tu obra, en tu bolsillo. Todos los días.</h2>
-            <p className="mt-4 text-lg text-muted-foreground">Con <strong className="text-foreground">Obria</strong>, nuestra app para clientes, dejas de preguntarte «¿cómo irá la obra?». Lo ves.</p>
+            <h2 className="text-3xl font-bold md:text-4xl">{w.diferencial.titulo}</h2>
+            <p className="mt-4 text-lg text-muted-foreground">{w.diferencial.texto}</p>
             <ul className="mt-8 space-y-5">
-              {[
-                { i: Camera, t: "Progreso diario con fotos", d: "Cada tarde, tu jefe de obra publica lo que se ha hecho, con fotos de cada estancia." },
-                { i: FileSignature, t: "Cambios aprobados por escrito", d: "Cualquier extra llega con precio e IVA desglosado. Lo firmas desde el móvil antes de empezar." },
-                { i: Wallet, t: "Pagos siempre claros", d: "Sabes cuánto llevas pagado, qué falta y cuándo toca cada hito." },
-              ].map((x) => (
+              {w.diferencial.puntos.map((x) => { const XI = icono(x.icono); return (
                 <li key={x.t} className="flex gap-4">
-                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground"><x.i className="h-6 w-6" /></div>
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground"><XI className="h-6 w-6" /></div>
                   <div><div className="font-display text-lg font-semibold">{x.t}</div><p className="text-muted-foreground">{x.d}</p></div>
                 </li>
-              ))}
+              ); })}
             </ul>
           </div>
           <Mockup />
@@ -164,15 +135,15 @@ function Landing() {
       {/* Servicios */}
       <section id="servicios" className="bg-secondary/60 py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-5 md:px-8">
-          <Titulo k="Servicios" t="Reformamos de principio a fin" s="Un único interlocutor para albañilería, fontanería, electricidad, carpintería y pintura." />
+          <Titulo k="Servicios" t={w.servicios.titulo} s={w.servicios.texto} />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {SERVICIOS.map((s) => (
-              <div key={s.t} className="rounded-3xl bg-card p-6 shadow-card transition hover:-translate-y-1">
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-cta"><s.icon className="h-7 w-7" /></div>
+            {w.servicios.items.map((s, i) => { const I = icono(s.icono); return (
+              <div key={i} className="rounded-3xl bg-card p-6 shadow-card transition hover:-translate-y-1">
+                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-cta"><I className="h-7 w-7" /></div>
                 <h3 className="mt-5 text-xl font-semibold">{s.t}</h3>
                 <p className="mt-2 text-muted-foreground">{s.d}</p>
               </div>
-            ))}
+            ); })}
           </div>
         </div>
       </section>
@@ -180,7 +151,7 @@ function Landing() {
       {/* Galería */}
       <section id="obras" className="py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-5 md:px-8">
-          <Titulo k="Obras terminadas" t="Antes y después" s="Desliza para ver la transformación. Proyectos reales en Madrid." />
+          <Titulo k="Obras terminadas" t={w.galeria.titulo} s={w.galeria.texto} />
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {galeria.map((g) => (
               <div key={g.titulo + g.estancia} className="rounded-3xl bg-card p-4 shadow-card">
@@ -201,16 +172,16 @@ function Landing() {
         <div className="mx-auto max-w-6xl px-5 md:px-8">
           <div className="mx-auto mb-12 max-w-2xl text-center">
             <div className="mb-2 text-sm font-bold uppercase tracking-widest text-accent">Cómo trabajamos</div>
-            <h2 className="text-3xl font-bold md:text-4xl">Cuatro pasos, cero sorpresas</h2>
+            <h2 className="text-3xl font-bold md:text-4xl">{w.pasos.titulo}</h2>
           </div>
           <ol className="grid gap-6 md:grid-cols-4">
-            {PASOS.map((p, i) => (
-              <li key={p.t} className="rounded-3xl border border-ink-foreground/15 bg-ink/30 p-6 backdrop-blur">
-                <div className="flex items-center justify-between"><p.icon className="h-8 w-8 text-accent" /><span className="font-display text-4xl font-bold text-ink-foreground/25">0{i + 1}</span></div>
+            {w.pasos.items.map((p, i) => { const I = icono(p.icono); return (
+              <li key={i} className="rounded-3xl border border-ink-foreground/15 bg-ink/30 p-6 backdrop-blur">
+                <div className="flex items-center justify-between"><I className="h-8 w-8 text-accent" /><span className="font-display text-4xl font-bold text-ink-foreground/25">{String(i + 1).padStart(2, "0")}</span></div>
                 <h3 className="mt-5 text-xl font-semibold">{p.t}</h3>
                 <p className="mt-2 text-ink-foreground/80">{p.d}</p>
               </li>
-            ))}
+            ); })}
           </ol>
         </div>
       </section>
@@ -219,20 +190,20 @@ function Landing() {
       <section className="py-20 md:py-28">
         <div className="mx-auto max-w-6xl px-5 md:px-8">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {CIFRAS.map((c) => (
-              <div key={c.l} className="rounded-3xl border bg-card p-6 text-center">
+            {w.cifras.map((c, i) => (
+              <div key={i} className="rounded-3xl border bg-card p-6 text-center">
                 <div className="font-display text-4xl font-bold text-primary md:text-5xl">{c.v}</div>
                 <div className="mt-1 text-sm font-semibold text-muted-foreground">{c.l}</div>
               </div>
             ))}
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {TESTIMONIOS.map((t) => (
-              <figure key={t.n} className="flex flex-col rounded-3xl bg-card p-6 shadow-card">
+            {w.testimonios.map((t, i) => (
+              <figure key={i} className="flex flex-col rounded-3xl bg-card p-6 shadow-card">
                 <div className="flex gap-0.5 text-warn">{[0, 1, 2, 3, 4].map((i) => <Star key={i} className="h-4 w-4 fill-current" />)}</div>
                 <blockquote className="mt-4 flex-1 text-lg">«{t.q}»</blockquote>
                 <figcaption className="mt-5 flex items-center gap-3">
-                  <div className="grid h-11 w-11 place-items-center rounded-full bg-accent font-display font-bold text-accent-foreground">{t.n[0]}</div>
+                  <div className="grid h-11 w-11 place-items-center rounded-full bg-accent font-display font-bold text-accent-foreground">{t.n.trim()[0] ?? "·"}</div>
                   <div><div className="font-semibold">{t.n}</div><div className="text-sm text-muted-foreground">{t.b} · {t.t}</div></div>
                 </figcaption>
               </figure>
@@ -246,8 +217,8 @@ function Landing() {
         <div className="mx-auto max-w-3xl px-5 md:px-8">
           <Titulo k="Preguntas frecuentes" t="Lo que todo el mundo nos pregunta" />
           <div className="space-y-3">
-            {FAQ.map((f, i) => (
-              <div key={f.q} className="rounded-2xl bg-card shadow-card">
+            {w.faq.map((f, i) => (
+              <div key={i} className="rounded-2xl bg-card shadow-card">
                 <button onClick={() => setFaq(faq === i ? null : i)} aria-expanded={faq === i} className="flex w-full items-center justify-between gap-4 p-5 text-left font-display text-lg font-semibold">
                   {f.q}<ChevronDown className={cn("h-5 w-5 shrink-0 text-primary transition", faq === i && "rotate-180")} />
                 </button>
@@ -261,8 +232,8 @@ function Landing() {
       {/* CTA final */}
       <section className="px-5 py-20 md:px-8">
         <div className="mx-auto max-w-5xl overflow-hidden rounded-[2rem] bg-hero p-10 text-center text-ink-foreground shadow-card md:p-16">
-          <h2 className="text-3xl font-bold md:text-5xl">¿Empezamos tu reforma?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-foreground/85">Cuéntanos qué tienes en mente en 2 minutos. Te llamamos en menos de 24 horas laborables para agendar la visita gratuita.</p>
+          <h2 className="text-3xl font-bold md:text-5xl">{w.cta.titulo}</h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-ink-foreground/85">{w.cta.texto}</p>
           <Cta light className="mt-8" />
         </div>
       </section>
@@ -272,7 +243,7 @@ function Landing() {
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-4 md:px-8">
           <div className="md:col-span-2">
             <div className="font-display text-2xl font-bold">{emp.nombreComercial}</div>
-            <p className="mt-2 max-w-sm text-ink-foreground/70">Reformas integrales en Madrid desde 2008. Seguimiento diario con Obria.</p>
+            <p className="mt-2 max-w-sm text-ink-foreground/70">{w.pie}</p>
             {redes.length > 0 && <div className="mt-5 flex gap-3">
               {redes.map(([k, I, n]) => <a key={k} href={webHref(emp.redes[k].trim())} target="_blank" rel="noopener noreferrer" aria-label={n} className="grid h-11 w-11 place-items-center rounded-full bg-ink-foreground/10 hover:bg-primary"><I className="h-5 w-5" /></a>)}
             </div>}
@@ -288,7 +259,7 @@ function Landing() {
             {emp.horario.split("\n").filter(Boolean).map((l, i) => <p key={i}>{l}</p>)}
           </div>
         </div>
-        <div className="border-t border-ink-foreground/10 py-5 text-center text-sm text-ink-foreground/60">© {new Date().getFullYear()} {emp.razonSocial} · <Link to="/acceso" className="underline">Área de clientes y equipo</Link></div>
+        <div className="border-t border-ink-foreground/10 py-5 text-center text-sm text-ink-foreground/60">© {new Date().getFullYear()} {emp.razonSocial} · <Link to="/acceso" className="underline">Área de clientes y equipo</Link><Atribucion className="mt-2 text-ink-foreground/60" enlace="text-ink-foreground/80 hover:text-ink-foreground" /></div>
       </footer>
     </div>
   );

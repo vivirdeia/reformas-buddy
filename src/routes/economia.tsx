@@ -62,10 +62,10 @@ function Economia({ db }: { db: DB }) {
         </Seccion>
 
         <Seccion titulo="Cobros por mes">
-          <div className="flex h-64 items-end gap-3">
+          <div className="flex h-64 items-end gap-1.5 sm:gap-3">
             {meses.map((m) => (
-              <div key={m.clave} className="flex h-full flex-1 flex-col items-center justify-end gap-2">
-                <span className="text-xs font-bold tabular-nums">{m.total ? kEuro(m.total) : "—"}</span>
+              <div key={m.clave} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
+                <span className="text-[10px] font-bold tabular-nums sm:text-xs">{m.total ? kEuro(m.total) : "—"}</span>
                 <div className="w-full rounded-t-xl bg-primary transition-all duration-700" style={{ height: `${(m.total / maxMes) * 80}%`, minHeight: m.total ? 6 : 2 }} />
                 <span className="text-xs font-semibold capitalize text-muted-foreground">{m.label}</span>
               </div>
@@ -112,7 +112,7 @@ function Economia({ db }: { db: DB }) {
 
 function Leyenda() {
   return (
-    <div className="flex gap-3 text-xs font-semibold text-muted-foreground">
+    <div className="flex flex-wrap gap-3 text-xs font-semibold text-muted-foreground">
       <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-ok" />&gt; 20 %</span>
       <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-warn" />10–20 %</span>
       <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-danger" />&lt; 10 %</span>
