@@ -6,5 +6,5 @@ Restricción: nunca backend/nube. Solo localStorage + IndexedDB.
 - [x] F2 — Cálculos vivos (semáforo derivado)
 - [x] F3 — Gestión de obra
 - [x] F4 — Editar y borrar contenido
-- [ ] F5 — Administración
+- [x] F5 — Administración
 - [ ] F6 — Archivos y escaparate
