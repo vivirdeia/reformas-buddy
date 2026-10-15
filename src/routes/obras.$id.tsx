@@ -209,7 +209,7 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
           <div className="space-y-4">
             {dias.map((d) => (
               <div key={d}>
-                <div className="mb-2 text-sm font-bold capitalize text-primary">{fechaLarga(d)}</div>
+                <div className="mb-2 text-sm font-bold text-primary first-letter:uppercase">{fechaLarga(d)}</div>
                 {partes.filter((p) => p.fecha === d).map((p) => (
                   <div key={p.id} className="mb-2 rounded-2xl bg-muted p-3">
                     <div className="flex justify-between text-xs text-muted-foreground">

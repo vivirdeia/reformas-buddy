@@ -56,7 +56,7 @@ function HoyBody({ db, me }: { db: DB; me: Usuario }) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm capitalize text-muted-foreground">{fechaLarga(hoy)}</p>
+        <p className="text-sm text-muted-foreground first-letter:uppercase">{fechaLarga(hoy)}</p>
         <h1 className="text-2xl font-bold">Tu jornada</h1>
       </div>
       <div className="flex items-center justify-between rounded-3xl bg-ink p-4 text-ink-foreground shadow-card">

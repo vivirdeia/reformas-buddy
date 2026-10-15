@@ -66,7 +66,7 @@ function Form({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-sm capitalize text-muted-foreground">{fechaLarga(hoy)}</p>
+        <p className="text-sm text-muted-foreground first-letter:uppercase">{fechaLarga(hoy)}</p>
         <h1 className="text-2xl font-bold">Parte diario</h1>
         <p className="text-muted-foreground">{o.nombre}</p>
       </div>
