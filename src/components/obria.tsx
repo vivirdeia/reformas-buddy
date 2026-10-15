@@ -70,7 +70,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl pb-28">
-      <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
+      <header className="print:hidden sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
         <div className="flex h-16 items-center justify-between px-4">
           {back ?? <Logo />}
           {title && <span className="font-display font-semibold">{title}</span>}
@@ -87,7 +87,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
         </div>
       </header>
       <main className="px-4 pt-4">{children({ db, me })}</main>
-      <nav className="fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur pb-safe">
+      <nav className="print:hidden fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur pb-safe">
         <div className="mx-auto grid max-w-3xl" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
           {tabs.map((t) => {
             const active = loc.pathname.startsWith(t.to);
