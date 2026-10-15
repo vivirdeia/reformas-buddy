@@ -6,7 +6,7 @@ import { useDB, useSession, ROL_LABEL } from "@/lib/store";
 import type { Rol } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/acceso")({
   head: () => ({
     meta: [
       { title: "Acceso · Obria — Reformas Arnal" },

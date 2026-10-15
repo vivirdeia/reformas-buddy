@@ -5,7 +5,7 @@ import { createSeed, FASES } from "./seed";
 const DB_KEY = "obria:db:v1";
 const SESSION_KEY = "obria:session";
 const EVT = "obria:change";
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 
 export function loadDB(): DB {
   try {
@@ -86,3 +86,4 @@ export const fecha = (iso?: string) => iso ? new Date(iso + "T12:00:00").toLocal
 
 export const ROL_LABEL: Record<Usuario["rol"], string> = { operario: "Operario", jefe_obra: "Jefe de obra", cliente: "Cliente", gerente: "Gerente" };
 export const ESTADO_LABEL = { en_plazo: "En plazo", en_riesgo: "En riesgo", retrasada: "Retrasada", terminada: "Terminada" } as const;
+export const SOL_LABEL = { nueva: "Nueva", contactada: "Contactada", visita: "Visita agendada", presupuestada: "Presupuestada", ganada: "Ganada", perdida: "Perdida" } as const;

@@ -275,7 +275,7 @@ function Anillo({ value }: { value: number }) {
   );
 }
 
-function Comparador({ estancia, antes, despues }: { estancia: string; antes: string; despues: string }) {
+export function Comparador({ estancia, antes, despues }: { estancia: string; antes: string; despues: string }) {
   const [pos, setPos] = useState(50);
   const ref = useRef<HTMLDivElement>(null);
   const mover = (x: number) => { const r = ref.current!.getBoundingClientRect(); setPos(Math.min(100, Math.max(0, ((x - r.left) / r.width) * 100))); };

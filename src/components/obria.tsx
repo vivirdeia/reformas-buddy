@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { HardHat, Settings, LogOut, CalendarCheck, Home as HomeIcon, LayoutDashboard, Users, Wallet } from "lucide-react";
+import { HardHat, Settings, LogOut, CalendarCheck, Home as HomeIcon, LayoutDashboard, Users, Wallet, Inbox } from "lucide-react";
 import { useDB, useSession, user, ROL_LABEL, ESTADO_LABEL } from "@/lib/store";
 import type { DB, EstadoObra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -56,7 +56,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
   const me = db ? user(db, userId ?? undefined) : undefined;
 
   useEffect(() => {
-    if (userId === null || (db && userId && !me)) nav({ to: "/" });
+    if (userId === null || (db && userId && !me)) nav({ to: "/acceso" });
   }, [userId, db, me, nav]);
 
   if (!db || !me) return <div className="min-h-screen" />;
@@ -65,16 +65,17 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
   const ger = me.rol === "gerente";
   const tabs = ger ? [
     { to: "/panel", label: "Panel", icon: LayoutDashboard },
+    { to: "/solicitudes", label: "Solicitudes", icon: Inbox, badge: db.solicitudes.filter((s) => s.estado === "nueva").length },
     { to: "/obras", label: "Obras", icon: HardHat },
     { to: "/equipo", label: "Equipo", icon: Users },
     { to: "/economia", label: "Economía", icon: Wallet },
     { to: "/ajustes", label: "Ajustes", icon: Settings },
-  ] : [
+  ] as { to: string; label: string; icon: typeof HardHat; badge?: number }[] : [
     ...(staff ? [{ to: "/hoy", label: "Hoy", icon: CalendarCheck }] : []),
     me.rol === "cliente" ? { to: "/mi-reforma", label: "Mi reforma", icon: HomeIcon } : { to: "/obras", label: "Obras", icon: HardHat },
     { to: "/ajustes", label: "Ajustes", icon: Settings },
   ];
-  const salir = () => { logout(); nav({ to: "/" }); };
+  const salir = () => { logout(); nav({ to: "/acceso" }); };
 
   return (
     <div className="min-h-screen">
@@ -86,7 +87,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
               const active = loc.pathname.startsWith(t.to);
               return (
                 <Link key={t.to} to={t.to as "/obras"} className={cn("flex h-12 items-center gap-3 rounded-xl px-4 font-semibold transition", active ? "bg-primary text-primary-foreground shadow-cta" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
-                  <t.icon className="h-5 w-5" />{t.label}
+                  <t.icon className="h-5 w-5" />{t.label}{!!t.badge && <span className={cn("ml-auto grid h-6 min-w-6 place-items-center rounded-full px-1.5 text-xs font-bold", active ? "bg-card text-primary" : "bg-primary text-primary-foreground")}>{t.badge}</span>}
                 </Link>
               );
             })}
@@ -124,7 +125,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
             const active = loc.pathname.startsWith(t.to);
             return (
               <Link key={t.to} to={t.to as "/obras"} className={cn("flex flex-col items-center gap-1 py-3 text-xs font-semibold", active ? "text-primary" : "text-muted-foreground")}>
-                <t.icon className="h-6 w-6" />
+                <span className="relative"><t.icon className="h-6 w-6" />{!!("badge" in t && t.badge) && <span className="absolute -right-2.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">{(t as { badge: number }).badge}</span>}</span>
                 {t.label}
               </Link>
             );

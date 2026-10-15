@@ -93,8 +93,16 @@ export interface Tarea {
   operarioId: string; hecha: boolean; hechaEn?: string | undefined; creadaPor: string;
 }
 
+export type EstadoSolicitud = "nueva" | "contactada" | "visita" | "presupuestada" | "ganada" | "perdida";
+export interface Solicitud {
+  id: string; fecha: string; tipo: string; m2: number; zona: string; inicio: string; rango: string;
+  fotos: string[]; nombre: string; telefono: string; email: string; comentario?: string;
+  estado: EstadoSolicitud; notas?: string; obraId?: string | undefined;
+}
+
 export interface DB {
   version: number;
+  solicitudes: Solicitud[];
   fichajes: Fichaje[];
   /** Coste por hora según oficio (o "Jefe de obra") */
   costeHora: Record<string, number>;
