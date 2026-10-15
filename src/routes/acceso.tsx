@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { HardHat, ClipboardCheck, Home, Briefcase, ChevronLeft, Delete } from "lucide-react";
 import { Logo } from "@/components/obria";
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/acceso")({
     meta: [
       { title: "Acceso · Obria — Reformas Arnal" },
       { name: "description", content: "Accede a Obria, la app de gestión de obras de Reformas Arnal en Madrid." },
-      { property: "og:title", content: "Obria — Reformas Arnal" },
+      { property: "og:title", content: "Acceso clientes y equipo · Reformas Arnal" },
       { property: "og:description", content: "Gestión de obras y reformas integrales a pie de obra." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -61,7 +61,7 @@ function Login() {
   return (
     <div className="min-h-screen bg-hero">
       <div className="mx-auto flex min-h-screen max-w-md flex-col px-5 py-8">
-        <Logo light />
+        <div className="flex items-center justify-between"><Link to="/"><Logo light /></Link><Link to="/" className="text-sm font-semibold text-ink-foreground/80 hover:text-ink-foreground">← Volver a la web</Link></div>
         <div className="mt-10 mb-6 text-ink-foreground">
           <h1 className="text-3xl font-bold">{!rol ? "Bienvenido" : !sel ? ROL_LABEL[rol] : `Hola, ${sel.nombre.split(" ")[0]}`}</h1>
           <p className="mt-1 text-ink-foreground/75">{!rol ? "Elige cómo quieres entrar" : !sel ? "Selecciona tu usuario" : "Introduce tu PIN de 4 dígitos"}</p>
