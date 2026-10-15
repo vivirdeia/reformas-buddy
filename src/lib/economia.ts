@@ -17,5 +17,5 @@ export const pagado = (o: Obra) => r2(o.pagos.filter((h) => h.estado === "pagado
 export const concepto = (o: Obra, h: HitoPago) => `ARNAL ${o.id.toUpperCase()} ${h.porcentaje}% ${h.concepto.toUpperCase()}`;
 
 export const euro2 = (n: number) => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(n);
-export const ESTADO_OC = { borrador: "Borrador", enviada: "Pendiente de firma", aprobada: "Aprobada y firmada", rechazada: "Rechazada" } as const;
-export const ESTADO_OC_CLS = { borrador: "bg-secondary text-secondary-foreground", enviada: "bg-warn-soft text-warn", aprobada: "bg-ok-soft text-ok", rechazada: "bg-danger-soft text-danger" } as const;
+export const ESTADO_OC = { borrador: "Borrador", enviada: "Pendiente de firma", aprobada: "Aprobada y firmada", rechazada: "Rechazada", anulada: "Anulada" } as const;
+export const ESTADO_OC_CLS = { borrador: "bg-secondary text-secondary-foreground", enviada: "bg-warn-soft text-warn", aprobada: "bg-ok-soft text-ok", rechazada: "bg-danger-soft text-danger", anulada: "bg-muted text-muted-foreground line-through" } as const;

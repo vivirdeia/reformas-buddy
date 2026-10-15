@@ -29,7 +29,7 @@ export type EstadoObra = "en_plazo" | "en_riesgo" | "retrasada" | "terminada";
 
 export interface Gremio { id: string; oficio: string; empresa: string; contacto: string; telefono: string; }
 
-export interface Nota { id: string; autorId: string; fecha: string; texto: string; }
+export interface Nota { id: string; autorId: string; fecha: string; texto: string; editadaEn?: string | undefined; }
 
 // Preparado para fases siguientes
 export interface Incidencia {
@@ -41,7 +41,8 @@ export interface Firma { imagen: string; nombre: string; fecha: string; }
 export interface OrdenCambio {
   id: string; fecha: string; titulo: string; descripcion: string; estancia: string;
   partidas: Partida[]; diasExtra: number; fotos: string[];
-  estado: "borrador" | "enviada" | "aprobada" | "rechazada";
+  estado: "borrador" | "enviada" | "aprobada" | "rechazada" | "anulada";
+  anuladaEn?: string | undefined; anuladaPor?: string | undefined;
   creadaPor: string; enviadaEn?: string | undefined; respondidaEn?: string | undefined;
   firma?: Firma | undefined; motivoRechazo?: string | undefined;
 }
@@ -96,7 +97,7 @@ export interface Obra {
   notasCliente?: string | undefined;
 }
 
-export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }
+export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; corregido?: { por: string; en: string } | undefined; }
 export interface Tarea {
   id: string; obraId: string; fecha: string; titulo: string; fase: FaseTipo;
   operarioId: string; hecha: boolean; hechaEn?: string | undefined; creadaPor: string;
