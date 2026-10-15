@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import type { DB, Obra, Usuario } from "./types";
 import { createSeed, DB_VERSION, FASES } from "./seed";
 import { EMPRESA_DEFECTO } from "./empresa";
+import { WEB_DEFECTO } from "./web";
 import { apuntesDesdeCostes } from "./costes";
 import {
   iniciarArchivos, cargarFaltan, externalizar, resolver, refsEn, limpiarHuerfanos,
@@ -37,9 +38,17 @@ const MIGRACIONES: Record<number, (d: DB) => void> = {
       delete o.costes;
     });
   },
+  // v12: web editable, documentos reales (visibles por defecto) y antes/después con id y opción de galería.
+  12: (d) => {
+    d.web ??= structuredClone(WEB_DEFECTO);
+    d.obras.forEach((o) => {
+      o.documentos?.forEach((x) => { x.visibleCliente ??= true; });
+      o.antesDespues?.forEach((x, i) => { x.id ??= `ad-${o.id}-${i + 1}`; x.enLanding ??= i === 0; });
+    });
+  },
 };
 function normalizar(d: DB) {
-  d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {}; d.empresa ??= structuredClone(EMPRESA_DEFECTO); d.empresa.redes ??= { instagram: "", facebook: "", linkedin: "" };
+  d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {}; d.empresa ??= structuredClone(EMPRESA_DEFECTO); d.empresa.redes ??= { instagram: "", facebook: "", linkedin: "" }; d.web ??= structuredClone(WEB_DEFECTO);
   d.obras.forEach((o) => {
     o.notas ??= []; o.incidencias ??= []; o.ordenesCambio ??= []; o.partesDiarios ??= []; o.hitos ??= [];
     o.documentos ??= []; o.antesDespues ??= []; o.pagos ??= []; o.apuntes ??= [];

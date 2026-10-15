@@ -170,26 +170,26 @@ export function generarActividad(db: DB) {
   db.obras.forEach((o, i) => {
     const f = o.fechaInicio;
     o.documentos = [
-      { id: `d-${o.id}-1`, nombre: "Presupuesto aprobado firmado.pdf", tipo: "presupuesto", fecha: addDias(f, -14), tamano: `${(380 + i * 37)} KB` },
-      { id: `d-${o.id}-2`, nombre: "Plano de distribución reformada.pdf", tipo: "plano", fecha: addDias(f, -10), tamano: `${(1.2 + i * 0.3).toFixed(1).replace(".", ",")} MB` },
-      { id: `d-${o.id}-3`, nombre: "Licencia de obra · Ayto. de Madrid.pdf", tipo: "certificado", fecha: addDias(f, -5), tamano: "214 KB" },
+      { id: `d-${o.id}-1`, nombre: "Presupuesto aprobado firmado.pdf", tipo: "presupuesto", fecha: addDias(f, -14), tamano: `${(380 + i * 37)} KB`, visibleCliente: true },
+      { id: `d-${o.id}-2`, nombre: "Plano de distribución reformada.pdf", tipo: "plano", fecha: addDias(f, -10), tamano: `${(1.2 + i * 0.3).toFixed(1).replace(".", ",")} MB`, visibleCliente: true },
+      { id: `d-${o.id}-3`, nombre: "Licencia de obra · Ayto. de Madrid.pdf", tipo: "certificado", fecha: addDias(f, -5), tamano: "214 KB", visibleCliente: true },
     ];
     if (o.estado === "terminada" || o.id === "o-5") o.documentos.push(
-      { id: `d-${o.id}-4`, nombre: "Boletín eléctrico (CIE).pdf", tipo: "certificado", fecha: addDias(f, 30), tamano: "468 KB" },
-      { id: `d-${o.id}-5`, nombre: "Certificado de gestión de residuos.pdf", tipo: "certificado", fecha: addDias(f, 12), tamano: "195 KB" },
+      { id: `d-${o.id}-4`, nombre: "Boletín eléctrico (CIE).pdf", tipo: "certificado", fecha: addDias(f, 30), tamano: "468 KB", visibleCliente: true },
+      { id: `d-${o.id}-5`, nombre: "Certificado de gestión de residuos.pdf", tipo: "certificado", fecha: addDias(f, 12), tamano: "195 KB", visibleCliente: true },
     );
   });
   const ad = (id: string) => u(id);
   const o5 = db.obras.find((o) => o.id === "o-5");
   if (o5) o5.antesDespues = [
-    { estancia: "Salón", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1502005229762-cf1b2da7c5d6") },
-    { estancia: "Cocina", antes: ad("photo-1581858726788-75bc0f6a952d"), despues: ad("photo-1556909114-f6e7ad7d3136") },
-    { estancia: "Baño", antes: ad("photo-1504307651254-35680f356dfd"), despues: ad("photo-1584622650111-993a426fbf0a") },
+    { id: "ad-o-5-1", enLanding: true, estancia: "Salón", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1502005229762-cf1b2da7c5d6") },
+    { id: "ad-o-5-2", enLanding: false, estancia: "Cocina", antes: ad("photo-1581858726788-75bc0f6a952d"), despues: ad("photo-1556909114-f6e7ad7d3136") },
+    { id: "ad-o-5-3", enLanding: false, estancia: "Baño", antes: ad("photo-1504307651254-35680f356dfd"), despues: ad("photo-1584622650111-993a426fbf0a") },
   ];
   const o6 = db.obras.find((o) => o.id === "o-6");
   if (o6) o6.antesDespues = [
-    { estancia: "Sala principal", antes: ad("photo-1541888946425-d81bb19240f5"), despues: ad("photo-1554118811-1e0d58224f24") },
-    { estancia: "Barra", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1453614512568-c4024d13c247") },
+    { id: "ad-o-6-1", enLanding: true, estancia: "Sala principal", antes: ad("photo-1541888946425-d81bb19240f5"), despues: ad("photo-1554118811-1e0d58224f24") },
+    { id: "ad-o-6-2", enLanding: false, estancia: "Barra", antes: ad("photo-1503387762-592deb58ef4e"), despues: ad("photo-1453614512568-c4024d13c247") },
   ];
 
   generarEconomia(db, hoy);
