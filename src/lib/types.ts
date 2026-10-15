@@ -36,9 +36,18 @@ export interface Incidencia {
   id: string; fecha: string; titulo: string; descripcion: string;
   gravedad: "baja" | "media" | "alta"; estado: "abierta" | "resuelta"; autorId: string; fotos: string[];
 }
+export interface Partida { concepto: string; cantidad: number; precio: number; }
+export interface Firma { imagen: string; nombre: string; fecha: string; }
 export interface OrdenCambio {
-  id: string; fecha: string; titulo: string; descripcion: string; importe: number;
-  diasExtra: number; estado: "pendiente" | "aprobada" | "rechazada"; solicitadaPor: string; respondidaEn?: string;
+  id: string; fecha: string; titulo: string; descripcion: string; estancia: string;
+  partidas: Partida[]; diasExtra: number; fotos: string[];
+  estado: "borrador" | "enviada" | "aprobada" | "rechazada";
+  creadaPor: string; enviadaEn?: string | undefined; respondidaEn?: string | undefined;
+  firma?: Firma | undefined; motivoRechazo?: string | undefined;
+}
+export interface HitoPago {
+  id: string; concepto: string; porcentaje: number; estado: "pendiente" | "solicitado" | "pagado";
+  solicitadoEn?: string | undefined; pagadoEn?: string | undefined;
 }
 export interface ParteDiario {
   id: string; fecha: string; autorId: string; horas: number; operarioIds: string[];
@@ -73,6 +82,7 @@ export interface Obra {
   documentos: Documento[];
   antesDespues: AntesDespues[];
   horario: string;
+  pagos: HitoPago[];
 }
 
 export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }

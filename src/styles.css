@@ -90,3 +90,7 @@
 @utility shadow-cta { box-shadow: var(--shadow-cta); }
 @utility bg-hero { background: var(--gradient-hero); }
 @utility pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+
+@media print {
+  body { background: var(--card); }
+}

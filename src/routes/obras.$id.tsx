@@ -5,6 +5,8 @@ import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
 import { avance, euro, fecha, faseActual, nombreFase, user } from "@/lib/store";
 import type { DB, FaseEstado, Obra, Usuario } from "@/lib/types";
 import { Galeria } from "@/components/fotos";
+import { OrdenesEquipo, PagosEquipo } from "@/components/equipo-economia";
+import { totales, vigente } from "@/lib/economia";
 import { dur, fechaLarga, msFichaje, mutate } from "@/lib/store";
 import { ClipboardList, CheckCircle2, Clock, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,7 +52,7 @@ function Ficha() {
         const jefe = user(db, o.equipo.jefeId);
         const a = avance(o);
         const inc = o.incidencias.filter((i) => i.estado === "abierta");
-        const oc = o.ordenesCambio.filter((i) => i.estado === "pendiente");
+        const oc = o.ordenesCambio.filter((i) => i.estado === "enviada");
         return (
           <div className="space-y-4">
             <div className="relative -mx-4 -mt-4 h-56 overflow-hidden sm:mx-0 sm:mt-0 sm:rounded-3xl">
@@ -70,7 +72,7 @@ function Ficha() {
               </div>
               <div className="mt-2"><Progreso value={a} /></div>
               <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-2xl bg-muted p-3"><Euro className="mb-1 h-4 w-4 text-primary" /><div className="text-xs text-muted-foreground">Presupuesto aprobado</div><div className="font-display text-lg font-bold">{euro(o.presupuesto)}</div></div>
+                <div className="rounded-2xl bg-muted p-3"><Euro className="mb-1 h-4 w-4 text-primary" /><div className="text-xs text-muted-foreground">Presupuesto vigente</div><div className="font-display text-lg font-bold">{euro(vigente(o))}</div>{vigente(o) !== o.presupuesto && <div className="text-xs text-muted-foreground">Inicial {euro(o.presupuesto)}</div>}</div>
                 <div className="rounded-2xl bg-muted p-3"><CalendarDays className="mb-1 h-4 w-4 text-primary" /><div className="text-xs text-muted-foreground">Inicio → fin previsto</div><div className="font-display text-lg font-bold">{fecha(o.fechaInicio)} → {fecha(o.fechaFinPrevista)}</div></div>
               </div>
             </div>
@@ -84,10 +86,10 @@ function Ficha() {
                   </div>
                 ))}
                 {oc.map((c) => (
-                  <div key={c.id} className="flex gap-3 rounded-2xl border-2 border-warn/40 bg-warn-soft p-4">
+                  <Link key={c.id} to="/orden/$obraId/$ocId" params={{ obraId: o.id, ocId: c.id }} className="flex gap-3 rounded-2xl border-2 border-warn/40 bg-warn-soft p-4">
                     <FileClock className="h-6 w-6 shrink-0 text-warn" />
-                    <div><div className="font-semibold">Orden de cambio pendiente de aprobar</div><div className="font-semibold">{c.titulo} · {euro(c.importe)} · +{c.diasExtra} días</div><p className="text-sm text-muted-foreground">{c.descripcion}</p></div>
-                  </div>
+                    <div><div className="font-semibold">Orden de cambio pendiente de firma</div><div className="font-semibold">{c.titulo} · {euro(totales(c).total)} · +{c.diasExtra} días</div><p className="text-sm text-muted-foreground">{c.descripcion}</p></div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -181,6 +183,9 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
         <Link to="/vista-cliente/$id" params={{ id: o.id }} className="col-span-3 flex h-12 items-center justify-center gap-2 rounded-2xl border-2 font-semibold"><Eye className="h-5 w-5" />Ver como cliente</Link>
         <Link to="/incidencia/$id" params={{ id: o.id }} className="flex h-14 items-center justify-center gap-1 rounded-2xl bg-danger-soft text-sm font-semibold text-danger"><AlertTriangle className="h-5 w-5" />Incidencia</Link>
       </div>
+
+      <OrdenesEquipo db={db} me={me} o={o} />
+      <PagosEquipo me={me} o={o} />
 
       <Card title="Incidencias">
         {incs.length === 0 ? <p className="text-sm text-muted-foreground">Sin incidencias.</p> : (

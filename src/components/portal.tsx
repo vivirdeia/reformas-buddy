@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Phone, MessageCircle, Clock, FileText, Ruler, BadgeCheck, X, CalendarHeart, Sparkles, Heart, Check, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Phone, MessageCircle, Clock, FileText, Ruler, BadgeCheck, X, CalendarHeart, Sparkles, Heart, Check, MapPin, ChevronLeft, ChevronRight, PenLine, Wallet, Copy } from "lucide-react";
 import { Foto } from "@/components/obria";
 import { avance, euro, fecha, fechaLarga, nombreFase, user } from "@/lib/store";
 import { addDias, hoyISO } from "@/lib/fechas";
-import type { DB, Documento, FaseTipo, Obra, ParteDiario } from "@/lib/types";
+import type { DB, Documento, FaseTipo, Obra, OrdenCambio, ParteDiario } from "@/lib/types";
+import { Link } from "@tanstack/react-router";
+import { cambiosAprobados, concepto, euro2, IBAN, importeHito, pagado, TITULAR, totales, vigente } from "@/lib/economia";
 import { cn } from "@/lib/utils";
 
 const dias = (a: string, b: string) => Math.round((new Date(b + "T12:00:00").getTime() - new Date(a + "T12:00:00").getTime()) / 86400000);
@@ -60,7 +62,12 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
   const [visor, setVisor] = useState<{ fotos: string[]; i: number } | null>(null);
   const [doc, setDoc] = useState<Documento | null>(null);
   const partes = o.partesDiarios.filter((p) => p.visibleCliente).sort((x, y) => y.fecha.localeCompare(x.fecha));
-  const diasDiario = [...new Set(partes.map((p) => p.fecha))];
+  const aprobadas = o.ordenesCambio.filter((c) => c.estado === "aprobada" && c.firma);
+  const diaOc = (c: OrdenCambio) => c.firma!.fecha.slice(0, 10);
+  const diasDiario = [...new Set([...partes.map((p) => p.fecha), ...aprobadas.map(diaOc)])].sort((a, b) => b.localeCompare(a));
+  const pendientes = o.ordenesCambio.filter((c) => c.estado === "enviada");
+  const solicitados = o.pagos.filter((h) => h.estado === "solicitado");
+  const vig = vigente(o), pag = pagado(o);
   const tel = jefe?.telefono.replace(/\s/g, "") ?? "";
 
   return (
@@ -95,6 +102,28 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
           <p className="mt-1 text-sm text-muted-foreground">{m.texto}</p>
         </div>
       </section>
+
+      {pendientes.map((c) => (
+        <Link key={c.id} to="/orden/$obraId/$ocId" params={{ obraId: o.id, ocId: c.id }} className="relative block overflow-hidden rounded-3xl bg-primary p-5 text-primary-foreground shadow-cta animate-in fade-in slide-in-from-bottom-4">
+          <span className="absolute right-4 top-4 h-3 w-3 animate-ping rounded-full bg-primary-foreground" />
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider opacity-85"><PenLine className="h-4 w-4" />Necesitamos tu firma</div>
+          <div className="mt-1 font-display text-xl font-bold">{c.titulo}</div>
+          <div className="mt-1 text-sm opacity-90">{euro2(totales(c).total)} · {c.diasExtra > 0 ? `+${c.diasExtra} días de plazo` : "sin cambio de plazo"}</div>
+          <div className="mt-3 inline-flex h-11 items-center gap-1 rounded-xl bg-card px-4 font-semibold text-foreground">Revisar y firmar<ChevronRight className="h-4 w-4" /></div>
+        </Link>
+      ))}
+      {solicitados.map((h) => (
+        <section key={h.id} className="rounded-3xl border-2 border-warn/40 bg-warn-soft p-5">
+          <div className="flex items-center gap-2 font-display text-lg font-semibold"><Wallet className="h-5 w-5 text-warn" />Tienes un pago pendiente</div>
+          <p className="mt-1 text-sm text-muted-foreground">¡Gracias por tu confianza! Hemos alcanzado el hito «{h.concepto.toLowerCase()}». Cuando te venga bien, puedes hacer la transferencia:</p>
+          <dl className="mt-3 space-y-2 rounded-2xl bg-card p-4 text-sm">
+            <div className="flex justify-between gap-2"><dt className="text-muted-foreground">Importe</dt><dd className="font-display text-lg font-bold">{euro2(importeHito(o, h))}</dd></div>
+            <div><dt className="text-muted-foreground">IBAN</dt><dd className="flex items-center justify-between gap-2 font-mono font-semibold">{IBAN}<button onClick={() => navigator.clipboard?.writeText(IBAN.replace(/\s/g, ""))} aria-label="Copiar IBAN" className="grid h-10 w-10 place-items-center rounded-lg bg-secondary"><Copy className="h-4 w-4" /></button></dd></div>
+            <div><dt className="text-muted-foreground">Titular</dt><dd className="font-semibold">{TITULAR}</dd></div>
+            <div><dt className="text-muted-foreground">Concepto</dt><dd className="font-mono text-xs font-semibold">{concepto(o, h)}</dd></div>
+          </dl>
+        </section>
+      ))}
 
       <Bloque titulo="Las fases de tu reforma">
         <ol>
@@ -140,6 +169,13 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
             {diasDiario.map((d) => (
               <div key={d}>
                 <div className="mb-2 flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-primary" /><span className="text-sm font-bold text-primary first-letter:uppercase">{fechaLarga(d)}</span></div>
+                {aprobadas.filter((c) => diaOc(c) === d).map((c) => (
+                  <Link key={c.id} to="/orden/$obraId/$ocId" params={{ obraId: o.id, ocId: c.id }} className="mb-3 ml-0 flex items-center gap-3 rounded-2xl bg-accent p-3">
+                    <PenLine className="h-5 w-5 shrink-0 text-accent-foreground" />
+                    <span className="flex-1 text-sm"><span className="block font-semibold">Aprobaste un cambio: {c.titulo}</span><span className="text-muted-foreground">{euro2(totales(c).total)}{c.diasExtra > 0 && ` · +${c.diasExtra} días`}</span></span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                ))}
                 {partes.filter((p) => p.fecha === d).map((p) => (
                   <article key={p.id} className="mb-3 border-l-2 border-border pl-4">
                     {p.fase && <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{nombreFase(p.fase)}</span>}
@@ -159,6 +195,29 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
             ))}
           </div>
         )}
+      </Bloque>
+
+      <Bloque titulo="Tu inversión" icono={<Wallet className="h-5 w-5 text-primary" />}>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between"><span className="text-muted-foreground">Presupuesto inicial</span><span>{euro2(o.presupuesto)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">Cambios aprobados</span><span>+ {euro2(cambiosAprobados(o))}</span></div>
+          <div className="flex justify-between border-t pt-2 font-display text-lg font-bold"><span>Presupuesto vigente</span><span>{euro2(vig)}</span></div>
+        </div>
+        <div className="mt-4 h-4 overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-ok transition-all duration-1000" style={{ width: `${(pag / vig) * 100}%` }} />
+        </div>
+        <div className="mt-2 flex justify-between text-sm"><span><span className="font-bold text-ok">{euro2(pag)}</span> pagado</span><span><span className="font-bold">{euro2(vig - pag)}</span> pendiente</span></div>
+        <ul className="mt-4 space-y-2">
+          {o.pagos.map((h) => (
+            <li key={h.id} className="flex items-center gap-3 rounded-2xl bg-muted p-3">
+              <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full", h.estado === "pagado" ? "bg-ok text-primary-foreground" : h.estado === "solicitado" ? "bg-warn text-ink" : "bg-card text-muted-foreground")}>
+                {h.estado === "pagado" ? <Check className="h-5 w-5" /> : <span className="text-xs font-bold">{h.porcentaje}%</span>}
+              </span>
+              <span className="flex-1"><span className="block text-sm font-semibold">{h.concepto}</span><span className="text-xs text-muted-foreground">{h.estado === "pagado" ? `Pagado el ${fecha(h.pagadoEn)}` : h.estado === "solicitado" ? "Solicitado · pendiente de transferencia" : "Pendiente"}</span></span>
+              <span className="font-semibold">{euro2(importeHito(o, h))}</span>
+            </li>
+          ))}
+        </ul>
       </Bloque>
 
       <Bloque titulo="Documentos">

@@ -65,7 +65,7 @@ function Obras() {
               {lista.map((o) => {
                 const a = avance(o);
                 const inc = o.incidencias.filter((i) => i.estado === "abierta").length;
-                const oc = o.ordenesCambio.filter((i) => i.estado === "pendiente").length;
+                const oc = o.ordenesCambio.filter((i) => i.estado === "enviada").length;
                 return (
                   <Link key={o.id} to="/obras/$id" params={{ id: o.id }} className="overflow-hidden rounded-3xl bg-card shadow-card transition active:scale-[0.99]">
                     <div className="relative h-40">
