@@ -22,8 +22,8 @@ export function DocJustificante({ o, oc, cliente }: { o: Obra; oc: OrdenCambio; 
       <h2 className="font-display text-lg font-bold">{oc.titulo}</h2>
       <p className="text-muted-foreground">Estancia: {oc.estancia}. {oc.descripcion}</p>
       <table className="mt-4 w-full">
-        <thead><tr className="border-b text-left text-xs uppercase text-muted-foreground"><th className="py-2">Concepto</th><th className="py-2 text-right">Cant.</th><th className="py-2 text-right">Precio</th><th className="py-2 text-right">Importe</th></tr></thead>
-        <tbody>{oc.partidas.map((p, i) => <tr key={i} className="border-b border-dashed"><td className="py-2 pr-2">{p.concepto}</td><td className="py-2 text-right">{p.cantidad.toLocaleString("es-ES")}</td><td className="py-2 text-right">{euro2(p.precio)}</td><td className="py-2 text-right">{euro2(p.cantidad * p.precio)}</td></tr>)}</tbody>
+        <thead><tr className="border-b text-left text-xs uppercase text-muted-foreground"><th className="py-2">Concepto</th><th className="py-2 pl-3 text-right">Cant.</th><th className="py-2 pl-3 text-right">Precio</th><th className="py-2 pl-3 text-right">Importe</th></tr></thead>
+        <tbody>{oc.partidas.map((p, i) => <tr key={i} className="border-b border-dashed"><td className="py-2 pr-2">{p.concepto}</td><td className="whitespace-nowrap py-2 pl-3 text-right">{p.cantidad.toLocaleString("es-ES")}</td><td className="whitespace-nowrap py-2 pl-3 text-right">{euro2(p.precio)}</td><td className="whitespace-nowrap py-2 pl-3 text-right">{euro2(p.cantidad * p.precio)}</td></tr>)}</tbody>
       </table>
       <div className="ml-auto mt-3 w-60 space-y-1">
         <div className="flex justify-between"><span>Base imponible</span><span>{euro2(t.base)}</span></div>
