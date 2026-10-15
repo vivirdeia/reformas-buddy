@@ -36,10 +36,12 @@ Tecnología: TanStack Start (React 19), Vite, Tailwind CSS v4, TypeScript.
 
 | Rol | Usuario | PIN |
 |---|---|---|
-| Operario | primer operario de la lista | se muestra en la pantalla de acceso |
-| Jefe de obra | primer jefe de obra | se muestra en la pantalla de acceso |
-| Cliente | primer cliente | se muestra en la pantalla de acceso |
-| Gerente | gerente | se muestra en la pantalla de acceso |
+| Gerente | Javier Arnal | 1111 |
+| Jefe de obra | Marta Ruiz · Raúl Moreno | 2222 · 2233 |
+| Operario | Antonio Gil (Oficial de 1ª) | 3333 |
+| Cliente | Lucía Fernández (piso Chamberí) | 4444 |
+| Cliente | Isabel Romero (obra terminada con antes/después) | 4488 |
+| Cliente | Nuria Delgado (pago solicitado) | 4411 |
 
 La pantalla `/acceso` muestra en «Accesos de demo» el usuario y PIN de cada rol. El gerente ve todos los PIN en Ajustes → Usuarios y puede restablecerlos.
 
