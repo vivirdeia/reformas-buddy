@@ -123,7 +123,7 @@ export async function espacioUsado() {
   try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i)!; total += k.length + (localStorage.getItem(k)?.length ?? 0); } } catch { /* */ }
   let cuota: number | undefined;
   try { cuota = (await navigator.storage?.estimate?.())?.quota; } catch { /* */ }
-  return { datos: raw.length * 2, localTotal: total * 2, localCuota: 5 * 1024 * 1024 * 2, archivos: bytesArchivos(new Set(refsEn(raw))), nArchivos: refsEn(raw).length, cuota };
+  return { datos: raw.length, localTotal: total, localCuota: 5 * 1024 * 1024, archivos: bytesArchivos(new Set(refsEn(raw))), nArchivos: refsEn(raw).length, cuota };
 }
 
 
@@ -147,10 +147,23 @@ export function resetDB() { saveDB(createSeed()); }
 export function useDB() {
   const [db, setDb] = useState<DB | null>(null);
   useEffect(() => {
-    const sync = () => setDb(loadDB());
-    sync();
-    window.addEventListener(EVT, sync);
-    return () => window.removeEventListener(EVT, sync);
+    let vivo = true;
+    const sync = async () => {
+      await iniciarArchivos();
+      const obj = loadDB();
+      const raw = leerRaw();
+      if (!raw) { if (vivo) setDb(obj); return; }
+      const refs = refsEn(raw);
+      // Archivos creados en otra pestaña pueden tardar unos ms en llegar a IndexedDB
+      for (let i = 0; i < 5 && !(await cargarFaltan(refs)); i++) await new Promise((r) => setTimeout(r, 200));
+      if (vivo) setDb(revivir(raw));
+    };
+    const onStorage = (e: StorageEvent) => { if (e.key === DB_KEY || e.key === null) void sync(); };
+    const onEvt = () => void sync();
+    void sync();
+    window.addEventListener(EVT, onEvt);
+    window.addEventListener("storage", onStorage);
+    return () => { vivo = false; window.removeEventListener(EVT, onEvt); window.removeEventListener("storage", onStorage); };
   }, []);
   return db;
 }
@@ -158,13 +171,15 @@ export function useDB() {
 export function useSession() {
   const [userId, setUserId] = useState<string | null | undefined>(undefined);
   useEffect(() => {
-    const sync = () => setUserId(localStorage.getItem(SESSION_KEY));
+    const sync = () => { try { setUserId(localStorage.getItem(SESSION_KEY)); } catch { setUserId(null); } };
+    const onStorage = (e: StorageEvent) => { if (e.key === SESSION_KEY || e.key === null) sync(); };
     sync();
     window.addEventListener(EVT, sync);
-    return () => window.removeEventListener(EVT, sync);
+    window.addEventListener("storage", onStorage);
+    return () => { window.removeEventListener(EVT, sync); window.removeEventListener("storage", onStorage); };
   }, []);
-  const login = useCallback((id: string) => { localStorage.setItem(SESSION_KEY, id); window.dispatchEvent(new Event(EVT)); }, []);
-  const logout = useCallback(() => { localStorage.removeItem(SESSION_KEY); window.dispatchEvent(new Event(EVT)); }, []);
+  const login = useCallback((id: string) => { try { localStorage.setItem(SESSION_KEY, id); } catch { avisar({ tipo: "espacio" }); } window.dispatchEvent(new Event(EVT)); }, []);
+  const logout = useCallback(() => { try { localStorage.removeItem(SESSION_KEY); } catch { /* */ } window.dispatchEvent(new Event(EVT)); }, []);
   return { userId, login, logout };
 }
 
