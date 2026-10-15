@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AjustesRouteImport } from './routes/ajustes'
+import { Route as HoyRouteImport } from './routes/hoy'
+import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
+import { Route as ParteIdRouteImport } from './routes/parte.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +25,16 @@ const IndexRoute = IndexRouteImport.update({
 const AjustesRoute = AjustesRouteImport.update({
   id: '/ajustes',
   path: '/ajustes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HoyRoute = HoyRouteImport.update({
+  id: '/hoy',
+  path: '/hoy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IncidenciaIdRoute = IncidenciaIdRouteImport.update({
+  id: '/incidencia/$id',
+  path: '/incidencia/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ObrasIndexRoute = ObrasIndexRouteImport.update({
@@ -34,38 +47,77 @@ const ObrasIdRoute = ObrasIdRouteImport.update({
   path: '/obras/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParteIdRoute = ParteIdRouteImport.update({
+  id: '/parte/$id',
+  path: '/parte/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
+  '/hoy': typeof HoyRoute
+  '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/parte/$id': typeof ParteIdRoute
   '/obras/': typeof ObrasIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
+  '/hoy': typeof HoyRoute
+  '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/parte/$id': typeof ParteIdRoute
   '/obras': typeof ObrasIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ajustes': typeof AjustesRoute
+  '/hoy': typeof HoyRoute
+  '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
+  '/parte/$id': typeof ParteIdRoute
   '/obras/': typeof ObrasIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ajustes' | '/obras/$id' | '/obras/'
+  fullPaths:
+    | '/'
+    | '/ajustes'
+    | '/hoy'
+    | '/incidencia/$id'
+    | '/obras/$id'
+    | '/parte/$id'
+    | '/obras/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ajustes' | '/obras/$id' | '/obras'
-  id: '__root__' | '/' | '/ajustes' | '/obras/$id' | '/obras/'
+  to:
+    | '/'
+    | '/ajustes'
+    | '/hoy'
+    | '/incidencia/$id'
+    | '/obras/$id'
+    | '/parte/$id'
+    | '/obras'
+  id:
+    | '__root__'
+    | '/'
+    | '/ajustes'
+    | '/hoy'
+    | '/incidencia/$id'
+    | '/obras/$id'
+    | '/parte/$id'
+    | '/obras/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjustesRoute: typeof AjustesRoute
+  HoyRoute: typeof HoyRoute
+  IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
+  ParteIdRoute: typeof ParteIdRoute
   ObrasIndexRoute: typeof ObrasIndexRoute
 }
 
@@ -85,6 +137,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AjustesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hoy': {
+      id: '/hoy'
+      path: '/hoy'
+      fullPath: '/hoy'
+      preLoaderRoute: typeof HoyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/incidencia/$id': {
+      id: '/incidencia/$id'
+      path: '/incidencia/$id'
+      fullPath: '/incidencia/$id'
+      preLoaderRoute: typeof IncidenciaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/obras/': {
       id: '/obras/'
       path: '/obras'
@@ -99,13 +165,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ObrasIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parte/$id': {
+      id: '/parte/$id'
+      path: '/parte/$id'
+      fullPath: '/parte/$id'
+      preLoaderRoute: typeof ParteIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjustesRoute: AjustesRoute,
+  HoyRoute: HoyRoute,
+  IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
+  ParteIdRoute: ParteIdRoute,
   ObrasIndexRoute: ObrasIndexRoute,
 }
 export const routeTree = rootRouteImport

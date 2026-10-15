@@ -36,7 +36,11 @@ function Login() {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
 
-  useEffect(() => { if (userId) nav({ to: "/obras" }); }, [userId, nav]);
+  useEffect(() => {
+    if (!userId || !db) return;
+    const r = db.usuarios.find((u) => u.id === userId)?.rol;
+    if (r) nav({ to: r === "operario" || r === "jefe_obra" ? "/hoy" : "/obras" });
+  }, [userId, db, nav]);
 
   const usuarios = db?.usuarios.filter((u) => u.rol === rol) ?? [];
   const sel = db?.usuarios.find((u) => u.id === uid);
