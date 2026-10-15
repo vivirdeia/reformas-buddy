@@ -9,7 +9,7 @@ import { Comparador } from "@/components/portal";
 import { useDB } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-const HERO = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=75";
+const HERO = "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1920&q=75";
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=70`;
 
 export const Route = createFileRoute("/")({
