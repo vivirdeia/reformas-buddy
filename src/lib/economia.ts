@@ -1,8 +1,6 @@
 import type { HitoPago, Obra, OrdenCambio } from "./types";
 
 export const IVA = 0.21;
-export const IBAN = "ES76 2100 1234 5602 0031 8890";
-export const TITULAR = "Reformas Arnal S.L. · CIF B-86543210";
 const r2 = (n: number) => Math.round(n * 100) / 100;
 
 export function totales(oc: Pick<OrdenCambio, "partidas">) {

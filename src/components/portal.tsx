@@ -6,8 +6,10 @@ import { avance, euro, fecha, fechaLarga, nombreFase, user } from "@/lib/store";
 import { addDias, hoyISO } from "@/lib/fechas";
 import type { DB, Documento, FaseTipo, Obra, OrdenCambio, ParteDiario } from "@/lib/types";
 import { Link } from "@tanstack/react-router";
-import { cambiosAprobados, concepto, euro2, IBAN, importeHito, pagado, TITULAR, totales, vigente } from "@/lib/economia";
+import { cambiosAprobados, concepto, euro2, importeHito, pagado, totales, vigente } from "@/lib/economia";
 import { cn } from "@/lib/utils";
+import { empresaDe, ibanFormato, telHref } from "@/lib/empresa";
+import type { Empresa } from "@/lib/types";
 
 const dias = (a: string, b: string) => Math.round((new Date(b + "T12:00:00").getTime() - new Date(a + "T12:00:00").getTime()) / 86400000);
 
@@ -75,6 +77,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
   const solicitados = o.pagos.filter((h) => h.estado === "solicitado");
   const vig = vigente(o), pag = pagado(o);
   const tel = jefe?.telefono.replace(/\s/g, "") ?? "";
+  const emp = empresaDe(db);
 
   return (
     <div className="space-y-5">
@@ -124,8 +127,8 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
           <p className="mt-1 text-sm text-muted-foreground">¡Gracias por tu confianza! Hemos alcanzado el hito «{h.concepto.toLowerCase()}». Cuando te venga bien, puedes hacer la transferencia:</p>
           <dl className="mt-3 space-y-2 rounded-2xl bg-card p-4 text-sm">
             <div className="flex justify-between gap-2"><dt className="text-muted-foreground">Importe</dt><dd className="font-display text-lg font-bold">{euro2(importeHito(o, h))}</dd></div>
-            <div><dt className="text-muted-foreground">IBAN</dt><dd className="flex items-center justify-between gap-2 font-mono font-semibold">{IBAN}<button onClick={() => navigator.clipboard?.writeText(IBAN.replace(/\s/g, ""))} aria-label="Copiar IBAN" className="grid h-10 w-10 place-items-center rounded-lg bg-secondary"><Copy className="h-4 w-4" /></button></dd></div>
-            <div><dt className="text-muted-foreground">Titular</dt><dd className="font-semibold">{TITULAR}</dd></div>
+            <div><dt className="text-muted-foreground">IBAN</dt><dd className="flex items-center justify-between gap-2 font-mono font-semibold">{ibanFormato(emp.iban)}<button onClick={() => navigator.clipboard?.writeText(emp.iban.replace(/\s/g, ""))} aria-label="Copiar IBAN" className="grid h-10 w-10 place-items-center rounded-lg bg-secondary"><Copy className="h-4 w-4" /></button></dd></div>
+            <div><dt className="text-muted-foreground">Titular</dt><dd className="font-semibold">{emp.titular} · CIF {emp.cif}</dd></div>
             <div><dt className="text-muted-foreground">Concepto</dt><dd className="font-mono text-xs font-semibold">{concepto(o, h)}</dd></div>
           </dl>
         </section>
@@ -255,12 +258,13 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
             <a href={`https://wa.me/34${tel}?text=${encodeURIComponent(`Hola ${jefe.nombre.split(" ")[0]}, te escribo por la ${o.nombre.toLowerCase()}.`)}`} target="_blank" rel="noreferrer" className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-ok font-semibold text-primary-foreground"><MessageCircle className="h-5 w-5" />WhatsApp</a>
           </div>
           <p className="mt-4 flex items-start gap-2 text-sm text-ink-foreground/80"><Clock className="mt-0.5 h-4 w-4 shrink-0" />{o.horario}</p>
+          <p className="mt-2 flex items-start gap-2 text-sm text-ink-foreground/80"><Phone className="mt-0.5 h-4 w-4 shrink-0" />Oficina de {emp.nombreComercial}: <a href={telHref(emp.telefono)} className="font-semibold underline">{emp.telefono}</a></p>
           {o.notasCliente && <p className="mt-3 whitespace-pre-line rounded-2xl bg-ink-foreground/10 p-3 text-sm text-ink-foreground">{o.notasCliente}</p>}
         </section>
       )}
 
       {visor && <VisorFotos fotos={visor.fotos} inicio={visor.i} onClose={() => setVisor(null)} />}
-      {doc && <VistaDoc doc={doc} o={o} nombreCliente={nombreCliente} onClose={() => setDoc(null)} />}
+      {doc && <VistaDoc doc={doc} o={o} nombreCliente={nombreCliente} emp={emp} onClose={() => setDoc(null)} />}
     </div>
   );
 }
@@ -335,7 +339,7 @@ export function VisorFotos({ fotos, inicio, onClose }: { fotos: string[]; inicio
   );
 }
 
-function VistaDoc({ doc, o, nombreCliente, onClose }: { doc: Documento; o: Obra; nombreCliente: string; onClose: () => void }) {
+function VistaDoc({ doc, o, nombreCliente, onClose, emp }: { doc: Documento; o: Obra; nombreCliente: string; onClose: () => void; emp: Empresa }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 p-0 sm:items-center sm:p-4 animate-in fade-in" onClick={onClose}>
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-3xl bg-card p-5 sm:rounded-3xl animate-in slide-in-from-bottom-8" onClick={(e) => e.stopPropagation()}>
@@ -344,7 +348,7 @@ function VistaDoc({ doc, o, nombreCliente, onClose }: { doc: Documento; o: Obra;
           <button onClick={onClose} aria-label="Cerrar" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary"><X className="h-5 w-5" /></button>
         </div>
         <div className="rounded-2xl border bg-background p-5 text-sm">
-          <div className="mb-4 flex items-center justify-between border-b pb-3"><span className="font-display text-lg font-bold">Reformas Arnal</span><span className="text-xs text-muted-foreground">Madrid</span></div>
+          <div className="mb-4 flex items-center justify-between border-b pb-3"><span className="font-display text-lg font-bold">{emp.nombreComercial}</span><span className="text-xs text-muted-foreground">CIF {emp.cif}</span></div>
           {doc.tipo === "presupuesto" && (
             <>
               <p className="text-muted-foreground">Cliente: <span className="text-foreground">{nombreCliente}</span></p>

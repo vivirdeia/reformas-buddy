@@ -1,9 +1,10 @@
 import type { DB, Fase, FaseTipo, Obra } from "./types";
 import { generarActividad } from "./actividad";
 import { addDias, hoyISO } from "./fechas";
+import { EMPRESA_DEFECTO } from "./empresa";
 
 /** Versión del modelo de datos. Al subirla, añade su migración en store.ts. */
-export const DB_VERSION = 10;
+export const DB_VERSION = 11;
 
 export const FASES: { tipo: FaseTipo; nombre: string; dias: number }[] = [
   { tipo: "demolicion", nombre: "Demolición", dias: 7 },
@@ -50,7 +51,7 @@ const base = (o: Partial<Obra> & Pick<Obra, "id">): Obra => ({
   nombre: "", tipo: "piso", clienteId: "", direccion: "", barrio: "", m2: 80, presupuesto: 0,
   fechaInicio: "", fechaFinPrevista: "", estado: "en_plazo", portada: "", fases: [],
   equipo: { jefeId: "u-jefe1", operarioIds: [], gremioIds: [] },
-  notas: [], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], pagos: [], costes: { materiales: 0, gremios: 0 }, horario: "Lunes a viernes de 8:00 a 17:00 · Trabajos ruidosos de 9:00 a 14:00", ...o,
+  notas: [], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], pagos: [], apuntes: [], horario: "Lunes a viernes de 8:00 a 17:00 · Trabajos ruidosos de 9:00 a 14:00", ...o,
 });
 
 const fin = (inicio: string) => add(inicio, FASES.reduce((s, f) => s + f.dias, 0) - 1);
@@ -59,7 +60,7 @@ export function createSeed(): DB {
   const hoy = hoyISO();
   const S = (n: number) => addDias(hoy, -n);
   const db: DB = {
-    version: DB_VERSION, fichajes: [], tareas: [],
+    version: DB_VERSION, fichajes: [], tareas: [], empresa: structuredClone(EMPRESA_DEFECTO),
     solicitudes: [
       { id: "s-1", fecha: new Date(Date.now() - 2 * 3600e3).toISOString(), tipo: "Reforma integral de piso", m2: 85, zona: "Chamberí · 28010", inicio: addDias(hoy, 60), rango: "40.000 – 70.000 €", fotos: [img("photo-1503387762-592deb58ef4e"), img("photo-1581858726788-75bc0f6a952d")], nombre: "Laura Benítez", telefono: "644 218 905", email: "laura.benitez@gmail.com", comentario: "Piso de los años 60, queremos tirar un tabique para abrir la cocina al salón.", estado: "nueva" },
       { id: "s-2", fecha: new Date(Date.now() - 20 * 3600e3).toISOString(), tipo: "Baño", m2: 6, zona: "Moratalaz · 28030", inicio: addDias(hoy, 30), rango: "Menos de 15.000 €", fotos: [img("photo-1504307651254-35680f356dfd")], nombre: "Andrés Pineda", telefono: "678 330 412", email: "apineda@hotmail.es", comentario: "Cambiar bañera por plato de ducha.", estado: "nueva" },

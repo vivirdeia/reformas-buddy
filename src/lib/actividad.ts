@@ -1,5 +1,6 @@
 import type { DB, FaseTipo, Obra } from "./types";
 import { vigente } from "./economia";
+import { apuntesDesdeCostes, tarifaDe } from "./costes";
 import { addDias, diaSemana, hoyISO, ts } from "./fechas";
 
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=60`;
@@ -260,15 +261,14 @@ function generarEconomia(db: DB, hoy: string) {
 const MARGEN: Record<string, number> = { "o-1": 0.24, "o-2": 0.17, "o-3": 0.08, "o-4": 0.21, "o-5": 0.22, "o-6": 0.29, "o-7": 0.19, "o-8": 0.25 };
 
 function generarCostes(db: DB) {
-  const oficio = (id: string) => { const x = db.usuarios.find((u) => u.id === id)!; return x.rol === "jefe_obra" ? "Jefe de obra" : x.oficio ?? "Peón"; };
   db.obras.forEach((o) => {
     const done = o.fases.filter((f) => f.estado === "completada").length;
     const av = (done + (done < o.fases.length ? 0.5 : 0)) / o.fases.length;
     const mo = db.fichajes.filter((f) => f.obraId === o.id && f.salida)
-      .reduce((s, f) => s + ((new Date(f.salida!).getTime() - new Date(f.entrada).getTime()) / 3600000) * (db.costeHora[oficio(f.userId)] ?? 20), 0);
+      .reduce((s, f) => s + ((new Date(f.salida!).getTime() - new Date(f.entrada).getTime()) / 3600000) * tarifaDe(db, f.userId), 0);
     const objetivo = vigente(o) * av * (1 - (MARGEN[o.id] ?? 0.2));
     const resto = Math.max(0, objetivo - mo);
     const pGremios = 0.35 + (o.equipo.gremioIds.length - 2) * 0.05;
-    o.costes = { materiales: Math.round(resto * (1 - pGremios)), gremios: Math.round(resto * pGremios) };
+    o.apuntes = apuntesDesdeCostes(o, Math.round(resto * (1 - pGremios)), Math.round(resto * pGremios));
   });
 }
