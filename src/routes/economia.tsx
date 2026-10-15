@@ -112,7 +112,7 @@ function Economia({ db }: { db: DB }) {
 
 function Leyenda() {
   return (
-    <div className="flex gap-3 text-xs font-semibold text-muted-foreground">
+    <div className="flex flex-wrap gap-3 text-xs font-semibold text-muted-foreground">
       <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-ok" />&gt; 20 %</span>
       <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-warn" />10–20 %</span>
       <span className="flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-danger" />&lt; 10 %</span>

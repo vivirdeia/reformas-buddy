@@ -113,7 +113,7 @@ function Landing() {
       </section>
 
       {/* Diferencial */}
-      <section id="obria" className="py-20 md:py-28">
+      <section id="obria" className="overflow-hidden py-20 md:py-28">
         <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 md:grid-cols-2 md:px-8">
           <div>
             <div className="mb-2 text-sm font-bold uppercase tracking-widest text-primary">Lo que nos diferencia</div>

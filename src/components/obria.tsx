@@ -163,7 +163,7 @@ export function Kpi({ label, value, sub, tone, icon: I }: { label: string; value
 
 export function Seccion({ titulo, extra, children, className }: { titulo: string; extra?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-3xl bg-card p-4 shadow-card md:p-6", className)}>
+    <section className={cn("min-w-0 rounded-3xl bg-card p-4 shadow-card md:p-6", className)}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-semibold">{titulo}</h2>{extra}</div>
       {children}
     </section>
