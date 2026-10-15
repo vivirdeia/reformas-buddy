@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 const inp = "h-12 w-full rounded-xl border-2 bg-background px-3 text-base outline-none focus:border-primary";
 const btn = "inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-primary px-4 font-semibold text-primary-foreground disabled:opacity-40";
 const btn2 = "inline-flex h-11 items-center justify-center gap-1 rounded-xl border-2 px-3 text-sm font-semibold";
-const Campo = ({ l, children, err }: { l: string; children: React.ReactNode; err?: string | false }) => (
+const Campo = ({ l, children, err }: { l: string; children: React.ReactNode; err?: string | false | undefined }) => (
   <label className="block text-sm font-semibold">{l}<div className="mt-1">{children}</div>{err && <span className="mt-1 block text-xs text-danger">{err}</span>}</label>
 );
 const Caja = ({ icon: I, titulo, extra, children }: { icon: typeof Users; titulo: string; extra?: React.ReactNode; children: React.ReactNode }) => (
@@ -32,7 +32,7 @@ const Caja = ({ icon: I, titulo, extra, children }: { icon: typeof Users; titulo
 /* ---------- Usuarios ---------- */
 type FormU = { nombre: string; rol: Rol; telefono: string; email: string; foto?: string | undefined; oficio: string; costeHora: string; obraId: string; pin: string };
 
-function UsuarioForm({ db, u, onClose, onCreado }: { db: DB; u?: Usuario; onClose: () => void; onCreado: (n: string, p: string) => void }) {
+function UsuarioForm({ db, u, onClose, onCreado }: { db: DB; u?: Usuario | undefined; onClose: () => void; onCreado: (n: string, p: string) => void }) {
   const [v, setV] = useState<FormU>(() => ({
     nombre: u?.nombre ?? "", rol: u?.rol ?? "operario", telefono: u?.telefono ?? "", email: u?.email ?? "", foto: u?.foto,
     oficio: u?.oficio ?? Object.keys(db.costeHora).find((k) => k !== "Jefe de obra") ?? "Peón",

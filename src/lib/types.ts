@@ -6,9 +6,9 @@ export interface Usuario {
   rol: Rol;
   pin: string;
   telefono: string;
-  email?: string;
-  obraId?: string; // solo clientes
-  oficio?: string; // operarios
+  email?: string | undefined;
+  obraId?: string | undefined; // solo clientes
+  oficio?: string | undefined; // operarios
   /** Coste/hora propio; si falta se usa la tarifa del oficio. */
   costeHora?: number | undefined;
   /** Foto de perfil (data URL o referencia idb:). Sin foto se muestran iniciales. */
