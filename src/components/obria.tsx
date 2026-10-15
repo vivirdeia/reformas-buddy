@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { HardHat, Settings, LogOut, CalendarCheck, Home as HomeIcon } from "lucide-react";
+import { HardHat, Settings, LogOut, CalendarCheck, Home as HomeIcon, LayoutDashboard, Users, Wallet } from "lucide-react";
 import { useDB, useSession, user, ROL_LABEL, ESTADO_LABEL } from "@/lib/store";
 import type { DB, EstadoObra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -62,32 +62,63 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
   if (!db || !me) return <div className="min-h-screen" />;
 
   const staff = me.rol === "operario" || me.rol === "jefe_obra";
-  const tabs = [
+  const ger = me.rol === "gerente";
+  const tabs = ger ? [
+    { to: "/panel", label: "Panel", icon: LayoutDashboard },
+    { to: "/obras", label: "Obras", icon: HardHat },
+    { to: "/equipo", label: "Equipo", icon: Users },
+    { to: "/economia", label: "Economía", icon: Wallet },
+    { to: "/ajustes", label: "Ajustes", icon: Settings },
+  ] : [
     ...(staff ? [{ to: "/hoy", label: "Hoy", icon: CalendarCheck }] : []),
     me.rol === "cliente" ? { to: "/mi-reforma", label: "Mi reforma", icon: HomeIcon } : { to: "/obras", label: "Obras", icon: HardHat },
     { to: "/ajustes", label: "Ajustes", icon: Settings },
   ];
+  const salir = () => { logout(); nav({ to: "/" }); };
 
   return (
-    <div className="mx-auto min-h-screen max-w-3xl pb-28">
-      <header className="print:hidden sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
-        <div className="flex h-16 items-center justify-between px-4">
-          {back ?? <Logo />}
-          {title && <span className="font-display font-semibold">{title}</span>}
-          <div className="flex items-center gap-2">
-            <div className="hidden text-right sm:block">
-              <div className="text-sm font-semibold">{me.nombre}</div>
-              <div className="text-xs text-muted-foreground">{ROL_LABEL[me.rol]}</div>
-            </div>
-            <button onClick={() => { logout(); nav({ to: "/" }); }} aria-label="Cerrar sesión"
-              className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-secondary-foreground active:scale-95">
-              <LogOut className="h-5 w-5" />
-            </button>
+    <div className="min-h-screen">
+      {ger && (
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r bg-card p-5 md:flex print:hidden">
+          <Logo />
+          <nav className="mt-8 flex flex-1 flex-col gap-1">
+            {tabs.map((t) => {
+              const active = loc.pathname.startsWith(t.to);
+              return (
+                <Link key={t.to} to={t.to as "/obras"} className={cn("flex h-12 items-center gap-3 rounded-xl px-4 font-semibold transition", active ? "bg-primary text-primary-foreground shadow-cta" : "text-muted-foreground hover:bg-muted hover:text-foreground")}>
+                  <t.icon className="h-5 w-5" />{t.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="flex items-center gap-3 rounded-2xl bg-muted p-3">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-primary font-display font-bold text-primary-foreground">{me.nombre[0]}</div>
+            <div className="min-w-0 flex-1"><div className="truncate text-sm font-semibold">{me.nombre}</div><div className="text-xs text-muted-foreground">{ROL_LABEL[me.rol]}</div></div>
+            <button onClick={salir} aria-label="Cerrar sesión" className="grid h-10 w-10 place-items-center rounded-full bg-card"><LogOut className="h-4 w-4" /></button>
           </div>
+        </aside>
+      )}
+      <div className={cn(ger && "md:pl-64")}>
+        <div className={cn("mx-auto min-h-screen pb-28", ger ? "max-w-7xl md:pb-12" : "max-w-3xl")}>
+          <header className={cn("print:hidden sticky top-0 z-20 border-b bg-background/90 backdrop-blur", ger && !back && "md:hidden")}>
+            <div className="flex h-16 items-center justify-between px-4 md:px-8">
+              {back ?? <Logo />}
+              {title && <span className="font-display font-semibold">{title}</span>}
+              <div className={cn("flex items-center gap-2", ger && "md:hidden")}>
+                <div className="hidden text-right sm:block">
+                  <div className="text-sm font-semibold">{me.nombre}</div>
+                  <div className="text-xs text-muted-foreground">{ROL_LABEL[me.rol]}</div>
+                </div>
+                <button onClick={salir} aria-label="Cerrar sesión" className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-secondary-foreground active:scale-95">
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </header>
+          <main className={cn("px-4 pt-4", ger && "md:px-8 md:pt-8")}>{children({ db, me })}</main>
         </div>
-      </header>
-      <main className="px-4 pt-4">{children({ db, me })}</main>
-      <nav className="print:hidden fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur pb-safe">
+      </div>
+      <nav className={cn("print:hidden fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur pb-safe", ger && "md:hidden")}>
         <div className="mx-auto grid max-w-3xl" style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}>
           {tabs.map((t) => {
             const active = loc.pathname.startsWith(t.to);
@@ -101,5 +132,32 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
         </div>
       </nav>
     </div>
+  );
+}
+
+export function SoloGerente({ me, children }: { me: Usuario; children: ReactNode }) {
+  const nav = useNavigate();
+  useEffect(() => { if (me.rol !== "gerente") nav({ to: "/obras" }); }, [me.rol, nav]);
+  return me.rol === "gerente" ? <>{children}</> : null;
+}
+
+export function Kpi({ label, value, sub, tone, icon: I }: { label: string; value: ReactNode; sub?: ReactNode; tone?: "ok" | "warn" | "danger" | "primary"; icon: typeof HardHat }) {
+  const t = { ok: "bg-ok-soft text-ok", warn: "bg-warn-soft text-warn", danger: "bg-danger-soft text-danger", primary: "bg-accent text-accent-foreground" }[tone ?? "primary"];
+  return (
+    <div className="rounded-3xl bg-card p-4 shadow-card">
+      <div className={cn("mb-3 grid h-10 w-10 place-items-center rounded-xl", t)}><I className="h-5 w-5" /></div>
+      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className="font-display text-2xl font-bold tabular-nums">{value}</div>
+      {sub && <div className="text-xs text-muted-foreground">{sub}</div>}
+    </div>
+  );
+}
+
+export function Seccion({ titulo, extra, children, className }: { titulo: string; extra?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <section className={cn("rounded-3xl bg-card p-4 shadow-card md:p-6", className)}>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-semibold">{titulo}</h2>{extra}</div>
+      {children}
+    </section>
   );
 }

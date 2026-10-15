@@ -39,7 +39,7 @@ function Login() {
   useEffect(() => {
     if (!userId || !db) return;
     const r = db.usuarios.find((u) => u.id === userId)?.rol;
-    if (r) nav({ to: r === "operario" || r === "jefe_obra" ? "/hoy" : r === "cliente" ? "/mi-reforma" : "/obras" });
+    if (r) nav({ to: r === "operario" || r === "jefe_obra" ? "/hoy" : r === "cliente" ? "/mi-reforma" : r === "gerente" ? "/panel" : "/obras" });
   }, [userId, db, nav]);
 
   const usuarios = db?.usuarios.filter((u) => u.rol === rol) ?? [];

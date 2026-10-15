@@ -1,4 +1,5 @@
 import type { DB, FaseTipo, Obra } from "./types";
+import { vigente } from "./economia";
 import { addDias, diaSemana, hoyISO, ts } from "./fechas";
 
 const u = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=60`;
@@ -110,13 +111,15 @@ const pad = (n: number) => String(n).padStart(2, "0");
 export function generarActividad(db: DB) {
   const hoy = hoyISO();
   const dias: string[] = [];
-  for (let d = addDias(hoy, -1); dias.length < 15; d = addDias(d, -1)) if (![0, 6].includes(diaSemana(d))) dias.unshift(d);
+  const inicioMin = db.obras.map((o) => o.fechaInicio).sort()[0]!;
+  for (let d = inicioMin; d < hoy; d = addDias(d, 1)) if (![0, 6].includes(diaSemana(d))) dias.push(d);
+  const corte = dias[dias.length - 15]!;
 
   const activas = db.obras.filter((o) => o.estado !== "terminada");
   const ops = db.usuarios.filter((x) => x.rol === "operario").map((x) => x.id);
 
   dias.forEach((d, di) => {
-    const enMarcha = activas.filter((o) => faseEn(o, d));
+    const enMarcha = db.obras.filter((o) => faseEn(o, d));
     const asign: Record<string, string[]> = {};
     ops.forEach((op, oi) => {
       const c = enMarcha.filter((o) => o.equipo.operarioIds.includes(op));
@@ -141,6 +144,7 @@ export function generarActividad(db: DB) {
         const h = 9 + idx * 2;
         db.fichajes.push({ id: `f-${o.equipo.jefeId}-${o.id}-${d}`, userId: o.equipo.jefeId, obraId: o.id, entrada: ts(d, `${pad(h)}:00`), salida: ts(d, `${pad(h + 1)}:30`) });
       }
+      if (d < corte || o.estado === "terminada") return;
       const t = TXT[fase];
       const pool = FOTOS[fase];
       const nf = (di + k) % 3 === 0 ? 2 : 1;
@@ -188,9 +192,14 @@ export function generarActividad(db: DB) {
   ];
 
   generarEconomia(db, hoy);
+  if (![0, 6].includes(diaSemana(hoy))) ["u-op1", "u-op3", "u-op4", "u-op6"].forEach((op, i) => {
+    const o = activas.find((x) => x.equipo.operarioIds.includes(op) && x.fases.some((f) => f.estado === "en_curso"));
+    if (o) db.fichajes.push({ id: `f-${op}-${hoy}`, userId: op, obraId: o.id, entrada: ts(hoy, i % 2 ? "08:10" : "07:58") });
+  });
+  generarCostes(db);
 
   db.obras.find((o) => o.id === "o-3")?.incidencias.push({
-    id: "i-o3-1", fecha: dias[4]!, titulo: "Humedad en pared medianera del baño", descripcion: "Al picar aparece mancha de humedad por filtración del vecino. Se avisó al seguro de la comunidad y se reparó la tubería.",
+    id: "i-o3-1", fecha: addDias(hoy, -10), titulo: "Humedad en pared medianera del baño", descripcion: "Al picar aparece mancha de humedad por filtración del vecino. Se avisó al seguro de la comunidad y se reparó la tubería.",
     gravedad: "media", estado: "resuelta", autorId: "u-op2", fotos: [u(FOTOS.demolicion[0]!)],
   });
 }
@@ -221,12 +230,17 @@ function generarEconomia(db: DB, hoy: string) {
     descripcion: "Instalamos suelo radiante eléctrico bajo el porcelánico del baño principal (6 m²) con termostato wifi, para que puedas encenderlo desde el móvil antes de llegar a casa.",
     partidas: [{ concepto: "Malla de suelo radiante eléctrico (m²)", cantidad: 6, precio: 145 }, { concepto: "Termostato wifi programable", cantidad: 1, precio: 189 }, { concepto: "Recrecido con mortero autonivelante (m²)", cantidad: 6, precio: 38 }, { concepto: "Mano de obra de instalación (h)", cantidad: 8, precio: 42 }],
     diasExtra: 2, fotos: [u(FOTOS.alicatado[0]!), u(FOTOS.electricidad[0]!)], estado: "enviada", creadaPor: o4.equipo.jefeId, enviadaEn: ts(addDias(hoy, -1), "17:40") });
+  const o2 = by("o-2");
+  o2.ordenesCambio.push({ id: "oc-o2-2", fecha: addDias(hoy, -5), titulo: "Tres puntos de luz extra en el salón", estancia: "Salón", descripcion: "Añadimos tres puntos de luz empotrados en el techo del salón con regulador.",
+    partidas: [{ concepto: "Foco LED empotrable", cantidad: 3, precio: 38 }, { concepto: "Regulador de intensidad", cantidad: 1, precio: 64 }, { concepto: "Mano de obra electricista (h)", cantidad: 3, precio: 45 }],
+    diasExtra: 0, fotos: [], estado: "enviada", creadaPor: o2.equipo.jefeId, enviadaEn: ts(addDias(hoy, -5), "11:15") });
   const o8 = by("o-8");
   o8.ordenesCambio.push({ id: "oc-o8-1", fecha: hoy, titulo: "Encimera de cuarzo en lugar de laminada", estancia: "Cocina", descripcion: "Encimera de cuarzo blanco de 2 cm con copete a juego.",
     partidas: [{ concepto: "Encimera de cuarzo (ml)", cantidad: 3.2, precio: 290 }, { concepto: "Copete de cuarzo (ml)", cantidad: 3.2, precio: 45 }], diasExtra: 0, fotos: [], estado: "borrador", creadaPor: o8.equipo.jefeId });
 
   db.obras.forEach((o) => {
-    const fin = (i: number) => o.fases[i]!.estado === "completada" ? addDias(o.fases[i]!.finReal!, 3) : null;
+    const cap = (d: string) => (d >= hoy ? addDias(hoy, -1) : d);
+    const fin = (i: number) => o.fases[i]!.estado === "completada" ? cap(addDias(o.fases[i]!.finReal!, 3)) : null;
     const h = (id: string, concepto: string, porcentaje: number, pagadoEn: string | null, solicitado = false) => ({
       id: `${o.id}-${id}`, concepto, porcentaje,
       estado: (solicitado ? "solicitado" : pagadoEn ? "pagado" : "pendiente") as "pendiente" | "solicitado" | "pagado",
@@ -239,5 +253,22 @@ function generarEconomia(db: DB, hoy: string) {
       h("h3", "Al terminar alicatado y carpintería", 30, fin(4)),
       h("h4", "A la entrega de llaves", 10, entrega, o.id === "o-5"),
     ];
+  });
+}
+
+/** Margen objetivo por obra para que la demo cuadre (Ponzano holgado, Lavapiés ajustado). */
+const MARGEN: Record<string, number> = { "o-1": 0.24, "o-2": 0.17, "o-3": 0.08, "o-4": 0.21, "o-5": 0.22, "o-6": 0.29, "o-7": 0.19, "o-8": 0.25 };
+
+function generarCostes(db: DB) {
+  const oficio = (id: string) => { const x = db.usuarios.find((u) => u.id === id)!; return x.rol === "jefe_obra" ? "Jefe de obra" : x.oficio ?? "Peón"; };
+  db.obras.forEach((o) => {
+    const done = o.fases.filter((f) => f.estado === "completada").length;
+    const av = (done + (done < o.fases.length ? 0.5 : 0)) / o.fases.length;
+    const mo = db.fichajes.filter((f) => f.obraId === o.id && f.salida)
+      .reduce((s, f) => s + ((new Date(f.salida!).getTime() - new Date(f.entrada).getTime()) / 3600000) * (db.costeHora[oficio(f.userId)] ?? 20), 0);
+    const objetivo = vigente(o) * av * (1 - (MARGEN[o.id] ?? 0.2));
+    const resto = Math.max(0, objetivo - mo);
+    const pGremios = 0.35 + (o.equipo.gremioIds.length - 2) * 0.05;
+    o.costes = { materiales: Math.round(resto * (1 - pGremios)), gremios: Math.round(resto * pGremios) };
   });
 }
