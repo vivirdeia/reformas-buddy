@@ -21,6 +21,8 @@ export const avisar = (a: Aviso) => window.dispatchEvent(new CustomEvent(AVISO_E
 const MIGRACIONES: Record<number, (d: DB) => void> = {
   // v7: las fotos base64 salen del JSON a IndexedDB (lo hace serializar al guardar).
   7: () => {},
+  // v8: semáforo calculado; campo opcional estadoManual (sin valor = automático). No toca datos.
+  8: () => {},
 };
 function normalizar(d: DB) {
   d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {};

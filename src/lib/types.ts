@@ -70,7 +70,10 @@ export interface Obra {
   presupuesto: number;
   fechaInicio: string;
   fechaFinPrevista: string;
+  /** Solo para datos de demo antiguos: el semáforo se calcula con calcularEstadoObra. */
   estado: EstadoObra;
+  /** Estado forzado a mano por gerente/jefe de obra. */
+  estadoManual?: EstadoObra | undefined;
   portada: string;
   fases: Fase[];
   equipo: { jefeId: string; operarioIds: string[]; gremioIds: string[] };

@@ -1,3 +1,4 @@
+import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Users, Clock, Radio } from "lucide-react";
 import { AppShell, Kpi, Seccion, SoloGerente } from "@/components/obria";
@@ -29,7 +30,7 @@ function Equipo({ db }: { db: DB }) {
   const semana = lunes(hoy);
   const hace4 = addDias(semana, -21);
   const gente = db.usuarios.filter((u) => u.rol === "operario" || u.rol === "jefe_obra").map((u) => {
-    const obras = db.obras.filter((o) => o.estado !== "terminada" && (o.equipo.jefeId === u.id || o.equipo.operarioIds.includes(u.id)));
+    const obras = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada" && (o.equipo.jefeId === u.id || o.equipo.operarioIds.includes(u.id)));
     return { u, obras, sem: horasDesde(db, (f) => f.userId === u.id, semana), mes: horasDesde(db, (f) => f.userId === u.id, hace4) };
   });
   const maxMes = Math.max(...gente.map((g) => g.mes), 1);

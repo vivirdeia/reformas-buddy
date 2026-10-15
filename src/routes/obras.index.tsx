@@ -1,3 +1,4 @@
+import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, MapPin, AlertTriangle, FileClock } from "lucide-react";
@@ -32,9 +33,9 @@ function Obras() {
         if (me.rol === "cliente") { queueMicrotask(() => nav({ to: "/mi-reforma" })); return null; }
         const mias = db.obras;
         const t = q.toLowerCase();
-        const lista = mias.filter((o) => (f === "todas" || o.estado === f) &&
+        const lista = mias.filter((o) => (f === "todas" || calcularEstadoObra(o) === f) &&
           (!t || [o.nombre, o.direccion, o.barrio, user(db, o.clienteId)?.nombre].join(" ").toLowerCase().includes(t)));
-        const activas = mias.filter((o) => o.estado !== "terminada").length;
+        const activas = mias.filter((o) => calcularEstadoObra(o) !== "terminada").length;
         return (
           <>
             <div className="mb-4">
@@ -50,7 +51,7 @@ function Obras() {
                 </label>
                 <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1">
                   {FILTROS.map((x) => {
-                    const n = x === "todas" ? mias.length : mias.filter((o) => o.estado === x).length;
+                    const n = x === "todas" ? mias.length : mias.filter((o) => calcularEstadoObra(o) === x).length;
                     return (
                       <button key={x} onClick={() => setF(x)} className={cn("shrink-0 rounded-full border-2 px-4 py-2.5 text-sm font-semibold",
                         f === x ? "border-primary bg-primary text-primary-foreground" : "bg-card text-foreground")}>
@@ -70,7 +71,7 @@ function Obras() {
                   <Link key={o.id} to="/obras/$id" params={{ id: o.id }} className="overflow-hidden rounded-3xl bg-card shadow-card transition active:scale-[0.99]">
                     <div className="relative h-40">
                       <Foto src={o.portada} alt={o.nombre} className="h-full w-full" />
-                      <Semaforo estado={o.estado} className="absolute left-3 top-3 shadow-card" />
+                      <Semaforo estado={calcularEstadoObra(o)} className="absolute left-3 top-3 shadow-card" />
                       <div className="absolute right-3 top-3 flex gap-1.5">
                         {inc > 0 && <span className="flex items-center gap-1 rounded-full bg-danger px-2 py-1 text-xs font-bold text-destructive-foreground"><AlertTriangle className="h-3.5 w-3.5" />{inc}</span>}
                         {oc > 0 && <span className="flex items-center gap-1 rounded-full bg-warn px-2 py-1 text-xs font-bold text-ink"><FileClock className="h-3.5 w-3.5" />{oc}</span>}

@@ -1,3 +1,4 @@
+import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { HardHat, AlertTriangle, Siren, PenLine, TrendingUp, Hourglass, ArrowUpDown, ChevronRight, Clock, Wallet } from "lucide-react";
@@ -28,18 +29,18 @@ type Col = "nombre" | "estado" | "avance" | "desv" | "jefe" | "vigente";
 function Panel({ db }: { db: DB }) {
   const hoy = hoyISO();
   const mes = hoy.slice(0, 7);
-  const activas = db.obras.filter((o) => o.estado !== "terminada");
+  const activas = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada");
   const incAbiertas = db.obras.flatMap((o) => o.incidencias.filter((i) => i.estado === "abierta").map((i) => ({ o, i })));
   const ocPend = db.obras.flatMap((o) => o.ordenesCambio.filter((c) => c.estado === "enviada").map((c) => ({ o, c })));
   const pagos = db.obras.flatMap((o) => o.pagos.map((h) => ({ o, h, imp: importeHito(o, h) })));
   const cobradoMes = pagos.filter((p) => p.h.estado === "pagado" && p.h.pagadoEn?.startsWith(mes)).reduce((s, p) => s + p.imp, 0);
   const solicitados = pagos.filter((p) => p.h.estado === "solicitado");
   const pendCobro = solicitados.reduce((s, p) => s + p.imp, 0);
-  const riesgo = activas.filter((o) => o.estado === "en_riesgo" || o.estado === "retrasada").length;
+  const riesgo = activas.filter((o) => calcularEstadoObra(o) === "en_riesgo" || calcularEstadoObra(o) === "retrasada").length;
 
   const atencion = [
     ...incAbiertas.filter((x) => x.i.gravedad === "alta").map((x) => ({ k: x.i.id, icon: Siren, tone: "danger", t: `Incidencia grave: ${x.i.titulo}`, s: `${x.o.nombre} · desde el ${fecha(x.i.fecha)}`, id: x.o.id })),
-    ...activas.filter((o) => o.estado === "retrasada").map((o) => ({ k: "r" + o.id, icon: Hourglass, tone: "danger", t: `Obra retrasada ${desviacion(o)} días`, s: `${o.nombre} · ${user(db, o.equipo.jefeId)?.nombre}`, id: o.id })),
+    ...activas.filter((o) => calcularEstadoObra(o) === "retrasada").map((o) => ({ k: "r" + o.id, icon: Hourglass, tone: "danger", t: `Obra retrasada ${desviacion(o)} días`, s: `${o.nombre} · ${user(db, o.equipo.jefeId)?.nombre}`, id: o.id })),
     ...solicitados.map((p) => ({ k: p.h.id, icon: Wallet, tone: "warn", t: `Pago solicitado sin cobrar: ${euro(p.imp)}`, s: `${p.o.nombre} · ${p.h.concepto}`, id: p.o.id })),
     ...ocPend.filter((x) => x.c.enviadaEn && dd(x.c.enviadaEn.slice(0, 10), hoy) > 3).map((x) => ({ k: x.c.id, icon: Clock, tone: "warn", t: `Cambio sin respuesta hace ${dd(x.c.enviadaEn!.slice(0, 10), hoy)} días`, s: `${x.o.nombre} · ${x.c.titulo}`, id: x.o.id })),
   ];
@@ -89,8 +90,8 @@ function TablaObras({ db }: { db: DB }) {
   const [est, setEst] = useState<EstadoObra | "todas">("todas");
   const [jefe, setJefe] = useState("todos");
   const filas = useMemo(() => db.obras
-    .filter((o) => (est === "todas" || o.estado === est) && (jefe === "todos" || o.equipo.jefeId === jefe))
-    .map((o) => ({ o, nombre: o.nombre, estado: o.estado, avance: avance(o), desv: desviacion(o), jefe: user(db, o.equipo.jefeId)?.nombre ?? "", vigente: vigente(o) }))
+    .filter((o) => (est === "todas" || calcularEstadoObra(o) === est) && (jefe === "todos" || o.equipo.jefeId === jefe))
+    .map((o) => ({ o, nombre: o.nombre, estado: calcularEstadoObra(o), avance: avance(o), desv: desviacion(o), jefe: user(db, o.equipo.jefeId)?.nombre ?? "", vigente: vigente(o) }))
     .sort((a, b) => { const x = a[col], y = b[col]; const r = typeof x === "number" ? x - (y as number) : String(x).localeCompare(String(y)); return asc ? r : -r; }), [db, col, asc, est, jefe]);
   const th = (c: Col, l: string, right = false) => (
     <th className={cn("px-3 py-2", right && "text-right")}>
@@ -128,7 +129,7 @@ function TablaObras({ db }: { db: DB }) {
 
 function Gantt({ db }: { db: DB }) {
   const hoy = hoyISO();
-  const obras = db.obras.filter((o) => o.estado !== "terminada").sort((a, b) => a.fechaInicio.localeCompare(b.fechaInicio));
+  const obras = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada").sort((a, b) => a.fechaInicio.localeCompare(b.fechaInicio));
   const ini = (() => { const m = obras.map((o) => o.fechaInicio).sort()[0]!; const d = new Date(m + "T12:00:00").getDay(); return addDias(m, d === 0 ? -6 : 1 - d); })();
   const finMax = obras.map((o) => { const e = finEstimado(o); return e > o.fechaFinPrevista ? e : o.fechaFinPrevista; }).sort().at(-1)!;
   const semanas = Math.ceil((dd(ini, finMax) + 7) / 7);

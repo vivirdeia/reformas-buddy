@@ -1,3 +1,4 @@
+import { calcularEstadoObra, motivoEstado } from "@/lib/analitica";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Phone, MessageCircle, Clock, FileText, Ruler, BadgeCheck, X, CalendarHeart, Sparkles, Heart, Check, MapPin, ChevronLeft, ChevronRight, PenLine, Wallet, Copy } from "lucide-react";
 import { Foto } from "@/components/obria";
@@ -28,10 +29,13 @@ function entrega(o: Obra) {
 }
 
 function mensaje(o: Obra): { titulo: string; texto: string; tono: "ok" | "suave" | "fin" } {
-  const imprevisto = o.incidencias.some((i) => i.estado === "abierta" && i.gravedad !== "baja");
-  if (o.estado === "terminada") return { titulo: "¡Tu reforma está terminada!", texto: "Ha sido un placer acompañarte. Disfruta de tu nuevo espacio.", tono: "fin" };
-  if (o.estado === "retrasada") return { titulo: "Estamos recuperando unos días", texto: "Un retraso en la llegada de material nos ha movido el calendario. El equipo está reorganizando trabajos para recortarlo al máximo.", tono: "suave" };
-  if (imprevisto) return { titulo: "Avanzamos con un pequeño imprevisto", texto: "Hemos encontrado algo que conviene resolver bien antes de seguir. Tu jefe de obra ya lo está gestionando y te mantendrá al día.", tono: "suave" };
+  const e = calcularEstadoObra(o);
+  if (e === "terminada") return { titulo: "¡Tu reforma está terminada!", texto: "Ha sido un placer acompañarte. Disfruta de tu nuevo espacio.", tono: "fin" };
+  const m = motivoEstado(o);
+  if (m === "material") return { titulo: "Estamos recuperando unos días", texto: "Un retraso en la llegada de material nos ha movido el calendario. El equipo está reorganizando trabajos para recortarlo al máximo.", tono: "suave" };
+  if (m === "incidencia") return { titulo: "Avanzamos con un pequeño imprevisto", texto: "Hemos encontrado algo que conviene resolver bien antes de seguir. Tu jefe de obra ya lo está gestionando y te mantendrá al día.", tono: "suave" };
+  if (m === "cambio") return { titulo: "Ajustamos el calendario a tus cambios", texto: "Los cambios que has pedido necesitan unos días más. Ya los tenemos planificados para que el resultado sea justo como lo quieres.", tono: "suave" };
+  if (m === "general") return { titulo: e === "retrasada" ? "Estamos recuperando unos días" : "Vamos ajustando el ritmo", texto: "El calendario se ha movido un poco y el equipo está reorganizando los trabajos para cumplir lo acordado.", tono: "suave" };
   if (avance(o) >= 85) return { titulo: "¡Ya casi está!", texto: "Estamos con los últimos detalles para que puedas estrenar muy pronto.", tono: "ok" };
   if (avance(o) < 10) return { titulo: "Tu reforma ya ha arrancado", texto: "El equipo ha empezado con buen ritmo. Aquí verás cada avance.", tono: "ok" };
   return { titulo: "Tu reforma va según lo previsto", texto: "Todo avanza conforme al calendario que acordamos.", tono: "ok" };
@@ -86,7 +90,7 @@ export function PortalCliente({ db, o, nombreCliente }: { db: DB; o: Obra; nombr
         <div className="flex items-center gap-5">
           <Anillo value={a} />
           <div className="flex-1">
-            {o.estado === "terminada" ? (
+            {calcularEstadoObra(o) === "terminada" ? (
               <><div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Entregada</div><div className="font-display text-2xl font-bold">{fecha(o.fases.at(-1)?.finReal ?? fin)}</div></>
             ) : (
               <>
