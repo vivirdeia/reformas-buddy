@@ -132,7 +132,7 @@ function Presupuesto() {
           <input type="checkbox" checked={f.privacidad} onChange={(e) => { set("privacidad", e.target.checked); setErr((x) => ({ ...x, privacidad: "" })); }} className="mt-1 h-6 w-6 accent-primary" />
           <span className="text-sm">He leído y acepto la política de privacidad. Usaremos tus datos solo para contactarte sobre esta reforma.</span>
         </label>
-        {err.privacidad && <span className="block text-sm font-semibold text-danger">{err.privacidad}</span>}
+        {err["privacidad"] && <span className="block text-sm font-semibold text-danger">{err["privacidad"]}</span>}
       </div>)}
 
       <div className="mt-8 flex gap-3">

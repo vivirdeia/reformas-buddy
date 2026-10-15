@@ -87,7 +87,7 @@ function Landing() {
     ...(db?.obras.filter((o) => o.antesDespues.length).map((o) => ({
       titulo: o.nombre.replace(/^Reforma integral |^Adecuación /, "").replace(/^./, (c) => c.toUpperCase()),
       barrio: o.direccion.includes("Ponzano") ? "Ponzano" : o.direccion.includes("Espíritu") ? "Malasaña" : o.barrio,
-      m2: o.m2, semanas: semanas(o.fechaInicio, o.fechaFinPrevista), ...o.antesDespues[0],
+      m2: o.m2, semanas: semanas(o.fechaInicio, o.fechaFinPrevista), ...o.antesDespues[0]!,
     })) ?? []),
     ...EXTRA,
   ];

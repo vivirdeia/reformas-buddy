@@ -23,6 +23,8 @@ import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
 import { Route as OrdenNuevaIdRouteImport } from './routes/orden-nueva.$id'
 import { Route as ParteIdRouteImport } from './routes/parte.$id'
+import { Route as SolicitudesIndexRouteImport } from './routes/solicitudes.index'
+import { Route as SolicitudesIdRouteImport } from './routes/solicitudes.$id'
 import { Route as VistaClienteIdRouteImport } from './routes/vista-cliente.$id'
 import { Route as JustificanteObraIdOcIdRouteImport } from './routes/justificante.$obraId.$ocId'
 import { Route as OrdenObraIdOcIdRouteImport } from './routes/orden.$obraId.$ocId'
@@ -97,6 +99,16 @@ const ParteIdRoute = ParteIdRouteImport.update({
   path: '/parte/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SolicitudesIndexRoute = SolicitudesIndexRouteImport.update({
+  id: '/solicitudes/',
+  path: '/solicitudes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SolicitudesIdRoute = SolicitudesIdRouteImport.update({
+  id: '/solicitudes/$id',
+  path: '/solicitudes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VistaClienteIdRoute = VistaClienteIdRouteImport.update({
   id: '/vista-cliente/$id',
   path: '/vista-cliente/$id',
@@ -127,8 +139,10 @@ export interface FileRoutesByFullPath {
   '/obras/$id': typeof ObrasIdRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
+  '/solicitudes/$id': typeof SolicitudesIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
+  '/solicitudes/': typeof SolicitudesIndexRoute
   '/justificante/$obraId/$ocId': typeof JustificanteObraIdOcIdRoute
   '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
@@ -146,8 +160,10 @@ export interface FileRoutesByTo {
   '/obras/$id': typeof ObrasIdRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
+  '/solicitudes/$id': typeof SolicitudesIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras': typeof ObrasIndexRoute
+  '/solicitudes': typeof SolicitudesIndexRoute
   '/justificante/$obraId/$ocId': typeof JustificanteObraIdOcIdRoute
   '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
@@ -166,8 +182,10 @@ export interface FileRoutesById {
   '/obras/$id': typeof ObrasIdRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
   '/parte/$id': typeof ParteIdRoute
+  '/solicitudes/$id': typeof SolicitudesIdRoute
   '/vista-cliente/$id': typeof VistaClienteIdRoute
   '/obras/': typeof ObrasIndexRoute
+  '/solicitudes/': typeof SolicitudesIndexRoute
   '/justificante/$obraId/$ocId': typeof JustificanteObraIdOcIdRoute
   '/orden/$obraId/$ocId': typeof OrdenObraIdOcIdRoute
 }
@@ -187,8 +205,10 @@ export interface FileRouteTypes {
     | '/obras/$id'
     | '/orden-nueva/$id'
     | '/parte/$id'
+    | '/solicitudes/$id'
     | '/vista-cliente/$id'
     | '/obras/'
+    | '/solicitudes/'
     | '/justificante/$obraId/$ocId'
     | '/orden/$obraId/$ocId'
   fileRoutesByTo: FileRoutesByTo
@@ -206,8 +226,10 @@ export interface FileRouteTypes {
     | '/obras/$id'
     | '/orden-nueva/$id'
     | '/parte/$id'
+    | '/solicitudes/$id'
     | '/vista-cliente/$id'
     | '/obras'
+    | '/solicitudes'
     | '/justificante/$obraId/$ocId'
     | '/orden/$obraId/$ocId'
   id:
@@ -225,8 +247,10 @@ export interface FileRouteTypes {
     | '/obras/$id'
     | '/orden-nueva/$id'
     | '/parte/$id'
+    | '/solicitudes/$id'
     | '/vista-cliente/$id'
     | '/obras/'
+    | '/solicitudes/'
     | '/justificante/$obraId/$ocId'
     | '/orden/$obraId/$ocId'
   fileRoutesById: FileRoutesById
@@ -245,8 +269,10 @@ export interface RootRouteChildren {
   ObrasIdRoute: typeof ObrasIdRoute
   OrdenNuevaIdRoute: typeof OrdenNuevaIdRoute
   ParteIdRoute: typeof ParteIdRoute
+  SolicitudesIdRoute: typeof SolicitudesIdRoute
   VistaClienteIdRoute: typeof VistaClienteIdRoute
   ObrasIndexRoute: typeof ObrasIndexRoute
+  SolicitudesIndexRoute: typeof SolicitudesIndexRoute
   JustificanteObraIdOcIdRoute: typeof JustificanteObraIdOcIdRoute
   OrdenObraIdOcIdRoute: typeof OrdenObraIdOcIdRoute
 }
@@ -351,6 +377,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ParteIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/solicitudes/': {
+      id: '/solicitudes/'
+      path: '/solicitudes'
+      fullPath: '/solicitudes/'
+      preLoaderRoute: typeof SolicitudesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/solicitudes/$id': {
+      id: '/solicitudes/$id'
+      path: '/solicitudes/$id'
+      fullPath: '/solicitudes/$id'
+      preLoaderRoute: typeof SolicitudesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/vista-cliente/$id': {
       id: '/vista-cliente/$id'
       path: '/vista-cliente/$id'
@@ -389,8 +429,10 @@ const rootRouteChildren: RootRouteChildren = {
   ObrasIdRoute: ObrasIdRoute,
   OrdenNuevaIdRoute: OrdenNuevaIdRoute,
   ParteIdRoute: ParteIdRoute,
+  SolicitudesIdRoute: SolicitudesIdRoute,
   VistaClienteIdRoute: VistaClienteIdRoute,
   ObrasIndexRoute: ObrasIndexRoute,
+  SolicitudesIndexRoute: SolicitudesIndexRoute,
   JustificanteObraIdOcIdRoute: JustificanteObraIdOcIdRoute,
   OrdenObraIdOcIdRoute: OrdenObraIdOcIdRoute,
 }
