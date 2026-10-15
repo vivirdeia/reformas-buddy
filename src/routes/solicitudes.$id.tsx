@@ -35,7 +35,7 @@ function convertir(db: DB, s: Solicitud): string {
     portada: s.fotos[0] ?? `https://images.unsplash.com/${PORTADA[s.tipo] ?? "photo-1600210492486-724fe5c67fb0"}?auto=format&fit=crop&w=1200&q=70`,
     fases, equipo: { jefeId: "u-jefe1", operarioIds: [], gremioIds: [] },
     notas: [{ id: uid("n"), autorId: "u-gerente", fecha: hoyISO(), texto: `Obra creada desde solicitud web.${s.comentario ? ` Cliente: «${s.comentario}»` : ""}` }],
-    incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], costes: { materiales: 0, gremios: 0 },
+    incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], apuntes: [],
     horario: "Lunes a viernes de 8:00 a 17:00 · Trabajos ruidosos de 9:00 a 14:00",
     pagos: [["A la firma", 30], ["Fin de instalaciones", 30], ["Alicatado y carpintería", 30], ["A la entrega de llaves", 10]].map(([c, p], i) => ({ id: `h${i + 1}`, concepto: c as string, porcentaje: p as number, estado: "pendiente" as const })),
   });

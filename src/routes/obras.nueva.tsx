@@ -66,7 +66,7 @@ function Asistente({ db, me }: { db: DB; me: Usuario }) {
         id: oid, nombre: v.nombre.trim(), tipo: v.tipo, clienteId, direccion: v.direccion.trim(), barrio: v.barrio.trim(), m2: v.m2, presupuesto: v.presupuesto,
         fechaInicio: v.fechaInicio, fechaFinPrevista: v.fechaInicio, estado: "en_plazo", portada: v.portada || PORTADA_DEFECTO, fases,
         equipo: eq, notas: [{ id: uid("n"), autorId: me.id, fecha: hoyISO(), texto: "Obra dada de alta." }], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [],
-        documentos: [], antesDespues: [], horario: v.horario, pagos: pagos.map((h, i) => ({ ...h, id: `h${i + 1}`, concepto: h.concepto.trim() })), costes: { materiales: 0, gremios: 0 },
+        documentos: [], antesDespues: [], horario: v.horario, pagos: pagos.map((h, i) => ({ ...h, id: `h${i + 1}`, concepto: h.concepto.trim() })), apuntes: [],
         ...(v.notasCliente.trim() ? { notasCliente: v.notasCliente.trim() } : {}),
       };
       recalcularFechas(o);

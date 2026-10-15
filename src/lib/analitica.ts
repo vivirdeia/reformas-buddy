@@ -2,6 +2,8 @@ import type { DB, EstadoObra, Obra } from "./types";
 import { avance } from "./store";
 import { importeHito, vigente } from "./economia";
 import { addDias, diaSemana, hoyISO } from "./fechas";
+import { sumaApuntes, tarifaDe } from "./costes";
+export { oficioDe } from "./costes";
 
 export const dd = (a: string, b: string) => Math.round((new Date(b + "T12:00:00").getTime() - new Date(a + "T12:00:00").getTime()) / 86400000);
 
@@ -66,21 +68,18 @@ export const finEstimado = (o: Obra) => addDias(o.fechaFinPrevista, desviacion(o
 
 const horas = (f: { entrada: string; salida?: string | undefined }, now = Date.now()) => ((f.salida ? new Date(f.salida).getTime() : now) - new Date(f.entrada).getTime()) / 3600000;
 
-export function oficioDe(db: DB, id: string) {
-  const u = db.usuarios.find((x) => x.id === id);
-  return u?.rol === "jefe_obra" ? "Jefe de obra" : u?.oficio ?? "Peón";
-}
 
 export function costeReal(db: DB, o: Obra) {
   const h = db.fichajes.filter((f) => f.obraId === o.id && f.salida);
-  const manoObra = h.reduce((s, f) => s + horas(f) * (db.costeHora[oficioDe(db, f.userId)] ?? 20), 0);
-  const total = manoObra + o.costes.materiales + o.costes.gremios;
+  const manoObra = h.reduce((s, f) => s + horas(f) * tarifaDe(db, f.userId), 0);
+  const { materiales, gremios, otros } = sumaApuntes(o);
+  const total = manoObra + materiales + gremios + otros;
   const av = Math.max(avance(o), 1) / 100;
   const proyectado = estaTerminada(o) ? total : total / av;
   const v = vigente(o);
   const margen = v - proyectado;
   const pct = margen / v;
-  return { manoObra, horas: h.reduce((s, f) => s + horas(f), 0), materiales: o.costes.materiales, gremios: o.costes.gremios, total, proyectado, vigente: v, margen, pct };
+  return { manoObra, horas: h.reduce((s, f) => s + horas(f), 0), materiales, gremios, otros, total, proyectado, vigente: v, margen, pct };
 }
 export const salud = (pct: number) => (pct >= 0.2 ? "ok" : pct >= 0.1 ? "warn" : "danger") as "ok" | "warn" | "danger";
 export const SALUD_TXT = { ok: "text-ok", warn: "text-warn", danger: "text-danger" } as const;

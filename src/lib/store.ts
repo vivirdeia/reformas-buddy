@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import type { DB, Obra, Usuario } from "./types";
 import { createSeed, DB_VERSION, FASES } from "./seed";
+import { EMPRESA_DEFECTO } from "./empresa";
+import { apuntesDesdeCostes } from "./costes";
 import {
   iniciarArchivos, cargarFaltan, externalizar, resolver, refsEn, limpiarHuerfanos,
   esperarEscrituras, guardarArchivos, archivosDe, bytesArchivos, REF, UMBRAL,
@@ -27,12 +29,20 @@ const MIGRACIONES: Record<number, (d: DB) => void> = {
   9: () => {},
   // v10: estado "anulada" en órdenes, corrección de fichajes y notas editadas (campos opcionales). No toca datos.
   10: () => {},
+  // v11: datos de empresa, usuarios activos y costes como apuntes con fecha (se conservan los importes).
+  11: (d) => {
+    d.empresa ??= structuredClone(EMPRESA_DEFECTO);
+    d.obras.forEach((o) => {
+      if (!o.apuntes) o.apuntes = o.costes ? apuntesDesdeCostes(o, o.costes.materiales, o.costes.gremios) : [];
+      delete o.costes;
+    });
+  },
 };
 function normalizar(d: DB) {
-  d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {};
+  d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {}; d.empresa ??= structuredClone(EMPRESA_DEFECTO); d.empresa.redes ??= { instagram: "", facebook: "", linkedin: "" };
   d.obras.forEach((o) => {
     o.notas ??= []; o.incidencias ??= []; o.ordenesCambio ??= []; o.partesDiarios ??= []; o.hitos ??= [];
-    o.documentos ??= []; o.antesDespues ??= []; o.pagos ??= []; o.costes ??= { materiales: 0, gremios: 0 };
+    o.documentos ??= []; o.antesDespues ??= []; o.pagos ??= []; o.apuntes ??= [];
   });
 }
 /** Aplica en orden las migraciones pendientes. Devuelve true si ha cambiado algo. */
