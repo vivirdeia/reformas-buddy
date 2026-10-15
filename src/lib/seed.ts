@@ -46,14 +46,14 @@ const base = (o: Partial<Obra> & Pick<Obra, "id">): Obra => ({
   nombre: "", tipo: "piso", clienteId: "", direccion: "", barrio: "", m2: 80, presupuesto: 0,
   fechaInicio: "", fechaFinPrevista: "", estado: "en_plazo", portada: "", fases: [],
   equipo: { jefeId: "u-jefe1", operarioIds: [], gremioIds: [] },
-  notas: [], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], ...o,
+  notas: [], incidencias: [], ordenesCambio: [], partesDiarios: [], hitos: [], documentos: [], antesDespues: [], horario: "Lunes a viernes de 8:00 a 17:00 · Trabajos ruidosos de 9:00 a 14:00", ...o,
 });
 
 const fin = (inicio: string) => add(inicio, FASES.reduce((s, f) => s + f.dias, 0) - 1);
 
 export function createSeed(): DB {
   const db: DB = {
-    version: 2, fichajes: [], tareas: [],
+    version: 3, fichajes: [], tareas: [],
     usuarios: [
       { id: "u-gerente", nombre: "Javier Arnal", rol: "gerente", pin: "1111", telefono: "600 112 233", email: "javier@reformasarnal.es" },
       { id: "u-jefe1", nombre: "Marta Ruiz", rol: "jefe_obra", pin: "2222", telefono: "611 204 518" },
