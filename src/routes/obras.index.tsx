@@ -1,7 +1,7 @@
 import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, MapPin, AlertTriangle, FileClock } from "lucide-react";
+import { Search, MapPin, AlertTriangle, FileClock, Plus } from "lucide-react";
 import { AppShell, Foto, Progreso, Semaforo } from "@/components/obria";
 import { avance, faseActual, user, ESTADO_LABEL } from "@/lib/store";
 import type { EstadoObra } from "@/lib/types";
@@ -21,26 +21,31 @@ export const Route = createFileRoute("/obras/")({
   component: Obras,
 });
 
-const FILTROS: (EstadoObra | "todas")[] = ["todas", "en_plazo", "en_riesgo", "retrasada", "terminada"];
+type Filtro = EstadoObra | "todas" | "archivadas";
+const FILTROS: Filtro[] = ["todas", "en_plazo", "en_riesgo", "retrasada", "terminada", "archivadas"];
 
 function Obras() {
   const nav = useNavigate();
   const [q, setQ] = useState("");
-  const [f, setF] = useState<EstadoObra | "todas">("todas");
+  const [f, setF] = useState<Filtro>("todas");
   return (
     <AppShell>
       {({ db, me }) => {
         if (me.rol === "cliente") { queueMicrotask(() => nav({ to: "/mi-reforma" })); return null; }
-        const mias = db.obras;
+        const mias = db.obras.filter((o) => !o.archivada);
+        const archivadas = db.obras.filter((o) => o.archivada);
         const t = q.toLowerCase();
-        const lista = mias.filter((o) => (f === "todas" || calcularEstadoObra(o) === f) &&
+        const lista = (f === "archivadas" ? archivadas : mias).filter((o) => (f === "todas" || f === "archivadas" || calcularEstadoObra(o) === f) &&
           (!t || [o.nombre, o.direccion, o.barrio, user(db, o.clienteId)?.nombre].join(" ").toLowerCase().includes(t)));
         const activas = mias.filter((o) => calcularEstadoObra(o) !== "terminada").length;
         return (
           <>
-            <div className="mb-4">
-              <p className="text-sm text-muted-foreground">Hola, {me.nombre.split(" ")[0]}</p>
-              <h1 className="text-2xl font-bold">{`${activas} obras activas`}</h1>
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-sm text-muted-foreground">Hola, {me.nombre.split(" ")[0]}</p>
+                <h1 className="text-2xl font-bold">{`${activas} obras activas`}</h1>
+              </div>
+              {me.rol === "gerente" && <Link to="/obras/nueva" className="flex h-12 items-center gap-2 rounded-2xl bg-primary px-4 font-semibold text-primary-foreground shadow-cta"><Plus className="h-5 w-5" />Nueva obra</Link>}
             </div>
             {(
               <>
@@ -51,11 +56,11 @@ function Obras() {
                 </label>
                 <div className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1">
                   {FILTROS.map((x) => {
-                    const n = x === "todas" ? mias.length : mias.filter((o) => calcularEstadoObra(o) === x).length;
+                    const n = x === "todas" ? mias.length : x === "archivadas" ? archivadas.length : mias.filter((o) => calcularEstadoObra(o) === x).length;
                     return (
                       <button key={x} onClick={() => setF(x)} className={cn("shrink-0 rounded-full border-2 px-4 py-2.5 text-sm font-semibold",
                         f === x ? "border-primary bg-primary text-primary-foreground" : "bg-card text-foreground")}>
-                        {x === "todas" ? "Todas" : ESTADO_LABEL[x]} <span className="opacity-70">{n}</span>
+                        {x === "todas" ? "Todas" : x === "archivadas" ? "Archivadas" : ESTADO_LABEL[x]} <span className="opacity-70">{n}</span>
                       </button>
                     );
                   })}

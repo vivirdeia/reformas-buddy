@@ -1,3 +1,4 @@
+import { obrasVivas } from "@/lib/store";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Wallet, TrendingUp, PiggyBank, Percent } from "lucide-react";
 import { AppShell, Kpi, Seccion, SoloGerente } from "@/components/obria";
@@ -24,10 +25,10 @@ export const Route = createFileRoute("/economia")({
 const pct = (n: number) => `${(n * 100).toLocaleString("es-ES", { maximumFractionDigits: 1 })} %`;
 
 function Economia({ db }: { db: DB }) {
-  const filas = db.obras.map((o) => ({ o, ...costeReal(db, o), av: avance(o) }));
+  const filas = obrasVivas(db).map((o) => ({ o, ...costeReal(db, o), av: avance(o) }));
   const totV = filas.reduce((s, f) => s + f.vigente, 0);
   const totM = filas.reduce((s, f) => s + f.margen, 0);
-  const cobrado = db.obras.reduce((s, o) => s + pagado(o), 0);
+  const cobrado = obrasVivas(db).reduce((s, o) => s + pagado(o), 0);
   const meses = cobrosPorMes(db);
   const maxMes = Math.max(...meses.map((m) => m.total), 1);
   const maxPct = Math.max(...filas.map((f) => Math.abs(f.pct)), 0.3);
@@ -36,7 +37,7 @@ function Economia({ db }: { db: DB }) {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Economía</h1>
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <Kpi icon={Wallet} label="Cartera vigente" value={kEuro(totV)} sub={`${db.obras.length} obras`} />
+        <Kpi icon={Wallet} label="Cartera vigente" value={kEuro(totV)} sub={`${obrasVivas(db).length} obras`} />
         <Kpi icon={PiggyBank} tone="ok" label="Margen estimado" value={kEuro(totM)} sub="al cierre de las obras" />
         <Kpi icon={Percent} tone={salud(totM / totV)} label="Margen medio" value={pct(totM / totV)} sub="sobre presupuesto vigente" />
         <Kpi icon={TrendingUp} label="Cobrado total" value={kEuro(cobrado)} sub={`${pct(cobrado / totV)} de la cartera`} />

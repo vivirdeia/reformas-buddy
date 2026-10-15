@@ -1,3 +1,4 @@
+import { obrasVivas } from "@/lib/store";
 import { calcularEstadoObra } from "@/lib/analitica";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Users, Clock, Radio } from "lucide-react";
@@ -30,12 +31,12 @@ function Equipo({ db }: { db: DB }) {
   const semana = lunes(hoy);
   const hace4 = addDias(semana, -21);
   const gente = db.usuarios.filter((u) => u.rol === "operario" || u.rol === "jefe_obra").map((u) => {
-    const obras = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada" && (o.equipo.jefeId === u.id || o.equipo.operarioIds.includes(u.id)));
+    const obras = obrasVivas(db).filter((o) => calcularEstadoObra(o) !== "terminada" && (o.equipo.jefeId === u.id || o.equipo.operarioIds.includes(u.id)));
     return { u, obras, sem: horasDesde(db, (f) => f.userId === u.id, semana), mes: horasDesde(db, (f) => f.userId === u.id, hace4) };
   });
   const maxMes = Math.max(...gente.map((g) => g.mes), 1);
   const abiertos = db.fichajes.filter((f) => !f.salida);
-  const porObra = db.obras.map((o) => ({ o, h: horasDesde(db, (f) => f.obraId === o.id, hace4) })).filter((x) => x.h > 0).sort((a, b) => b.h - a.h);
+  const porObra = obrasVivas(db).map((o) => ({ o, h: horasDesde(db, (f) => f.obraId === o.id, hace4) })).filter((x) => x.h > 0).sort((a, b) => b.h - a.h);
   const maxObra = Math.max(...porObra.map((x) => x.h), 1);
 
   return (

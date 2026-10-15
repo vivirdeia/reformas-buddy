@@ -88,6 +88,12 @@ export interface Obra {
   pagos: HitoPago[];
   /** Costes acumulados a fecha (sin mano de obra propia) */
   costes: { materiales: number; gremios: number };
+  /** Obra archivada: fuera de listados, KPIs y Gantt. */
+  archivada?: boolean | undefined;
+  /** Mensaje de estado escrito por el jefe de obra; sustituye al automático del portal. */
+  mensajeCliente?: string | undefined;
+  /** Notas visibles para el cliente en su portal. */
+  notasCliente?: string | undefined;
 }
 
 export interface Fichaje { id: string; userId: string; obraId: string; entrada: string; salida?: string; }

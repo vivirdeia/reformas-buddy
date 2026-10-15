@@ -3,7 +3,7 @@ import { generarActividad } from "./actividad";
 import { addDias, hoyISO } from "./fechas";
 
 /** Versión del modelo de datos. Al subirla, añade su migración en store.ts. */
-export const DB_VERSION = 8;
+export const DB_VERSION = 9;
 
 export const FASES: { tipo: FaseTipo; nombre: string; dias: number }[] = [
   { tipo: "demolicion", nombre: "Demolición", dias: 7 },
