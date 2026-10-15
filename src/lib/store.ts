@@ -142,7 +142,7 @@ export function dur(ms: number, reloj = false) {
 export const msFichaje = (f: { entrada: string; salida?: string }, now = Date.now()) =>
   (f.salida ? new Date(f.salida).getTime() : now) - new Date(f.entrada).getTime();
 export const fechaLarga = (iso: string) => new Date(iso + "T12:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" });
-export function resetDB() { saveDB(createSeed()); }
+export function resetDB() { return saveDB(createSeed()); }
 
 export function useDB() {
   const [db, setDb] = useState<DB | null>(null);
