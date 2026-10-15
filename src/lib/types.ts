@@ -96,8 +96,8 @@ export interface Tarea {
 export type EstadoSolicitud = "nueva" | "contactada" | "visita" | "presupuestada" | "ganada" | "perdida";
 export interface Solicitud {
   id: string; fecha: string; tipo: string; m2: number; zona: string; inicio: string; rango: string;
-  fotos: string[]; nombre: string; telefono: string; email: string; comentario?: string;
-  estado: EstadoSolicitud; notas?: string; obraId?: string | undefined;
+  fotos: string[]; nombre: string; telefono: string; email: string; comentario?: string | undefined;
+  estado: EstadoSolicitud; notas?: string | undefined; obraId?: string | undefined;
 }
 
 export interface DB {
