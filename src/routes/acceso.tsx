@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { HardHat, ClipboardCheck, Home, Briefcase, ChevronLeft, Delete } from "lucide-react";
-import { Logo } from "@/components/obria";
+import { Avatar, Logo } from "@/components/obria";
 import { useDB, useSession, ROL_LABEL } from "@/lib/store";
 import type { Rol } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ const ROLES: { rol: Rol; icon: typeof HardHat; desc: string }[] = [
 
 function Login() {
   const db = useDB();
-  const { userId, login } = useSession();
+  const { userId, login, logout } = useSession();
   const nav = useNavigate();
   const [rol, setRol] = useState<Rol | null>(null);
   const [uid, setUid] = useState<string | null>(null);
@@ -38,12 +38,15 @@ function Login() {
 
   useEffect(() => {
     if (!userId || !db) return;
-    const r = db.usuarios.find((u) => u.id === userId)?.rol;
+    const yo = db.usuarios.find((u) => u.id === userId);
+    if (yo?.activo === false) { logout(); return; }
+    const r = yo?.rol;
     if (r) nav({ to: r === "operario" || r === "jefe_obra" ? "/hoy" : r === "cliente" ? "/mi-reforma" : r === "gerente" ? "/panel" : "/obras" });
-  }, [userId, db, nav]);
+  }, [userId, db, nav, logout]);
 
-  const usuarios = db?.usuarios.filter((u) => u.rol === rol) ?? [];
-  const sel = db?.usuarios.find((u) => u.id === uid);
+  const activos = db?.usuarios.filter((u) => u.activo !== false) ?? [];
+  const usuarios = activos.filter((u) => u.rol === rol);
+  const sel = activos.find((u) => u.id === uid);
 
   const press = (d: string) => {
     if (!sel) return;
@@ -56,7 +59,7 @@ function Login() {
     }
   };
 
-  const demo = db ? (["operario", "jefe_obra", "cliente", "gerente"] as Rol[]).map((r) => db.usuarios.find((u) => u.rol === r)!) : [];
+  const demo = db ? (["operario", "jefe_obra", "cliente", "gerente"] as Rol[]).map((r) => activos.find((u) => u.rol === r)).filter((u): u is NonNullable<typeof u> => !!u) : [];
 
   return (
     <div className="min-h-screen bg-hero">
@@ -85,9 +88,10 @@ function Login() {
           )}
           {rol && !sel && (
             <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
+              {usuarios.length === 0 && <p className="text-sm text-muted-foreground">No hay usuarios activos con este perfil.</p>}
               {usuarios.map((u) => (
                 <button key={u.id} onClick={() => setUid(u.id)} className="flex min-h-14 items-center gap-3 rounded-2xl border-2 bg-background px-4 py-3 text-left active:scale-[0.99] hover:border-primary">
-                  <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary font-display font-bold text-secondary-foreground">{u.nombre[0]}</div>
+                  <Avatar u={u} className="h-10 w-10" />
                   <div><div className="font-semibold">{u.nombre}</div>{u.oficio && <div className="text-xs text-muted-foreground">{u.oficio}</div>}</div>
                 </button>
               ))}
