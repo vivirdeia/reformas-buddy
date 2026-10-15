@@ -1,5 +1,6 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "obria",
+  "description": "Obria: gestión de obras a medida para una empresa de reformas (web pública, equipo y portal del cliente), 100 % en el navegador con localStorage e IndexedDB.",
   "private": true,
   "sideEffects": false,
   "type": "module",
