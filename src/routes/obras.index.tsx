@@ -30,7 +30,7 @@ function Obras() {
     <AppShell>
       {({ db, me }) => {
         if (me.rol === "cliente") { queueMicrotask(() => nav({ to: "/mi-reforma" })); return null; }
-        const mias = me.rol === "cliente" ? db.obras.filter((o) => o.id === me.obraId) : db.obras;
+        const mias = db.obras;
         const t = q.toLowerCase();
         const lista = mias.filter((o) => (f === "todas" || o.estado === f) &&
           (!t || [o.nombre, o.direccion, o.barrio, user(db, o.clienteId)?.nombre].join(" ").toLowerCase().includes(t)));
@@ -39,9 +39,9 @@ function Obras() {
           <>
             <div className="mb-4">
               <p className="text-sm text-muted-foreground">Hola, {me.nombre.split(" ")[0]}</p>
-              <h1 className="text-2xl font-bold">{me.rol === "cliente" ? "Tu reforma" : `${activas} obras activas`}</h1>
+              <h1 className="text-2xl font-bold">{`${activas} obras activas`}</h1>
             </div>
-            {me.rol !== "cliente" && (
+            {(
               <>
                 <label className="relative mb-3 block">
                   <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
