@@ -1,4 +1,6 @@
-import { calcularEstadoObra } from "@/lib/analitica";
+import { calcularEstadoObra, estadoAutomatico } from "@/lib/analitica";
+import { ESTADO_LABEL } from "@/lib/store";
+import type { EstadoObra } from "@/lib/types";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronLeft, Phone, MapPin, Euro, CalendarDays, AlertTriangle, FileClock, Check, Circle, Loader, Ban } from "lucide-react";
 import type { ReactNode } from "react";
@@ -65,6 +67,7 @@ function Ficha() {
                 <p className="flex items-center gap-1 text-sm text-ink-foreground/80"><MapPin className="h-4 w-4" />{o.direccion}, {o.barrio}</p>
               </div>
             </div>
+            {(me.rol === "gerente" || me.rol === "jefe_obra") && <EstadoControl o={o} />}
 
             <div className="rounded-3xl bg-card p-4 shadow-card">
               <div className="flex items-end justify-between">
@@ -234,5 +237,25 @@ function Interno({ db, me, o }: { db: DB; me: Usuario; o: Obra }) {
         )}
       </Card>
     </>
+  );
+}
+
+function EstadoControl({ o }: { o: Obra }) {
+  const auto = estadoAutomatico(o);
+  const fijar = (e: EstadoObra | undefined) => mutate((d) => { d.obras.find((x) => x.id === o.id)!.estadoManual = e; });
+  return (
+    <section className="flex flex-wrap items-center gap-3 rounded-3xl bg-card p-4 shadow-card">
+      <div className="min-w-0 flex-1">
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Semáforo</div>
+        {o.estadoManual
+          ? <div className="text-sm"><span className="rounded-full bg-warn-soft px-2 py-0.5 text-xs font-bold text-warn">Estado manual</span> <span className="text-muted-foreground">Automático sería: {ESTADO_LABEL[auto]}</span></div>
+          : <div className="text-sm text-muted-foreground">Automático según fases, plazos, incidencias y cambios</div>}
+      </div>
+      <select aria-label="Forzar estado" value={o.estadoManual ?? ""} onChange={(e) => fijar((e.target.value || undefined) as EstadoObra | undefined)} className="h-11 rounded-xl border bg-background px-3 font-semibold">
+        <option value="">Automático ({ESTADO_LABEL[auto]})</option>
+        {(Object.keys(ESTADO_LABEL) as EstadoObra[]).map((k) => <option key={k} value={k}>Forzar: {ESTADO_LABEL[k]}</option>)}
+      </select>
+      {o.estadoManual && <button onClick={() => fijar(undefined)} className="h-11 rounded-xl bg-secondary px-4 font-semibold text-secondary-foreground">Volver a automático</button>}
+    </section>
   );
 }
