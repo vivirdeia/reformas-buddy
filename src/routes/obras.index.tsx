@@ -61,7 +61,7 @@ function Obras() {
                 </div>
               </>
             )}
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {lista.map((o) => {
                 const a = avance(o);
                 const inc = o.incidencias.filter((i) => i.estado === "abierta").length;
