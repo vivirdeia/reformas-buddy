@@ -28,7 +28,7 @@ function convertir(db: DB, s: Solicitud): string {
   let cur = inicio;
   const fases: Fase[] = FASES.map((f) => { const ip = cur; const fp = addDias(ip, f.dias - 1); cur = addDias(fp, 1); return { tipo: f.tipo, inicioPrevisto: ip, finPrevisto: fp, estado: "pendiente" }; });
   const barrio = (s.zona.split("·")[0] ?? s.zona).trim();
-  db.usuarios.push({ id: cid, nombre: s.nombre, rol: "cliente", pin: String(1000 + Math.floor(Math.random() * 9000)), telefono: s.telefono, email: s.email, obraId: oid });
+  db.usuarios.push({ id: cid, nombre: s.nombre, rol: "cliente", pin: pinNuevo(db), telefono: s.telefono, email: s.email, obraId: oid });
   db.obras.push({
     id: oid, nombre: `${s.tipo} en ${barrio}`, tipo: s.tipo === "Local comercial" ? "local" : "piso", clienteId: cid, direccion: s.zona, barrio, m2: s.m2,
     presupuesto: RANGO_MEDIO[s.rango] ?? Math.round(s.m2 * 550), fechaInicio: inicio, fechaFinPrevista: addDias(cur, -1), estado: "en_plazo",
