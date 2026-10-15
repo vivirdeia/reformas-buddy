@@ -41,7 +41,7 @@ function Lista<X>({ items, on, nuevo, render, nombre }: { items: X[]; on: (l: X[
               <button type="button" className={cn(mini, "text-danger")} onClick={() => on(items.filter((_, j) => j !== i))} aria-label={`Quitar ${nombre} ${i + 1}`}><X className="h-4 w-4" /></button>
             </span>
           </div>
-          <div className="space-y-2">{render(x, (p) => on(items.map((y, j) => (j === i ? { ...y, ...p } : y))))}</div>
+          <div className="space-y-2">{render(x, (p) => on(items.map((y, j) => (j === i ? (typeof y === "object" && y !== null ? ({ ...y, ...(p as object) } as X) : (p as unknown as X)) : y))))}</div>
         </div>
       ))}
       <button type="button" onClick={() => on([...items, structuredClone(nuevo)])} className="inline-flex h-11 items-center gap-1 rounded-xl border-2 border-dashed px-3 text-sm font-semibold"><Plus className="h-4 w-4" />Añadir {nombre.toLowerCase()}</button>

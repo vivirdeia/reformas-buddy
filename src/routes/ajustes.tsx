@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, HardDrive, RotateCcw, Upload } from "lucide-react";
 import { AppShell, Avatar } from "@/components/obria";
+import { WebAdmin } from "@/components/web-admin";
 import { CambiarPin, EmpresaForm, GremiosAdmin, TarifasAdmin, UsuariosAdmin } from "@/components/admin";
 import { descargar } from "@/components/avisos-almacen";
 import { espacioUsado, exportarCopia, importarCopia, resetDB, ROL_LABEL } from "@/lib/store";
@@ -92,6 +93,7 @@ function Ajustes() {
             <GremiosAdmin db={db} />
             <TarifasAdmin key={JSON.stringify(db.costeHora)} db={db} />
             <EmpresaForm key={JSON.stringify(db.empresa).length} db={db} />
+            <WebAdmin key={JSON.stringify(db.web).length} db={db} />
           </>}
           <div className="pt-4 text-center">
             <button onClick={() => { if (confirm("¿Restablecer todos los datos de demo? Se perderán los cambios.")) { setOk(resetDB()); } }}
