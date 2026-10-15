@@ -23,6 +23,8 @@ const MIGRACIONES: Record<number, (d: DB) => void> = {
   7: () => {},
   // v8: semáforo calculado; campo opcional estadoManual (sin valor = automático). No toca datos.
   8: () => {},
+  // v9: campos opcionales archivada, mensajeCliente y notasCliente. No toca datos.
+  9: () => {},
 };
 function normalizar(d: DB) {
   d.solicitudes ??= []; d.fichajes ??= []; d.tareas ??= []; d.usuarios ??= []; d.gremios ??= []; d.costeHora ??= {};
@@ -195,6 +197,8 @@ export function faseActual(o: Obra) {
   return f ? FASES.find((d) => d.tipo === f.tipo)!.nombre : "Entregada";
 }
 export const nombreFase = (t: string) => FASES.find((f) => f.tipo === t)?.nombre ?? t;
+/** Obras no archivadas (para listados, KPIs y Gantt). */
+export const obrasVivas = (db: DB) => db.obras.filter((o) => !o.archivada);
 export const user = (db: DB, id?: string): Usuario | undefined => db.usuarios.find((u) => u.id === id);
 
 export const euro = (n: number) => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);

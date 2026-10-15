@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { HardHat, AlertTriangle, Siren, PenLine, TrendingUp, Hourglass, ArrowUpDown, ChevronRight, Clock, Wallet } from "lucide-react";
 import { AppShell, Kpi, Progreso, Seccion, Semaforo, SoloGerente } from "@/components/obria";
-import { avance, faseActual, fecha, user, ESTADO_LABEL, euro } from "@/lib/store";
+import { obrasVivas, avance, faseActual, fecha, user, ESTADO_LABEL, euro } from "@/lib/store";
 import { importeHito, vigente } from "@/lib/economia";
 import { dd, desviacion, finEstimado, kEuro } from "@/lib/analitica";
 import { addDias, hoyISO } from "@/lib/fechas";
@@ -29,10 +29,10 @@ type Col = "nombre" | "estado" | "avance" | "desv" | "jefe" | "vigente";
 function Panel({ db }: { db: DB }) {
   const hoy = hoyISO();
   const mes = hoy.slice(0, 7);
-  const activas = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada");
-  const incAbiertas = db.obras.flatMap((o) => o.incidencias.filter((i) => i.estado === "abierta").map((i) => ({ o, i })));
-  const ocPend = db.obras.flatMap((o) => o.ordenesCambio.filter((c) => c.estado === "enviada").map((c) => ({ o, c })));
-  const pagos = db.obras.flatMap((o) => o.pagos.map((h) => ({ o, h, imp: importeHito(o, h) })));
+  const activas = obrasVivas(db).filter((o) => calcularEstadoObra(o) !== "terminada");
+  const incAbiertas = obrasVivas(db).flatMap((o) => o.incidencias.filter((i) => i.estado === "abierta").map((i) => ({ o, i })));
+  const ocPend = obrasVivas(db).flatMap((o) => o.ordenesCambio.filter((c) => c.estado === "enviada").map((c) => ({ o, c })));
+  const pagos = obrasVivas(db).flatMap((o) => o.pagos.map((h) => ({ o, h, imp: importeHito(o, h) })));
   const cobradoMes = pagos.filter((p) => p.h.estado === "pagado" && p.h.pagadoEn?.startsWith(mes)).reduce((s, p) => s + p.imp, 0);
   const solicitados = pagos.filter((p) => p.h.estado === "solicitado");
   const pendCobro = solicitados.reduce((s, p) => s + p.imp, 0);
@@ -52,7 +52,7 @@ function Panel({ db }: { db: DB }) {
         <h1 className="text-3xl font-bold">Panel</h1>
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Kpi icon={HardHat} label="Obras activas" value={activas.length} sub={`${db.obras.length - activas.length} terminada`} />
+        <Kpi icon={HardHat} label="Obras activas" value={activas.length} sub={`${obrasVivas(db).length - activas.length} terminada`} />
         <Kpi icon={AlertTriangle} tone={riesgo ? "warn" : "ok"} label="En riesgo o retraso" value={riesgo} sub="de las activas" />
         <Kpi icon={Siren} tone={incAbiertas.length ? "danger" : "ok"} label="Incidencias abiertas" value={incAbiertas.length} sub={`${incAbiertas.filter((x) => x.i.gravedad === "alta").length} de gravedad alta`} />
         <Kpi icon={PenLine} tone="warn" label="Cambios por firmar" value={ocPend.length} sub={euro(ocPend.reduce((s, x) => s + x.c.partidas.reduce((a, p) => a + p.cantidad * p.precio, 0) * 1.21, 0))} />
@@ -89,7 +89,7 @@ function TablaObras({ db }: { db: DB }) {
   const [asc, setAsc] = useState(false);
   const [est, setEst] = useState<EstadoObra | "todas">("todas");
   const [jefe, setJefe] = useState("todos");
-  const filas = useMemo(() => db.obras
+  const filas = useMemo(() => obrasVivas(db)
     .filter((o) => (est === "todas" || calcularEstadoObra(o) === est) && (jefe === "todos" || o.equipo.jefeId === jefe))
     .map((o) => ({ o, nombre: o.nombre, estado: calcularEstadoObra(o), avance: avance(o), desv: desviacion(o), jefe: user(db, o.equipo.jefeId)?.nombre ?? "", vigente: vigente(o) }))
     .sort((a, b) => { const x = a[col], y = b[col]; const r = typeof x === "number" ? x - (y as number) : String(x).localeCompare(String(y)); return asc ? r : -r; }), [db, col, asc, est, jefe]);
@@ -129,7 +129,7 @@ function TablaObras({ db }: { db: DB }) {
 
 function Gantt({ db }: { db: DB }) {
   const hoy = hoyISO();
-  const obras = db.obras.filter((o) => calcularEstadoObra(o) !== "terminada").sort((a, b) => a.fechaInicio.localeCompare(b.fechaInicio));
+  const obras = obrasVivas(db).filter((o) => calcularEstadoObra(o) !== "terminada").sort((a, b) => a.fechaInicio.localeCompare(b.fechaInicio));
   const ini = (() => { const m = obras.map((o) => o.fechaInicio).sort()[0]!; const d = new Date(m + "T12:00:00").getDay(); return addDias(m, d === 0 ? -6 : 1 - d); })();
   const finMax = obras.map((o) => { const e = finEstimado(o); return e > o.fechaFinPrevista ? e : o.fechaFinPrevista; }).sort().at(-1)!;
   const semanas = Math.ceil((dd(ini, finMax) + 7) / 7);
