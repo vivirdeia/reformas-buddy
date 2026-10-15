@@ -65,7 +65,7 @@ function faseEn(o: Obra, d: string): FaseTipo | null {
   for (const f of o.fases) if (f.inicioReal && d >= f.inicioReal && (!f.finReal || d <= f.finReal)) return f.tipo;
   return null;
 }
-const mins = (a: string, b: string) => { const [h1, m1] = a.split(":").map(Number); const [h2, m2] = b.split(":").map(Number); return h2 * 60 + m2 - (h1 * 60 + m1); };
+const mins = (a: string, b: string) => { const [h1 = 0, m1 = 0] = a.split(":").map(Number); const [h2 = 0, m2 = 0] = b.split(":").map(Number); return h2 * 60 + m2 - (h1 * 60 + m1); };
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /** Genera partes diarios, fichajes de los últimos 15 días laborables y tareas de hoy. */
@@ -83,7 +83,7 @@ export function generarActividad(db: DB) {
     ops.forEach((op, oi) => {
       const c = enMarcha.filter((o) => o.equipo.operarioIds.includes(op));
       if (!c.length || (di + oi) % 11 === 0) return; // algún día de ausencia
-      (asign[c[(di + oi) % c.length].id] ??= []).push(op);
+      (asign[c[(di + oi) % c.length]!.id] ??= []).push(op);
     });
     const viernes = diaSemana(d) === 5;
     enMarcha.forEach((o, k) => {
@@ -107,9 +107,9 @@ export function generarActividad(db: DB) {
       const pool = FOTOS[fase];
       const nf = (di + k) % 3 === 0 ? 2 : 1;
       o.partesDiarios.push({
-        id: `p-${o.id}-${d}`, fecha: d, autorId: di % 3 === 1 ? pres[0] : o.equipo.jefeId,
-        horas: Math.round((m / 60) * 10) / 10, operarioIds: pres, trabajos: t[(di + k) % t.length],
-        fotos: Array.from({ length: nf }, (_, i) => u(pool[(di + k + i) % pool.length])), fase,
+        id: `p-${o.id}-${d}`, fecha: d, autorId: di % 3 === 1 ? pres[0]! : o.equipo.jefeId,
+        horas: Math.round((m / 60) * 10) / 10, operarioIds: pres, trabajos: t[(di + k) % t.length]!,
+        fotos: Array.from({ length: nf }, (_, i) => u(pool[(di + k + i) % pool.length]!)), fase,
       });
     });
   });
@@ -119,12 +119,12 @@ export function generarActividad(db: DB) {
     if (!f) return;
     TAREAS[f.tipo].forEach((titulo, i) => db.tareas.push({
       id: `t-${o.id}-${i}`, obraId: o.id, fecha: hoy, titulo, fase: f.tipo,
-      operarioId: o.equipo.operarioIds[i % o.equipo.operarioIds.length], hecha: i === 0, hechaEn: i === 0 ? ts(hoy, "09:10") : undefined, creadaPor: o.equipo.jefeId,
+      operarioId: o.equipo.operarioIds[i % o.equipo.operarioIds.length]!, hecha: i === 0, hechaEn: i === 0 ? ts(hoy, "09:10") : undefined, creadaPor: o.equipo.jefeId,
     }));
   });
 
   db.obras.find((o) => o.id === "o-3")?.incidencias.push({
-    id: "i-o3-1", fecha: dias[4], titulo: "Humedad en pared medianera del baño", descripcion: "Al picar aparece mancha de humedad por filtración del vecino. Se avisó al seguro de la comunidad y se reparó la tubería.",
-    gravedad: "media", estado: "resuelta", autorId: "u-op2", fotos: [u(FOTOS.demolicion[0])],
+    id: "i-o3-1", fecha: dias[4]!, titulo: "Humedad en pared medianera del baño", descripcion: "Al picar aparece mancha de humedad por filtración del vecino. Se avisó al seguro de la comunidad y se reparó la tubería.",
+    gravedad: "media", estado: "resuelta", autorId: "u-op2", fotos: [u(FOTOS.demolicion[0]!)],
   });
 }
