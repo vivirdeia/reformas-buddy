@@ -93,7 +93,7 @@ export function DocumentosObra({ o }: { db: DB; o: Obra }) {
               <button onClick={() => setVer(d)} className="flex min-w-0 flex-1 items-center gap-3 text-left" aria-label={`Ver ${d.nombre}`}>
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground"><I className="h-5 w-5" /></span>
                 <span className="min-w-0"><span className="block truncate font-semibold">{d.nombre}</span>
-                  <span className="text-xs text-muted-foreground">{TIPO_DOC[d.tipo]} · {fecha(d.fecha)} · {d.tamano}{!d.archivo && " · ejemplo"}</span></span>
+                  <span className="text-xs text-muted-foreground">{TIPO_DOC[d.tipo]} · {fecha(d.fecha)} · {d.tamano}{!d.archivo && " · sin archivo"}</span></span>
               </button>
               <button onClick={() => toggle(d)} className={cn(btn2, d.visibleCliente === false ? "text-muted-foreground" : "border-ok text-ok")} aria-label={d.visibleCliente === false ? "Mostrar al cliente" : "Ocultar al cliente"}>
                 {d.visibleCliente === false ? <><EyeOff className="h-4 w-4" />Interno</> : <><Eye className="h-4 w-4" />Cliente</>}</button>
@@ -119,7 +119,7 @@ export function DocumentosObra({ o }: { db: DB; o: Obra }) {
         </div>}
       </Modal>
       <Modal open={!!ver} onClose={() => setVer(null)} titulo={ver?.nombre ?? ""}>
-        {ver && (ver.archivo ? <VistaArchivo doc={ver} /> : <p className="text-sm text-muted-foreground">Documento de ejemplo sin archivo. Edítalo para adjuntar el PDF o la imagen real.</p>)}
+        {ver && (ver.archivo ? <VistaArchivo doc={ver} /> : <p className="text-sm text-muted-foreground">Este documento aún no tiene archivo. Edítalo para adjuntar el PDF o la imagen real.</p>)}
       </Modal>
     </section>
   );

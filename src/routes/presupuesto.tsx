@@ -131,7 +131,7 @@ function Presupuesto() {
         ))}
         <label className="flex items-start gap-3 pt-1">
           <input type="checkbox" checked={f.privacidad} onChange={(e) => { set("privacidad", e.target.checked); setErr((x) => ({ ...x, privacidad: "" })); }} className="mt-1 h-6 w-6 accent-primary" />
-          <span className="text-sm">He leído y acepto la política de privacidad. Usaremos tus datos solo para contactarte sobre esta reforma.</span>
+          <span className="text-sm">He leído y acepto la <Link to="/privacidad" target="_blank" className="font-semibold underline">política de privacidad</Link>. Usaremos tus datos solo para contactarte sobre esta reforma.</span>
         </label>
         {err["privacidad"] && <span className="block text-sm font-semibold text-danger">{err["privacidad"]}</span>}
       </div>)}

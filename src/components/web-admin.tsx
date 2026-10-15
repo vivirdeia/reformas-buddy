@@ -100,7 +100,7 @@ export function WebAdmin({ db }: { db: DB }) {
             <li key={o.id + i}><label className="flex min-h-11 items-center gap-3 rounded-xl px-2 hover:bg-muted">
               <input type="checkbox" className="h-5 w-5 accent-primary" checked={!!a.enLanding} onChange={() => togPar(o.id, i)} />
               <img src={a.despues} alt="" className="h-9 w-12 rounded object-cover" /><span className="text-sm"><b>{o.nombre}</b> · {a.estancia}</span></label></li>))}</ul>
-          <label className="flex items-center gap-3 rounded-xl bg-muted p-3 text-sm font-semibold"><input type="checkbox" className="h-5 w-5 accent-primary" checked={w.galeria.mostrarEjemplos} onChange={(e) => up((x) => { x.galeria.mostrarEjemplos = e.target.checked; })} />Mostrar también las 3 obras de ejemplo</label>
+          <label className="flex items-center gap-3 rounded-xl bg-muted p-3 text-sm font-semibold"><input type="checkbox" className="h-5 w-5 accent-primary" checked={w.galeria.mostrarEjemplos} onChange={(e) => up((x) => { x.galeria.mostrarEjemplos = e.target.checked; })} />Mostrar también las 3 obras del portafolio</label>
         </Plegable>
         <Plegable titulo="Cómo trabajamos">
           <T l="Título de pasos" v={w.pasos.titulo} on={(v) => up((x) => { x.pasos.titulo = v; })} />

@@ -12,9 +12,9 @@ export const Route = createFileRoute("/ajustes")({
   head: () => ({
     meta: [
       { title: "Ajustes · Reformas Arnal" }, { name: "robots", content: "noindex, nofollow" },
-      { name: "description", content: "Ajustes de la cuenta, copias de seguridad y datos de demostración de Obria." },
+      { name: "description", content: "Ajustes de la cuenta y copias de seguridad de Reformas Arnal." },
       { property: "og:title", content: "Ajustes · Reformas Arnal" },
-      { property: "og:description", content: "Configuración de Obria para Reformas Arnal." },
+      { property: "og:description", content: "Configuración del área privada de Reformas Arnal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
