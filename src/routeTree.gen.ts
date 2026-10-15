@@ -17,6 +17,7 @@ import { Route as EquipoRouteImport } from './routes/equipo'
 import { Route as HoyRouteImport } from './routes/hoy'
 import { Route as MiReformaRouteImport } from './routes/mi-reforma'
 import { Route as PanelRouteImport } from './routes/panel'
+import { Route as PresupuestoRouteImport } from './routes/presupuesto'
 import { Route as IncidenciaIdRouteImport } from './routes/incidencia.$id'
 import { Route as ObrasIndexRouteImport } from './routes/obras.index'
 import { Route as ObrasIdRouteImport } from './routes/obras.$id'
@@ -64,6 +65,11 @@ const MiReformaRoute = MiReformaRouteImport.update({
 const PanelRoute = PanelRouteImport.update({
   id: '/panel',
   path: '/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PresupuestoRoute = PresupuestoRouteImport.update({
+  id: '/presupuesto',
+  path: '/presupuesto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IncidenciaIdRoute = IncidenciaIdRouteImport.update({
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/hoy': typeof HoyRoute
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
+  '/presupuesto': typeof PresupuestoRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
@@ -134,6 +141,7 @@ export interface FileRoutesByTo {
   '/hoy': typeof HoyRoute
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
+  '/presupuesto': typeof PresupuestoRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   '/hoy': typeof HoyRoute
   '/mi-reforma': typeof MiReformaRoute
   '/panel': typeof PanelRoute
+  '/presupuesto': typeof PresupuestoRoute
   '/incidencia/$id': typeof IncidenciaIdRoute
   '/obras/$id': typeof ObrasIdRoute
   '/orden-nueva/$id': typeof OrdenNuevaIdRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/hoy'
     | '/mi-reforma'
     | '/panel'
+    | '/presupuesto'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/orden-nueva/$id'
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/hoy'
     | '/mi-reforma'
     | '/panel'
+    | '/presupuesto'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/orden-nueva/$id'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/hoy'
     | '/mi-reforma'
     | '/panel'
+    | '/presupuesto'
     | '/incidencia/$id'
     | '/obras/$id'
     | '/orden-nueva/$id'
@@ -228,6 +240,7 @@ export interface RootRouteChildren {
   HoyRoute: typeof HoyRoute
   MiReformaRoute: typeof MiReformaRoute
   PanelRoute: typeof PanelRoute
+  PresupuestoRoute: typeof PresupuestoRoute
   IncidenciaIdRoute: typeof IncidenciaIdRoute
   ObrasIdRoute: typeof ObrasIdRoute
   OrdenNuevaIdRoute: typeof OrdenNuevaIdRoute
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       path: '/panel'
       fullPath: '/panel'
       preLoaderRoute: typeof PanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/presupuesto': {
+      id: '/presupuesto'
+      path: '/presupuesto'
+      fullPath: '/presupuesto'
+      preLoaderRoute: typeof PresupuestoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/incidencia/$id': {
@@ -364,6 +384,7 @@ const rootRouteChildren: RootRouteChildren = {
   HoyRoute: HoyRoute,
   MiReformaRoute: MiReformaRoute,
   PanelRoute: PanelRoute,
+  PresupuestoRoute: PresupuestoRoute,
   IncidenciaIdRoute: IncidenciaIdRoute,
   ObrasIdRoute: ObrasIdRoute,
   OrdenNuevaIdRoute: OrdenNuevaIdRoute,

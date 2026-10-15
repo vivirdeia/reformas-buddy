@@ -4,7 +4,7 @@ import {
   ArrowRight, Bath, Building2, CalendarCheck, Camera, CheckCircle2, ChefHat, ChevronDown, Clock, FileSignature,
   Home, Instagram, Facebook, Linkedin, Mail, MapPin, Phone, ShieldCheck, Star, Wallet, ClipboardList, KeyRound, HardHat,
 } from "lucide-react";
-import { Logo, Foto } from "@/components/obria";
+import { Foto } from "@/components/obria";
 import { Comparador } from "@/components/portal";
 import { useDB } from "@/lib/store";
 import { cn } from "@/lib/utils";
