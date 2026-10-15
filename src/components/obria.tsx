@@ -5,6 +5,7 @@ import { useDB, useSession, user, ROL_LABEL, ESTADO_LABEL } from "@/lib/store";
 import type { DB, EstadoObra, Usuario } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { empresaDe } from "@/lib/empresa";
+import { Atribucion } from "@/components/atribucion";
 
 export function Logo({ light }: { light?: boolean }) {
   const db = useDB();
@@ -101,6 +102,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
             <div className="min-w-0 flex-1"><div className="truncate text-sm font-semibold">{me.nombre}</div><div className="text-xs text-muted-foreground">{ROL_LABEL[me.rol]}</div></div>
             <button onClick={salir} aria-label="Cerrar sesión" className="grid h-10 w-10 place-items-center rounded-full bg-card"><LogOut className="h-4 w-4" /></button>
           </div>
+          <Atribucion className="mt-3 px-1 text-muted-foreground" enlace="text-foreground/80" />
         </aside>
       )}
       <div className={cn(ger && "md:pl-64")}>
@@ -121,6 +123,7 @@ export function AppShell({ children, title, back }: { children: (ctx: { db: DB; 
             </div>
           </header>
           <main className={cn("px-4 pt-4", ger && "md:px-8 md:pt-8")}>{children({ db, me })}</main>
+          <Atribucion className={cn("print:hidden px-4 pb-4 pt-10 text-center text-muted-foreground", ger && "md:hidden")} enlace="text-foreground/80" />
         </div>
       </div>
       <nav className={cn("print:hidden fixed inset-x-0 bottom-0 z-30 border-t bg-card/95 backdrop-blur pb-safe", ger && "md:hidden")}>
