@@ -23,13 +23,15 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Reformas integrales en Madrid · Reformas Arnal" },
       { name: "description", content: "Reformas integrales en Madrid de pisos, cocinas, baños y locales. Sigue tu obra día a día desde el móvil y pide tu presupuesto sin compromiso." },
-      { property: "og:title", content: "Reformas integrales en Madrid · Reformas Arnal" }, { property: "og:url", content: "https://reformas-buddy.lovable.app/" }, { property: "og:locale", content: "es_ES" },
+      { property: "og:title", content: "Reformas integrales en Madrid · Reformas Arnal" }, { property: "og:locale", content: "es_ES" },
       { property: "og:description", content: "Reformas integrales en Madrid con seguimiento diario desde el móvil, cambios firmados y pagos claros." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: OG },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: OG },
+      { property: "og:url", content: "https://reformas-buddy.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://reformas-buddy.lovable.app/" }],
   }),
   component: Landing,
 });

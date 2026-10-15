@@ -17,7 +17,9 @@ export const Route = createFileRoute("/presupuesto")({
       { property: "og:description", content: "Cuéntanos tu reforma en 2 minutos y te llamamos en menos de 24 horas laborables." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:url", content: "https://reformas-buddy.lovable.app/presupuesto" },
     ],
+    links: [{ rel: "canonical", href: "https://reformas-buddy.lovable.app/presupuesto" }],
   }),
   component: Presupuesto,
 });
